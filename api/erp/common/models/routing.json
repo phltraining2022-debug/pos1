@@ -1,0 +1,51 @@
+{
+	"name": "Routing",
+	"plural": "Routings",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"operationId": {
+			"type": "string",
+			"required": true
+		},
+		"workStationId": {
+			"type": "string",
+			"required": true
+		},
+		"sequence": {
+			"type": "number",
+			"required": true
+		},
+		"operationTime": {
+			"type": "number",
+			"required": true
+		},
+		"fixedTime": {
+			"type": "number",
+			"required": true
+		},
+		"operationCode": {
+			"type": "string",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"operation": {
+			"type": "belongsTo",
+			"model": "Operation",
+			"foreignKey": "operationId"
+		},
+		"workStation": {
+			"type": "belongsTo",
+			"model": "WorkStation",
+			"foreignKey": "workStationId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

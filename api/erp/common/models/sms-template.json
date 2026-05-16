@@ -1,0 +1,23 @@
+{
+	"name": "SMSTemplate",
+	"plurla": "SMSTemplates",
+	"base": "AppModel",
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"content": {
+			"type": "string",
+			"required": true
+		},
+		"variables": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

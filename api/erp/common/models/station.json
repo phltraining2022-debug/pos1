@@ -1,0 +1,33 @@
+{
+  "name": "station",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "amountOfTime": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "tests": {
+      "type": "hasMany",
+      "model": "test",
+      "foreignKey": ""
+    },
+    "services": {
+      "type": "hasMany",
+      "model": "service",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

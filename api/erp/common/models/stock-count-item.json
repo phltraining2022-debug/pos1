@@ -1,0 +1,62 @@
+{
+	"name": "StockCountItem",
+	"plural": "StockCountItems",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"stockCountId": {
+			"type": "string",
+			"required": true
+		},
+		"stockItemId": {
+			"type": "string",
+			"required": true
+		},
+		"productId": {
+			"type": "string"
+		},
+		"countedQuantity": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"expectedQuantity": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"difference": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"variancePercentage": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		}
+	},
+	"validations": [],
+	"relations": {
+		"stockCount": {
+			"type": "belongsTo",
+			"model": "StockCount",
+			"foreignKey": "stockCountId"
+		},
+		"stockItem": {
+			"type": "belongsTo",
+			"model": "StockItem",
+			"foreignKey": "stockItemId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		}	
+	},
+	"acls": [],
+	"methods": {}
+}

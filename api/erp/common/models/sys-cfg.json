@@ -1,0 +1,59 @@
+{
+	"name": "SysCfg",
+	"plural": "SysCfgs",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"value": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"isLocked": {
+			"type": "boolean"
+		},
+		"type": {
+			"type": "string"
+		}
+	},
+	"scope": {
+		"include": {
+			"relation": "children",
+			"scope": {
+				"fields": [
+					"id",
+					"name",
+					"value"
+				]
+			}
+		}
+	},
+	"validations": [],
+	"relations": {
+		"parent": {
+			"type": "belongsTo",
+			"model": "SysCfg",
+			"foreignKey": "parentId"
+		},
+		"children": {
+			"type": "hasMany",
+			"model": "SysCfg",
+			"foreignKey": "parentId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,47 @@
+{
+	"name": "StockAdjustment",
+	"plural": "StockAdjustment",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"stockItemId": {
+			"type": "string",
+			"required": true
+		},
+		"quantityAdjusted": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"adjustmentDate": {
+			"type": "date",
+			"required": true,
+			"defaultFn": "now"
+		},
+		"reason": {
+			"type": "string"
+		},
+		"adjustedBy": {
+			"type": "string",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"stockItem": {
+			"type": "belongsTo",
+			"model": "StockItem",
+			"foreignKey": "stockItemId"
+		},
+		"adjuster": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "adjustedBy"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

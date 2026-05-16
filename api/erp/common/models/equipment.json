@@ -1,0 +1,61 @@
+{
+	"name": "Equipment",
+	"plural": "Equipments",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"code": {
+			"type": "string",
+			"unique": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"category": {
+			"type": "string",
+			"required": true,
+			"enum": ["audio", "video", "lighting", "furniture", "other"]
+		},
+		"quantity": {
+			"type": "number",
+			"required": true,
+			"minimum": 0,
+			"default": 1
+		},
+		"purchaseDate": {
+			"type": "date"
+		},
+		"purchasePrice": {
+			"type": "number",
+			"minimum": 0
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"enum": ["good", "maintenance", "broken"],
+			"default": "good"
+		},
+		"notes": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"branch": {
+			"type": "belongsTo",
+			"model": "Branch",
+			"foreignKey": "branchId"
+		},
+        "location": {
+            "type": "belongsTo",
+            "model": "Location",
+            "foreignKey": "locationId"
+        }
+	},
+	"acls": [],
+	"methods": {}
+}

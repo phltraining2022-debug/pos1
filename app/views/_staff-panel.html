@@ -1,0 +1,227 @@
+<!-- ====== STAFF PANEL (slide-in from right) - Shared partial ====== -->
+<div ng-if="staffPanel.show" class="fixed inset-0 z-50 flex items-stretch justify-end">
+    <div ng-click="staffPanel.show = false" class="flex-1 bg-black bg-opacity-50"></div>
+    <div class="w-full max-w-sm bg-white overflow-y-auto shadow-2xl flex flex-col">
+
+        <!-- Panel Header -->
+        <div class="text-white px-5 py-4 flex items-center justify-between flex-shrink-0"
+             ng-class="'bg-' + (staffPanel.accent || 'blue') + '-700'">
+            <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <img ng-if="attendanceTodayRecord && attendanceTodayRecord.checkInPhoto"
+                         ng-src="{{attendanceTodayRecord.checkInPhoto}}"
+                         class="w-12 h-12 rounded-full object-cover border-2 border-white">
+                    <i ng-if="!attendanceTodayRecord || !attendanceTodayRecord.checkInPhoto"
+                       class="fas fa-user-circle text-4xl"></i>
+                    <span ng-if="attendanceTodayRecord && attendanceTodayRecord.checkInTime && !attendanceTodayRecord.checkOutTime"
+                          class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white"></span>
+                </div>
+                <div>
+                    <p class="font-bold text-lg leading-tight">{{currentUser.username}}</p>
+                    <p class="text-sm capitalize opacity-80" ng-if="!attendanceTodayRecord || !attendanceTodayRecord.checkInTime">{{currentUser.role}}</p>
+                    <p class="text-green-300 text-xs font-semibold" ng-if="attendanceTodayRecord && attendanceTodayRecord.checkInTime && !attendanceTodayRecord.checkOutTime">
+                        <i class="fas fa-circle text-xs mr-1"></i>Đang làm · {{getWorkingDuration()}}
+                    </p>
+                    <p class="text-blue-200 text-xs font-semibold" ng-if="attendanceTodayRecord && attendanceTodayRecord.checkOutTime">
+                        <i class="fas fa-check-circle mr-1"></i>Đã về · {{attendanceTodayRecord.durationMinutes}} phút
+                    </p>
+                </div>
+            </div>
+            <button ng-click="staffPanel.show = false" class="opacity-80 hover:opacity-100 p-2">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Hidden camera input -->
+        <input type="file" id="staffCameraInput" accept="image/*" capture="user" style="display:none"
+               onchange="(function(el){ angular.element(el).scope().onPhotoCaptured(el); })(this)">
+
+        <!-- ===== ACCORDION: Chấm Công ===== -->
+        <div class="border-b border-gray-100">
+            <button ng-click="toggleStaffTab('attendance')"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors focus:outline-none"
+                    ng-class="staffPanel.activeTab === 'attendance' ? 'bg-' + (staffPanel.accent || 'blue') + '-50' : ''">
+                <span class="flex items-center font-bold text-gray-800 text-sm">
+                    <span class="w-9 h-9 rounded-full flex items-center justify-center mr-3 flex-shrink-0 text-base"
+                          ng-class="staffPanel.activeTab === 'attendance' ? 'bg-' + (staffPanel.accent || 'blue') + '-600 text-white' : 'bg-' + (staffPanel.accent || 'blue') + '-100 text-' + (staffPanel.accent || 'blue') + '-700'">
+                        <i class="fas fa-fingerprint"></i>
+                    </span>
+                    Chấm công
+                    <span ng-if="attendanceTodayRecord && attendanceTodayRecord.checkInTime && !attendanceTodayRecord.checkOutTime"
+                          class="ml-2 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">Đang làm</span>
+                    <span ng-if="attendanceTodayRecord && attendanceTodayRecord.checkOutTime"
+                          class="ml-2 bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">Hoàn tất</span>
+                </span>
+                <i class="fas text-gray-400 text-sm flex-shrink-0"
+                   ng-class="staffPanel.activeTab === 'attendance' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+
+            <div ng-if="staffPanel.activeTab === 'attendance'" class="px-5 pb-5">
+                <div ng-if="attendanceCapture.status === 'capturing_photo'" class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 text-center">
+                    <i class="fas fa-camera text-yellow-500 text-lg"></i>
+                    <p class="text-yellow-700 text-sm font-semibold mt-1">Đang mở camera...</p>
+                    <p class="text-yellow-600 text-xs mt-0.5">Chụp ảnh để tiếp tục chấm công</p>
+                </div>
+                <div ng-if="attendanceCapture.status === 'capturing_gps'" class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-center">
+                    <i class="fas fa-spinner fa-spin text-blue-500 text-lg"></i>
+                    <p class="text-blue-700 text-sm font-semibold mt-1">Đang lấy vị trí GPS...</p>
+                </div>
+                <div ng-if="attendanceCapture.status === 'error'" class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
+                    <p class="text-red-700 text-sm font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>{{attendanceCapture.locationError || 'Có lỗi xảy ra'}}</p>
+                    <button ng-click="attendanceCapture.status = null; attendanceCapture.pendingAction = null" class="mt-1.5 text-xs text-red-600 underline">Đóng</button>
+                </div>
+
+                <!-- Not checked in -->
+                <div ng-if="!attendanceTodayRecord || !attendanceTodayRecord.checkInTime">
+                    <button ng-click="checkIn()" ng-disabled="attendanceCapture.status && attendanceCapture.status !== 'error'"
+                            class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white py-3.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 disabled:opacity-60">
+                        <i class="fas" ng-class="attendanceCapture.status === 'capturing_gps' ? 'fa-spinner fa-spin' : 'fa-sign-in-alt'"></i>
+                        <span>{{(attendanceCapture.status && attendanceCapture.status !== 'error') ? 'Đang xử lý...' : 'Chấm công vào'}}</span>
+                    </button>
+                </div>
+                <!-- Checked in, not out -->
+                <div ng-if="attendanceTodayRecord && attendanceTodayRecord.checkInTime && !attendanceTodayRecord.checkOutTime">
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-3 mb-3">
+                        <p class="text-green-700 font-semibold text-sm">
+                            <i class="fas fa-check-circle mr-1"></i>Vào lúc: {{attendanceTodayRecord.checkInTime | date:'HH:mm'}}
+                        </p>
+                        <p ng-if="attendanceTodayRecord.checkInLocation" class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-location-dot mr-1"></i>GPS vào đã ghi nhận
+                        </p>
+                        <p class="text-green-600 text-sm mt-1">
+                            <i class="fas fa-hourglass-half mr-1"></i>Đang làm: {{getWorkingDuration()}}
+                        </p>
+                    </div>
+                    <button ng-click="checkOut()" ng-disabled="attendanceCapture.status && attendanceCapture.status !== 'error'"
+                            class="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 text-white py-3.5 rounded-xl font-bold transition-all flex items-center justify-center space-x-2 disabled:opacity-60">
+                        <i class="fas" ng-class="attendanceCapture.status === 'capturing_gps' ? 'fa-spinner fa-spin' : 'fa-sign-out-alt'"></i>
+                        <span>{{(attendanceCapture.status && attendanceCapture.status !== 'error') ? 'Đang xử lý...' : 'Chấm công ra'}}</span>
+                    </button>
+                </div>
+                <!-- Completed -->
+                <div ng-if="attendanceTodayRecord && attendanceTodayRecord.checkOutTime">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-check-double text-blue-500 text-2xl mb-2"></i>
+                        <p class="text-blue-700 font-bold">Đã hoàn thành ca hôm nay</p>
+                        <p class="text-blue-600 text-sm mt-1">Vào {{attendanceTodayRecord.checkInTime | date:'HH:mm'}} → Ra {{attendanceTodayRecord.checkOutTime | date:'HH:mm'}}</p>
+                        <p class="text-blue-500 text-sm font-semibold">Tổng: {{attendanceTodayRecord.durationMinutes}} phút</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ACCORDION: Yêu cầu nghỉ phép ===== -->
+        <div class="border-b border-gray-100">
+            <button ng-click="toggleStaffTab('leave')"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors focus:outline-none"
+                    ng-class="{'bg-blue-50': staffPanel.activeTab === 'leave'}">
+                <span class="flex items-center font-bold text-gray-800 text-sm">
+                    <span class="w-9 h-9 rounded-full flex items-center justify-center mr-3 flex-shrink-0 text-base"
+                          ng-class="staffPanel.activeTab === 'leave' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'">
+                        <i class="fas fa-calendar-plus"></i>
+                    </span>
+                    Yêu cầu nghỉ phép
+                </span>
+                <i class="fas text-gray-400 text-sm flex-shrink-0"
+                   ng-class="staffPanel.activeTab === 'leave' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div ng-if="staffPanel.activeTab === 'leave'" class="px-5 pb-5 space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Từ ngày</label>
+                        <input type="date" ng-model="leaveForm.startDate"
+                               style="-webkit-appearance: none; font-size: 16px;"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Đến ngày</label>
+                        <input type="date" ng-model="leaveForm.endDate"
+                               style="-webkit-appearance: none; font-size: 16px;"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Loại nghỉ</label>
+                    <div class="relative">
+                        <select ng-model="leaveForm.type"
+                                style="-webkit-appearance: none; font-size: 16px;"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 bg-white appearance-none pr-9">
+                            <option value="">-- Chọn loại --</option>
+                            <option value="personal">Việc cá nhân</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Lý do</label>
+                    <textarea ng-model="leaveForm.reason" rows="3" placeholder="Mô tả lý do (tuỳ chọn)..."
+                              style="font-size: 16px;"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none text-gray-800 bg-white"></textarea>
+                </div>
+                <button ng-click="submitLeaveRequest()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-paper-plane"></i><span>Gửi yêu cầu</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== ACCORDION: Lịch sử nghỉ phép ===== -->
+        <div>
+            <button ng-click="toggleStaffTab('history')"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors focus:outline-none"
+                    ng-class="{'bg-gray-50': staffPanel.activeTab === 'history'}">
+                <span class="flex items-center font-bold text-gray-800 text-sm">
+                    <span class="w-9 h-9 rounded-full flex items-center justify-center mr-3 flex-shrink-0 text-base"
+                          ng-class="staffPanel.activeTab === 'history' ? 'bg-gray-600 text-white' : 'bg-gray-100 text-gray-600'">
+                        <i class="fas fa-clock-rotate-left"></i>
+                    </span>
+                    Lịch sử nghỉ phép
+                    <span ng-if="myLeaves.length > 0" class="ml-2 bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">{{myLeaves.length}}</span>
+                </span>
+                <i class="fas text-gray-400 text-sm flex-shrink-0"
+                   ng-class="staffPanel.activeTab === 'history' ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div ng-if="staffPanel.activeTab === 'history'" class="px-5 pb-6">
+                <div class="space-y-2">
+                    <div ng-repeat="leave in myLeaves | limitTo:10"
+                         class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-800">
+                                    <span ng-if="leave.startDate === leave.endDate">ngày {{leave.startDate | moment:'DD/MM'}}</span>
+                                    <span ng-if="leave.startDate !== leave.endDate">từ {{leave.startDate | moment:'DD/MM'}} đến {{leave.endDate | moment:'DD/MM'}}</span>
+                                </p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    <span ng-if="leave.type === 'annual'">Phép năm</span>
+                                    <span ng-if="leave.type === 'sick'">Nghỉ bệnh</span>
+                                    <span ng-if="leave.type === 'personal'">Việc cá nhân</span>
+                                    <span ng-if="leave.type === 'unpaid'">Không lương</span>
+                                    <span ng-if="leave.reason" class="text-gray-400"> · {{leave.reason}}</span>
+                                </p>
+                            </div>
+                            <span class="text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 flex items-center space-x-1"
+                                  ng-class="leave.status === 'approved' ? 'bg-green-100 text-green-700' : leave.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'">
+                                <i ng-if="leave.status === 'approved'" class="fas fa-check"></i>
+                                <i ng-if="leave.status === 'rejected'" class="fas fa-times"></i>
+                                <i ng-if="leave.status === 'pending'" class="fas fa-clock"></i>
+                                <span ng-if="leave.status === 'approved'">Duyệt</span>
+                                <span ng-if="leave.status === 'rejected'">Từ chối</span>
+                                <span ng-if="leave.status === 'pending'">Chờ</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div ng-if="myLeaves.length === 0" class="text-center py-8 text-gray-400">
+                        <i class="fas fa-calendar-xmark text-3xl mb-2 block opacity-40"></i>
+                        <p class="text-sm">Chưa có lịch sử</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Version Footer -->
+        <div class="mt-auto px-5 py-3 border-t border-gray-100 text-center flex-shrink-0">
+            <p class="text-xs text-gray-400">Phiên bản <span class="font-mono font-semibold text-gray-500">v{{appVersion}}</span></p>
+        </div>
+
+    </div>
+</div>

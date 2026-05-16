@@ -1,0 +1,11 @@
+{
+	"name": "EventNews",
+	"plural": "EventNews",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string"
+		}
+	}
+}

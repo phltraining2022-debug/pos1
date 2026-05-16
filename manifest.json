@@ -1,0 +1,25 @@
+{
+  "name": "Karaoke Management System",
+  "short_name": "Kara POS",
+  "description": "Hệ thống quản lý Karaoke thông minh",
+  "start_url": "/builder-1/kara2/",
+  "scope": "/builder-1/kara2/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#1f2937",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/builder-1/kara2/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/builder-1/kara2/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

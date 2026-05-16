@@ -1,0 +1,105 @@
+{
+	"name": "MaterialRequest",
+	"plural": "MaterialRequests",
+	"base": "AppModel",
+	"description": "Material request for events/contracts - aggregates materials needed from multiple contracts",
+	"properties": {
+		"code": {
+			"type": "string",
+			"description": "Material request code (e.g., MR-2025-001)"
+		},
+		"name": {
+			"type": "string",
+			"description": "Material request name"
+		},
+		"description": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string",
+			"default": "draft",
+			"enum": [
+				"draft",
+				"submitted",
+				"approved",
+				"rejected",
+				"completed"
+			]
+		},
+		"requestedById": {
+			"type": "string",
+			"description": "Employee who requested materials"
+		},
+		"approvedById": {
+			"type": "string",
+			"description": "Employee who approved the request"
+		},
+		"rejectedById": {
+			"type": "string",
+			"description": "Employee who rejected the request"
+		},
+		"approvedAt": {
+			"type": "date",
+			"description": "When the request was approved"
+		},
+		"rejectedAt": {
+			"type": "date",
+			"description": "When the request was rejected"
+		},
+		"materialsSummary": {
+			"type": "array",
+			"default": [],
+			"description": "Computed materials summary with quantities and availability"
+		},
+		"purchaseRequestsBySupplier": {
+			"type": "array",
+			"default": [],
+			"description": "Materials grouped by supplier for purchasing"
+		},
+		"materialsGrouped": {
+			"type": "array",
+			"default": [],
+			"description": "Materials grouped by category"
+		},
+		"total": {
+			"type": "number",
+			"default": 0,
+			"description": "Total estimated cost"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"requestedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "requestedById"
+		},
+		"approvedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "approvedById"
+		},
+		"rejectedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "rejectedById"
+		},
+		"purchaseRequest": {
+			"type": "belongsTo",
+			"model": "PurchaseRequest",
+			"foreignKey": "purchaseRequestId"
+		},
+		"contracts": {
+			"type": "referencesMany",
+			"model": "contract",
+			"foreignKey": "contractIds"
+		},
+        "purchaseOrders": {
+			"type": "hasMany",
+			"model": "PurchaseOrder",
+			"foreignKey": "materialRequestId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

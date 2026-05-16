@@ -1,0 +1,35 @@
+{
+	"name": "MedicalHistoryAnswer",
+	"plural": "MedicalHistoryAnswers",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"patientId": {
+			"type": "string"
+		},
+		"answers": {
+			"type": "string"
+		},
+		"clinicId": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"clinic": {
+			"type": "belongsTo",
+			"model": "clinic",
+			"foreignKey": "clinicId"
+		},
+		"patient": {
+			"type": "belongsTo",
+			"model": "patient",
+			"foreignKey": "patientId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

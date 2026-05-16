@@ -1,0 +1,321 @@
+
+
+server {
+       listen 443 ssl http2;
+
+       server_name giason.test.live1.vn;
+
+       ssl_certificate  /etc/letsencrypt/live/test.live1.vn/fullchain.pem;
+       ssl_certificate_key  /etc/letsencrypt/live/test.live1.vn/privkey.pem;
+
+       root /var/www/erp;
+
+    location  ^~ /static/ { 
+        alias /home/ubuntu/ats/api/storage/static/;
+        break;
+     }
+
+    
+     location  ^~ /build/ {
+        alias /var/www/erp/build/;
+        break;
+     }
+
+
+      location = /xa_/ {
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=index&modelName=clinic&filter={"where":{"domain":"$subdomain.test.live1.vn"}}';
+        proxy_pass $proxy_target;
+        proxy_set_header  Host $host;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+     }
+  
+     location = /xad_/ {
+        set $proxy_target 'https://cdn.live1.vn/xadmin-giason.html';
+        proxy_pass $proxy_target;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+     }
+
+     location = /mad_/ {
+    proxy_pass https://cdn.live1.vn/mobile-erp/;
+
+    proxy_intercept_errors on;
+    
+    error_page 404 = /mad_/index.html;
+
+    # 3. Sửa lại các header
+    proxy_set_header Host cdn.live1.vn; # Báo cho CDN biết bạn muốn truy cập host nào
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host; # Giữ nguyên host gốc mà người dùng truy cập
+        break;
+    }
+
+     location ^~ /wss/ {
+        proxy_pass http://localhost:30000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 60s;
+     }
+ 
+ 
+    location ^~ /api/ {
+        proxy_pass http://127.0.0.1:20002;
+	proxy_set_header  Host $host;
+    	proxy_set_header  X-Real-IP $remote_addr;
+    	proxy_set_header  X-Forwarded-Proto https;
+    	proxy_set_header  X-Forwarded-For $remote_addr;
+   	proxy_set_header  X-Forwarded-Host $remote_addr;
+        break;
+  
+     }
+
+    location = /news2/(?<category>[^/]+)$ {
+        set $custom_query_string $args;
+
+        set $proxy_target 'http://127.0.0.1:$port/api/pdf?html=true&template=news-category&modelName=news&filter={"where":{"category":"$category"}}';
+        if ($custom_query_string) {
+            set $proxy_target 'http://127.0.0.1:$port/api/pdf?html=true&template=news-category&modelName=news&filter={"where":{"category":"$category"}}&$custom_query_string';
+        }
+
+
+
+        proxy_pass $proxy_target;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header from-public-site $host;
+
+         # Capture the original URL with the query string
+        set $originalUrl $request_uri;
+
+        # Set the custom header with the original URL
+        proxy_set_header X-Category $category;
+        proxy_set_header original-url $request_uri;
+
+     }
+
+       location = / {
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=home&modelName=clinic&filter={"where":{}}';
+        proxy_pass $proxy_target;
+        proxy_set_header  Host $host;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+        proxy_set_header  from-public-site $host;
+     }
+
+     location = /robots.txt {
+    add_header Content-Type text/plain;
+    return 200 "User-agent: *\nDisallow: /\n";
+}
+
+    location  ^~ /xa_/ {
+        alias /var/www/erp/;
+        break;
+     }
+
+     location /ckfinder {
+        proxy_pass https://ats.org.vn;
+        proxy_set_header  Host $host;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+     }
+
+     location ~ ^/(?<model>[^/]+)/?$ {     
+        set $custom_query_string $args;
+
+    # Construct the proxy target with the query string included
+    set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$model&modelName=$model&filter={"where":{}}';
+    if ($custom_query_string) {
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$model&modelName=$model&filter={"where":{}}&$custom_query_string';
+    }
+
+
+
+        proxy_pass $proxy_target;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header from-public-site $host;
+
+         # Capture the original URL with the query string
+        set $originalUrl $request_uri;
+
+        # Set the custom header with the original URL
+        proxy_set_header originalUrl $originalUrl;
+        proxy_set_header original-url $request_uri;
+        proxy_set_header X-Category $model;
+     }
+
+
+     location ~ ^/ecommerce/(?<category>[^/]+)/(?<subcategory>[^/]+)/?$ { 
+        set $custom_query_string $args;
+
+    # Construct the proxy target with the query string included
+    set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$category&modelName=$subcategory&filter={"where":{}}';
+    if ($custom_query_string) {
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$category&modelName=$subcategory&filter={"where":{}}&$custom_query_string';
+    }
+
+     
+        
+        proxy_pass $proxy_target; 
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header from-public-site $host;
+
+         # Capture the original URL with the query string
+        set $originalUrl $request_uri;
+
+        # Set the custom header with the original URL
+        proxy_set_header X-Category $category;
+        proxy_set_header X-Subcategory $subcategory;
+        proxy_set_header original-url $request_uri;
+
+     }
+
+
+
+location ~ ^/(?<category>[^/]+)/(?<subcategory>[^/]+)/(?<ptype>[^/]+)/?$ {
+        set $custom_query_string $args;
+
+    # Construct the proxy target with the query string included
+    set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$category&modelName=$subcategory&filter={"where":{}}';
+    if ($custom_query_string) {
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$category&modelName=$subcategory&filter={"where":{}}&$custom_query_string';
+    }
+
+
+
+        proxy_pass $proxy_target;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header from-public-site $host;
+
+         # Capture the original URL with the query string
+        set $originalUrl $request_uri;
+
+        # Set the custom header with the original URL
+        proxy_set_header X-Category $category;
+        proxy_set_header X-Subcategory $subcategory;
+        proxy_set_header X-Type $ptype;
+        proxy_set_header original-url $request_uri;
+
+     }
+
+     location ~ ^/ecommerce/(?<category>[^/]+)/?$ {
+        set $custom_query_string $args;
+
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$category&modelName=$category&filter={"where":{}}';
+        if ($custom_query_string) {
+            set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$category&modelName=$category&filter={"where":{}}&$custom_query_string';
+        }
+
+
+
+        proxy_pass $proxy_target;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header from-public-site $host;
+
+         # Capture the original URL with the query string
+        set $originalUrl $request_uri;
+
+        # Set the custom header with the original URL
+        proxy_set_header X-Category $category;
+        proxy_set_header original-url $request_uri;
+
+     }
+
+
+     location /student-api/ {
+        #proxy_pass https://ats.prod.live1.vn/api/;
+        proxy_set_header  Host $host;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+        proxy_set_header  from-public-site $host;
+     }
+
+    location ~ "^/(?<base_name_path>.*)\-(?<serialNo>[A-Z0-9]{6,18})$" {
+    set $custom_query_string $args;
+
+    set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=Product-detail&modelName=Product&filter={"where":{"or":[{"serialNo":"$serialNo"},{"id":"$serialNo"}]}}';
+    proxy_pass $proxy_target;
+    proxy_set_header Host $host;
+    proxy_set_header from-public-site $host; # Your custom header
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme; # Use $scheme for http/https
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; # Appends to existing X-Forwarded-For
+    proxy_set_header X-Forwarded-Host $host; # Original host requested by client
+}
+
+
+
+     location ~ ^/(?<model>[^/]+)/(?<item_name>[^/]+)$ {  
+        set $custom_query_string $args;
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$model-detail&modelName=$model&item=$item_name&filter={"where":{"or":[{"slug":"$item_name"},{"id":"$item_name"}]}}&$custom_query_string';
+        proxy_pass $proxy_target;
+        set $originalUrl $request_uri;
+        proxy_set_header  Host $host;
+        proxy_set_header original-url $request_uri;
+	proxy_set_header  from-public-site $host;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+        proxy_set_header X-Category $model;
+        proxy_set_header X-Subcategory $item_name;     
+
+}
+
+
+location ~ ^/en/(?<model>[^/]+)/(?<item_name>[^/]+)$ {
+        set $custom_query_string $args;
+        set $proxy_target 'http://127.0.0.1:20002/api/pdf?html=true&template=$model-detail&modelName=$model&item=$item_name&filter={"where":{"or":[{"slug":"$item_name"},{"id":"$item_name"}]}}&$custom_query_string';
+        proxy_pass $proxy_target;
+        proxy_set_header  Host $host;
+        proxy_set_header  from-public-site $host;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+     } 
+
+
+}
+
+server {
+    server_name ~^(?<subdomain>.+).test.live1.vn;
+    return 301 https://$host$request_uri;
+    listen 80;
+}
+

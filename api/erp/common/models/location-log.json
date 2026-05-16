@@ -1,0 +1,45 @@
+{
+	"name": "LocationLog",
+	"plural": "LocationLogs",
+	"base": "PersistedModel",
+	"properties": {
+		"employeeId": {
+			"type": "string",
+			"description": "ID of the employee being tracked"
+		},
+		"userId": {
+			"type": "string",
+			"description": "ID of the user being tracked"
+		},
+		"location": {
+			"type": "GeoPoint",
+			"description": "Geographical point with latitude and longitude",
+			"required": true
+		},
+		"speed": {
+			"type": "number",
+			"description": "Speed of the employee in meters per second (or preferred unit)"
+		},
+		"heading": {
+			"type": "number",
+			"description": "Direction the employee is moving, in degrees (0 to 360)"
+		},
+		"timestamp": {
+			"type": "date",
+			"defaultFn": "now",
+			"description": "Timestamp when the location was logged"
+		}
+	},
+	"relations": {
+		"employee": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "employeeId"
+		},
+		"user": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "userId"
+		}
+	}
+}

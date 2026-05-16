@@ -1,0 +1,48 @@
+{
+  "name": "karaoke-pos-system",
+  "version": "1.0.0",
+  "description": "Hệ thống quản lý Karaoke thông minh - PWA với AngularJS 1.8.2 và Tailwind CSS",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "start:node": "http-server -p 8000 -c-1",
+    "start:php": "php -S localhost:8000",
+    "start:wss": "node wss.js",
+    "build": "node build.js"
+  },
+  "keywords": [
+    "karaoke",
+    "pos",
+    "pwa",
+    "angularjs",
+    "tailwind",
+    "restaurant",
+    "management"
+  ],
+  "author": "Builder-1 Team",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-replace": "^1.1.4",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "redis": "^5.10.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/karaoke-pos"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/karaoke-pos/issues"
+  },
+  "homepage": "https://github.com/yourusername/karaoke-pos#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

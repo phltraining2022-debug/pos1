@@ -1,0 +1,30 @@
+{
+	"name": "ServiceCategory",
+	"plural": "ServiceCategories",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"parentId": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"parent": {
+			"type": "belongsTo",
+			"model": "ServiceCategory",
+			"foreignKey": "parentId"
+		},
+		"subCategories": {
+			"type": "hasMany",
+			"model": "ServiceCategory",
+			"foreignKey": "parentId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

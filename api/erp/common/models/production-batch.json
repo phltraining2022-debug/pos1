@@ -1,0 +1,47 @@
+{
+  "name": "ProductionBatch",
+  "base": "AppModel",
+  "plural": "ProductionBatches",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "batchCode": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "A unique identifier for the production batch, e.g., LSX-SGN12-20250627-01."
+    },
+    "productionDate": {
+      "type": "date",
+      "required": true,
+      "description": "The date when this batch was produced."
+    },
+    "quantity": {
+      "type": "number",
+      "required": true,
+      "description": "The exact number of units (bottles) produced in this batch."
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "PLANNED",
+      "description": "The current status of the batch, e.g., PLANNED, CODES_GENERATED, SHIPPED, COMPLETED."
+    }
+  },
+  "validations": [],
+  "relations": {
+    "product": {
+      "type": "belongsTo",
+      "model": "Product",
+      "foreignKey": "productId"
+    },
+    "redemptionCodes": {
+      "type": "hasMany",
+      "model": "RedemptionCode",
+      "foreignKey": "productionBatchId"
+    }
+  },
+  "methods": {}
+}

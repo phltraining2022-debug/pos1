@@ -1,0 +1,66 @@
+{
+	"name": "WorkOrder",
+	"plural": "workOrders",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"planNumber": {
+			"type": "string"
+		},
+		"postingDate": {
+			"type": "date"
+		},
+		"productId": {
+			"type": "number"
+		},
+		"quantity": {
+			"type": "number"
+		},
+		"licensePlate": {
+			"type": "string"
+		},
+		"visitId": {
+			"type": "string"
+		},
+		"visitDate": {
+			"type": "date"
+		},
+		"vehicleModel": {
+			"type": "string"
+		},
+		"customerName": {
+			"type": "string"
+		},
+		"phoneNumber": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"visit": {
+			"type": "belongsTo",
+			"model": "Visit",
+			"foreignKey": "visitId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

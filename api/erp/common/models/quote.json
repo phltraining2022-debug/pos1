@@ -1,0 +1,70 @@
+{
+	"name": "Quote",
+	"plural": "Quotes",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"orderId": {
+			"type": "string"
+		},
+		"leadId": {
+			"type": "string"
+		},
+		"quoteDate": {
+			"type": "date"
+		},
+		"invoiceDate": {
+			"type": "date"
+		},
+		"visitId": {
+			"type": "string"
+		},
+		"licensePlate": {
+			"type": "string"
+		},
+		"customerId": {
+			"type": "string"
+		},
+		"customerName": {
+			"type": "string"
+		},
+		"totalAmount": {
+			"type": "number"
+		},
+		"amountToPay": {
+			"type": "number"
+		},
+		"paidAmount": {
+			"type": "number"
+		},
+		"note": {
+			"type": "string"
+		},
+		"updatedAt": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"visit": {
+			"type": "belongsTo",
+			"model": "Visit",
+			"foreignKey": "visitId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

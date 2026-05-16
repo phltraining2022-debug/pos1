@@ -1,0 +1,15 @@
+{
+	"name": "Level",
+	"plural": "Levels",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": false,
+			"index": {
+				"unique": true
+			}
+		}
+	}
+}

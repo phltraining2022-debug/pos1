@@ -1,0 +1,47 @@
+{
+  "name": "bank",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "contacts": {
+      "type": [
+        "object"
+      ]
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "bankAccounts": {
+      "type": [
+        "object"
+      ]
+    },
+    "address": {
+      "type": "object"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "bankAccounts": {
+      "type": "hasMany",
+      "model": "bankAccount",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

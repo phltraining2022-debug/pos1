@@ -1,0 +1,28 @@
+{
+  "_comment": "========== Keys cho Nunjucks filter (text động) ==========",
+  
+  "welcome": "Chào mừng đến với Mangline Hills",
+  "greeting": "Xin chào, {{name}}",
+  "items_count": "Có {{count}} sản phẩm",
+  "price": "Giá: {{price}} VNĐ",
+  "order_status_pending": "Đang chờ xử lý",
+  "order_status_completed": "Đã hoàn thành",
+  
+  "_comment2": "========== Exact text cho auto-translate (text static) ==========",
+  
+  "Tinh hoa Đà Lạt – <br />Hương vị vĩnh cửu": "Tinh hoa Đà Lạt – <br />Hương vị vĩnh cửu",
+  "Mỗi ngụm rượu mang theo hương vị sâu lắng, ấm áp, phản chiếu sự tinh tế và đẳng cấp vượt thời gian.": "Mỗi ngụm rượu mang theo hương vị sâu lắng, ấm áp, phản chiếu sự tinh tế và đẳng cấp vượt thời gian.",
+  "KHÁM PHÁ NGAY": "KHÁM PHÁ NGAY",
+  "ABOUT US": "VỀ CHÚNG TÔI",
+  "Khi Hương Vị Kể Chuyện": "Khi Hương Vị Kể Chuyện",
+  "KHÁM PHÁ THÊM": "KHÁM PHÁ THÊM",
+  "KHÁM PHÁ": "KHÁM PHÁ",
+  "Bộ Sưu Tập Rượu Hảo Hạng": "Bộ Sưu Tập Rượu Hảo Hạng",
+  "Mangline Hills Cool Mint": "Mangline Hills Cool Mint",
+  "Mangline Hills Classic": "Mangline Hills Classic",
+  "Mangline Hills Cinnamon": "Mangline Hills Cinnamon",
+  "Sự bùng nổ tươi mát trong từng tầng hương vị": "Sự bùng nổ tươi mát trong từng tầng hương vị",
+  "Hương vị nguyên bản, lưu giữ dấu ấn thời gian": "Hương vị nguyên bản, lưu giữ dấu ấn thời gian",
+  "Biểu hiện táo bạo của hương vị và lửa": "Biểu hiện táo bạo của hương vị và lửa"
+}
+

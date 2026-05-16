@@ -1,0 +1,36 @@
+{
+	"name": "Quotation",
+	"plural": "Quotations",
+	"base": "SaleOrder",
+	"idInjection": true,
+	"properties": {
+		"totalEstimate": {
+			"type": "number",
+			"required": true
+		},
+		"validUntil": {
+			"type": "date",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"items": {
+			"type": "hasMany",
+			"model": "SaleOrderItem",
+			"foreignKey": "saleOrderId"
+		},
+		"productItems": {
+			"type": "hasMany",
+			"model": "SaleOrderItem",
+			"foreignKey": "saleOrderId"
+		},
+		"serviceItems": {
+			"type": "hasMany",
+			"model": "SaleOrderItem",
+			"foreignKey": "saleOrderId"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

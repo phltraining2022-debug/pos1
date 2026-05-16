@@ -1,0 +1,38 @@
+{
+    "name": "Salary",
+    "plural": "salaries",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true
+    },
+    "properties": {
+      "id": {
+        "type": "number",
+        "id": true,
+        "generated": true
+      },
+      "employeeId": {
+        "type": "number",
+        "required": true
+      },
+      "amount": {
+        "type": "number",
+        "required": true
+      },
+      "paidDate": {
+        "type": "date",
+        "required": true
+      }
+    },
+    "validations": [],
+    "relations": {
+      "employee": {
+        "type": "belongsTo",
+        "model": "Employee",
+        "foreignKey": "employeeId"
+      }
+    },
+    "acls": [],
+    "methods": {}
+  }

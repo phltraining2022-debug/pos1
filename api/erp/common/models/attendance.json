@@ -1,0 +1,121 @@
+{
+  "name": "Attendance",
+  "base": "AppModel",
+  "plural": "Attendances",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "description": "Ngày chấm công"
+    },
+    "checkIn": {
+      "type": "date",
+      "required": false,
+      "description": "Thời gian check-in"
+    },
+    "checkOut": {
+      "type": "date",
+      "required": false,
+      "description": "Thời gian check-out"
+    },
+    "checkInLocation": {
+      "type": "object",
+      "required": false,
+      "description": "Vị trí GPS khi check-in"
+    },
+    "checkOutLocation": {
+      "type": "object",
+      "required": false,
+      "description": "Vị trí GPS khi check-out"
+    },
+    "checkInPhoto": {
+      "type": "string",
+      "required": false,
+      "description": "Ảnh selfie khi check-in"
+    },
+    "checkOutPhoto": {
+      "type": "string",
+      "required": false,
+      "description": "Ảnh selfie khi check-out"
+    },
+    "workHours": {
+      "type": "number",
+      "required": false,
+      "description": "Số giờ làm việc (tính tự động)"
+    },
+    "status": {
+      "type": "string",
+      "required": false,
+      "default": "present",
+      "enum": [
+        "present",
+        "late",
+        "absent",
+        "leave"
+      ],
+      "description": "Trạng thái: present, late, absent, leave"
+    },
+    "shiftId": {
+      "type": "string",
+      "required": false,
+      "description": "ID ca làm việc"
+    },
+    "notes": {
+      "type": "string",
+      "required": false,
+      "description": "Ghi chú"
+    },
+    "isLate": {
+      "type": "boolean",
+      "default": false,
+      "description": "Có đi muộn không"
+    },
+    "lateMinutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Số phút đi muộn"
+    },
+    "isEarlyLeave": {
+      "type": "boolean",
+      "default": false,
+      "description": "Có về sớm không"
+    },
+    "earlyLeaveMinutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Số phút về sớm"
+    },
+    "approvedAt": {
+      "type": "date",
+      "required": false,
+      "description": "Thời gian phê duyệt"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId"
+    },
+    "shift": {
+      "type": "belongsTo",
+      "model": "Shift",
+      "foreignKey": "shiftId"
+    },
+    "clinic": {
+      "type": "belongsTo",
+      "model": "clinic",
+      "foreignKey": "clinicId"
+    },
+    "approvedBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "approvedById"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+
+server {
+       listen 443 ssl http2;
+
+       server_name kara.test.live1.vn;
+       set $subdomain "kara";
+
+       ssl_certificate  /etc/letsencrypt/live/test.live1.vn/fullchain.pem;
+       ssl_certificate_key  /etc/letsencrypt/live/test.live1.vn/privkey.pem;
+
+       root /var/www/erp;
+
+       set $should_redirect 0;
+
+       # 2. Thêm resolver để Nginx phân giải tên miền khi dùng biến trong proxy_pass
+       resolver 8.8.8.8 1.1.1.1 valid=30s;
+
+  
+     location = /xad_/ {
+        set $proxy_target 'https://cdn.live1.vn/xadmin-kara.html';
+        proxy_pass $proxy_target;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $remote_addr;
+     }
+
+     location ^~ /xad2_/ {
+        proxy_pass https://cdn.live1.vn/builder-1/xad/;
+        proxy_set_header Host cdn.live1.vn;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-Proto https;
+        proxy_set_header  X-Forwarded-For $remote_addr;
+        proxy_set_header  X-Forwarded-Host $host;
+     }
+
+     location = /mad_/ {
+    proxy_pass https://cdn.live1.vn/mobile-erp/;
+
+    proxy_intercept_errors on;
+    
+    error_page 404 = /mad_/index.html;
+
+    # 3. Sửa lại các header
+    proxy_set_header Host cdn.live1.vn; # Báo cho CDN biết bạn muốn truy cập host nào
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host; # Giữ nguyên host gốc mà người dùng truy cập
+    }
+ 
+ 
+    location ^~ /api/ {
+        proxy_pass http://127.0.0.1:33000;
+	proxy_set_header  Host $host;
+    	proxy_set_header  X-Real-IP $remote_addr;
+    	proxy_set_header  X-Forwarded-Proto https;
+    	proxy_set_header  X-Forwarded-For $remote_addr;
+   	proxy_set_header  X-Forwarded-Host $remote_addr;
+  
+     }
+    
+    location  ^~ /xa_/ {
+        alias /var/www/erp/;
+        break;
+     }
+
+}
+
+
+server {
+    server_name kara.test.live1.vn;
+    return 301 https://$host$request_uri;
+    listen 80;
+}

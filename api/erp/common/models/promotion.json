@@ -1,0 +1,93 @@
+{
+	"name": "Promotion",
+	"plural": "Promotions",
+	"base": "AppModel",
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"startDate": {
+			"type": "date"
+		},
+		"endDate": {
+			"type": "date"
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"discountType": {
+			"type": "string"
+		},
+		"discountValue": {
+			"type": "number"
+		},
+		"buyQuantity": {
+			"type": "number"
+		},
+		"getQuantity": {
+			"type": "number"
+		},
+		"getProductId": {
+			"type": "string"
+		},
+		"promoCode": {
+			"type": "string"
+		},
+		"maxApplicable": {
+			"type": "number"
+		},
+		"minPurchaseAmount": {
+			"type": "number"
+		},
+		"maxDiscountValue": {
+			"type": "number"
+		},
+		"tieredDiscounts": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"minAmount": {
+						"type": "number"
+					},
+					"discount": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		"active": {
+			"type": "boolean"
+		}
+	},
+	"relations": {
+		"products": {
+			"type": "referencesMany",
+			"model": "Product",
+			"foreignKey": "productIds"
+		},
+		"productCategories": {
+			"type": "referencesMany",
+			"model": "Cfg",
+			"foreignKey": "categoryIds"
+		},
+		"productGroups": {
+			"type": "referencesMany",
+			"model": "Cfg",
+			"foreignKey": "groupIds"
+		},
+		"productTypes": {
+			"type": "referencesMany",
+			"model": "Cfg",
+			"foreignKey": "typeIds"
+		},
+		"customerGroups": {
+			"type": "referencesMany",
+			"model": "Cfg",
+			"foreignKey": "customerGroupIds"
+		}
+	}
+}

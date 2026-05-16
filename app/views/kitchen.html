@@ -1,0 +1,109 @@
+<!-- Kitchen Display System - Mobile Optimized -->
+<div class="min-h-screen bg-gray-900 flex flex-col">
+    <!-- Compact Header -->
+    <div class="bg-gray-800 text-white px-3 py-3 shadow-lg">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-utensils text-xl text-orange-400"></i>
+                <div>
+                    <h1 class="text-lg font-bold">Bếp / Bar</h1>
+                    <p class="text-xs text-gray-400">{{currentUser.username}}</p>
+                </div>
+            </div>
+            
+            <button ng-click="clearCache()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-3 py-2 rounded-lg text-sm mr-1" title="Xóa cache và tải lại">
+                <i class="fas fa-database"></i>
+            </button>
+            <button ng-click="logout()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+        
+        <!-- Filter Tabs - Mobile Friendly -->
+        <div class="grid grid-cols-3 gap-2">
+            <button ng-click="filter = 'all'" 
+                    class="px-2 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    ng-class="filter === 'all' ? 'bg-white text-gray-900' : 'bg-gray-700 text-gray-300'">
+                Tất cả<br><span class="text-xs">({{orders.length}})</span>
+            </button>
+            <button ng-click="filter = 'pending'" 
+                    class="px-2 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    ng-class="filter === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'">
+                Chờ làm<br><span class="text-xs">({{(orders | filter:{status:'pending'}).length}})</span>
+            </button>
+            <button ng-click="filter = 'preparing'" 
+                    class="px-2 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    ng-class="filter === 'preparing' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'">
+                Đang làm<br><span class="text-xs">({{(orders | filter:{status:'preparing'}).length}})</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Orders Queue - Compact -->
+    <div class="flex-1 overflow-y-auto p-3">
+        <div ng-if="getFilteredOrders().length === 0" class="text-center text-gray-400 py-12">
+            <i class="fas fa-check-circle text-6xl mb-3 opacity-50"></i>
+            <p class="text-xl font-bold">Không có đơn hàng</p>
+            <p class="text-sm mt-2">Tự động cập nhật khi có order mới</p>
+        </div>
+        
+        <div class="space-y-3">
+            <div ng-repeat="order in getFilteredOrders()" 
+                 class="rounded-lg shadow-lg p-3 border-l-4 transition-all"
+                 ng-class="getOrderClass(order)">
+                
+                <!-- Compact Order Header -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-door-open text-white"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-base font-bold text-gray-800 truncate">{{order.roomId}}</h3>
+                            <p class="text-xs text-gray-600">{{order.orderedAt | date:'HH:mm'}}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-end space-y-1">
+                        <span class="px-2 py-1 rounded-full text-white text-xs font-bold whitespace-nowrap"
+                              ng-class="getStatusBadgeClass(order.status)">
+                            {{getStatusText(order.status)}}
+                        </span>
+                        <div class="font-mono text-sm font-bold whitespace-nowrap"
+                             ng-class="order.urgent ? 'text-red-600' : 'text-gray-600'">
+                            <i class="fas fa-clock text-xs"></i> {{order.waitTime}}p
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Compact Order Items -->
+                <div class="bg-white rounded-lg p-3 mb-3">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0 mr-2">
+                            <div class="font-bold text-gray-800 text-base leading-tight">{{order.name}}</div>
+                            <div ng-if="order.note" class="text-xs text-orange-600 mt-1 italic">
+                                <i class="fas fa-sticky-note mr-1"></i>{{order.note}}
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <span class="text-2xl font-bold text-blue-600">×{{order.quantity}}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons - Compact -->
+                <button ng-if="order.status === 'pending'" 
+                        ng-click="startPreparing(order)"
+                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-lg font-bold transition-colors text-sm">
+                    <i class="fas fa-play mr-1"></i>Bắt đầu
+                </button>
+                
+                <button ng-if="order.status === 'preparing'" 
+                        ng-click="markReady(order)"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white py-2.5 rounded-lg font-bold transition-colors text-sm">
+                    <i class="fas fa-check-circle mr-1"></i>Đã xong
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

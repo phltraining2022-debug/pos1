@@ -1,0 +1,42 @@
+{
+  "name": "userOffTime",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "reason": {
+      "type": "string",
+      "required": true
+    },
+    "fromDate": {
+      "type": "date",
+      "required": true
+    },
+    "toDate": {
+      "type": "date",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

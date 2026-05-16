@@ -1,0 +1,82 @@
+{
+	"name": "PurchaseRequest",
+	"plural": "PurchaseRequests",
+	"base": "AppModel",
+	"scope": {
+		"include": [
+			"approvedBy",
+			{
+				"relation": "items",
+				"scope": {
+					"where": {
+						"deletedById": {
+							"exists": false
+						}
+					}
+				}
+			}
+		]
+	},
+	"properties": {
+		"code": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string",
+			"default": "submitted",
+			"enum": [
+				"submitted",
+				"pending",
+				"approved",
+				"rejected"
+			]
+		},
+		"approvedById": {
+			"type": "string"
+		},
+		"total": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"items": {
+			"type": "hasMany",
+			"model": "PurchaseRequestItem",
+			"foreignKey": "purchaseRequestId"
+		},
+		"requestedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "requestedById"
+		},
+		"approvedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "approvedById"
+		},
+		"rejectedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "rejectedById"
+		},
+		"purchaseOrder": {
+			"type": "belongsTo",
+			"model": "PurchaseOrder",
+			"foreignKey": "purchaseOrderId"
+		},
+		"contracts": {
+			"type": "referencesMany",
+			"model": "Contract",
+			"foreignKey": "contractIds"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

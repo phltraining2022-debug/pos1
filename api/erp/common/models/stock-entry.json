@@ -1,0 +1,42 @@
+{
+	"name": "WorkOrder",
+	"plural": "workOrders",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"planNumber": {
+			"type": "string",
+			"required": true
+		},
+		"postingDate": {
+			"type": "date",
+			"required": true
+		},
+		"productId": {
+			"type": "number",
+			"required": true
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

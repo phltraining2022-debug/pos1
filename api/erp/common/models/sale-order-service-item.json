@@ -1,0 +1,44 @@
+{
+	"name": "SaleOrderServiceItem",
+	"plural": "SaleOrderServiceItems",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"scope": {
+		"include": [
+			"service"
+		]
+	},
+	"properties": {
+		"serviceId": {
+			"type": "string"
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"unitPrice": {
+			"type": "number"
+		},
+		"discount": {
+			"type": "number"
+		},
+		"subtotal": {
+			"type": "number"
+		}
+	},
+	"relations": {
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"service": {
+			"type": "belongsTo",
+			"model": "Service",
+			"foreignKey": "serviceId"
+		}
+	}
+}

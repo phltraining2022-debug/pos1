@@ -1,0 +1,122 @@
+{
+	"name": "contract",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"signingDate": {
+			"type": "date"
+		},
+		"name": {
+			"type": "string"
+		},
+		"noClients": {
+			"type": "number"
+		},
+		"companyId": {
+			"type": "string"
+		},
+		"customerId": {
+			"type": "string"
+		},
+		"customerIds": {
+			"type": [
+				"string"
+			]
+		},
+		"packages": {
+			"type": [
+				"object"
+			]
+		},
+		"note": {
+			"type": "string"
+		},
+		"validFrom": {
+			"type": "date",
+			"required": false,
+			"enumEnabled": false
+		},
+		"eventType": {
+			"type": "string",
+			"description": "Type of event (W for Wedding, etc.)"
+		},
+		"eventDate": {
+			"type": "date",
+			"description": "Date of the event"
+		},
+		"operationStatus": {
+			"type": "string",
+			"default": "draft",
+			"enum": ["draft", "activated", "in_progress", "completed", "cancelled"],
+			"description": "Operational status of the contract/event"
+		},
+		"tableCount": {
+			"type": "number",
+			"default": 0,
+			"description": "Number of confirmed tables"
+		},
+		"reserveTables": {
+			"type": "number",
+			"default": 0,
+			"description": "Number of reserve tables (bàn dự phòng)"
+		},
+		"freeTables": {
+			"type": "number",
+			"default": 0,
+			"description": "Number of complimentary tables (bàn tặng)"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"packages": {
+			"type": "hasMany",
+			"model": "package",
+			"foreignKey": "contractId"
+		},
+		"company": {
+			"type": "belongsTo",
+			"model": "company",
+			"foreignKey": "companyId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"customers": {
+			"type": "referencesMany",	
+			"model": "Customer",
+			"foreignKey": "customerIds"
+		},
+		"transactions": {
+			"type": "hasMany",
+			"model": "transaction",
+			"foreignKey": "contractId"
+		},
+		"staffAssignments": {
+			"type": "hasMany",
+			"model": "StaffAssignment",
+			"foreignKey": "contractId"
+		},
+		"productionOrders": {
+			"type": "hasMany",
+			"model": "ProductionOrder",
+			"foreignKey": "contractId"
+		},
+		"hall": {
+			"type": "belongsTo",
+			"model": "Room",
+			"foreignKey": "roomId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

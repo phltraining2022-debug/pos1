@@ -1,0 +1,79 @@
+{
+  "name": "clinic-Appointment",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "patientId": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "doctorId": {
+      "type": "string"
+    },
+    "isForMySelf": {
+      "type": "boolean"
+    },
+    "patient": {
+      "type": "object"
+    },
+    "orderId": {
+      "type": "string"
+    },
+    "specialtyId": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "required": true
+    },
+    "locationId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "visits": {
+      "type": "hasMany",
+      "model": "visit",
+      "foreignKey": "appointmentId"
+    },
+    "clinic": {
+      "type": "belongsTo",
+      "model": "clinic",
+      "foreignKey": "clinicId"
+    },
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderId"
+    },
+    "specialty": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": ""
+    },
+    "doctor": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "doctorId"
+    },
+    "location": {
+      "type": "belongsTo",
+      "model": "location",
+      "foreignKey": "locationId"
+    },
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

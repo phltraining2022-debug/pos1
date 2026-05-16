@@ -1,0 +1,49 @@
+{
+  "name": "prescription",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "content": {
+      "type": "string"
+    },
+    "meds": {
+      "type": [
+        "object"
+      ],
+      "required": true
+    },
+    "total": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string"
+    },
+    "isSample": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {
+    "creator":{
+      "type":"belongsTo",
+      "model":"user",
+      "foreignKey": "createdBy"
+    },
+    "visit":{
+      "type":"belongsTo",
+      "model":"visit",
+      "foreignKey":"visitId"
+    },
+    "patient":{
+      "type":"belongsTo",
+      "model":"patient",
+      "foreignKey":"patientId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

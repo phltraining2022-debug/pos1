@@ -1,0 +1,61 @@
+{
+	"name": "Operation",
+	"plural": "Operations",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"duration": {
+			"type": "number",
+			"required": true
+		},
+		"workStationId": {
+			"type": "string",
+			"required": true
+		},
+		"bomId": {
+			"type": "string"
+		},
+		"sequence": {
+			"type": "number"
+		},
+		"laborCost": {
+			"type": "number"
+		},
+		"electricityCost": {
+			"type": "number"
+		},
+		"rentCost": {
+			"type": "number"
+		},
+		"consumableCost": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"workStation": {
+			"type": "belongsTo",
+			"model": "WorkStation",
+			"foreignKey": "workStationId"
+		},
+		"bom": {
+			"type": "belongsTo",
+			"model": "BOM",
+			"foreignKey": "bomId"
+		},
+		"routings": {
+			"type": "hasMany",
+			"model": "Routing",
+			"foreignKey": "operationId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

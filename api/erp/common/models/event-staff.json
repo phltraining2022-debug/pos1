@@ -1,0 +1,83 @@
+{
+	"name": "EventStaff",
+	"plural": "EventStaffs",
+	"base": "AppModel",
+	"description": "Part-time staff for events/weddings (separate from Employee model for lighter logic)",
+	"properties": {
+		"employeeType": {
+			"type": "string",
+			"required": true,
+			"default": "NV CA",
+			"enum": ["NV CA"],
+			"description": "Employee type - NV CA (Part-time event staff)"
+		},
+		"name": {
+			"type": "string",
+			"required": true,
+			"index": true
+		},
+		"phone": {
+			"type": "string",
+			"required": true,
+			"index": true
+		},
+		"email": {
+			"type": "string"
+		},
+		"nationalId": {
+			"type": "string",
+			"description": "CMND/CCCD number"
+		},
+		"dob": {
+			"type": "date",
+			"description": "Date of birth"
+		},
+		"bankAccount": {
+			"type": "string",
+			"description": "Bank account number for salary payment"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "NEW",
+			"enum": ["NEW", "ACTIVE", "INACTIVE"],
+			"description": "NEW = newly applied, ACTIVE = ready to work, INACTIVE = temporarily paused"
+		},
+		"isTrained": {
+			"type": "boolean",
+			"required": true,
+			"default": false,
+			"description": "Has completed training (milestone for operations)"
+		},
+		"hourlyRate": {
+			"type": "number",
+			"required": true,
+			"default": 0,
+			"description": "Hourly wage in VND"
+		},
+		"roles": {
+			"type": "array",
+			"default": [],
+			"description": "Array of job roles/skills: Phục vụ bàn, Bếp phụ, Lễ tân, Pha chế, Giám sát ca, Hỗ trợ sự kiện"
+		},
+		"ratingScore": {
+			"type": "number",
+			"default": 0,
+			"description": "Performance rating score (1-5): 5=Excellent, 4=Good, 3=Average, 2=Poor, 1=Need retraining"
+		},
+		"notes": {
+			"type": "string",
+			"description": "Training/performance notes"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"assignments": {
+			"type": "hasMany",
+			"model": "StaffAssignment",
+			"foreignKey": "eventStaffId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,52 @@
+{
+  "name": "exportItem",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "exportId": {
+      "type": "string",
+      "required": true
+    },
+    "itemId": {
+      "type": "string",
+      "required": true
+    },
+    "quantity": {
+      "type": "number",
+      "required": true
+    },
+    "unitPrice": {
+      "type": "number"
+    },
+    "note": {
+      "type": "string"
+    },
+    "expiredDate": {
+      "type": "date"
+    },
+    "totalPrice": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "export": {
+      "type": "belongsTo",
+      "model": "export",
+      "foreignKey": "exportId"
+    },
+    "warehouseItem": {
+      "type": "belongsTo",
+      "model": "warehouseItem",
+      "foreignKey": "itemId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

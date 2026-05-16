@@ -1,0 +1,23 @@
+<form name="form">
+    <div class="panel panel-default">
+        <div class="panel-heading text-center">
+            <a href="" ui-sref="^.list" class="btn btn-xs btn-default float-left"><i class="fa fa-arrow-left"> Back</i></a>
+            <span ng-show="!ctrl.transaction.id" translate>Add a new transaction</span>
+            <span ng-show="ctrl.transaction.id" translate>Edit page</span>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <formly-form model="ctrl.transaction" fields="ctrl.formFields" options="ctrl.formOptions"></formly-form>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button type="submit" class="btn btn-primary btn-success" ng-click="ctrl.submit()"
+                    ng-disabled="form.$invalid">
+                Submit
+            </button>
+            <button type="button" class="btn btn-default" ng-click="ctrl.formOptions.resetModel()">Reset</button>
+        </div>
+    </div>
+</form>

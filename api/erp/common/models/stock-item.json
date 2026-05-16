@@ -1,0 +1,98 @@
+{
+	"name": "StockItem",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"sku": {
+			"type": "string",
+			"index": true
+		},
+		"minLevel": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"productId": {
+			"type": "string"
+		},
+		"productName": {
+			"type": "string",
+			"description": "Denormalized product name for search and display"
+		},
+		"productCode": {
+			"type": "string",
+			"index": true,
+			"description": "Denormalized product code for search and display"
+		},
+		"avgPrice": {
+			"type": "number"
+		},
+		"maxLevel": {
+			"type": "number"
+		},
+		"warehouseId": {
+			"type": "string"
+		},
+		"locationId": {
+			"type": "string",
+			"description": "Warehouse location where stock is stored"
+		},
+		"quantity": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"warehouseQuantity": {
+			"type": "object",
+			"default": {}
+		},
+		"openingQuantity": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"allocatedQuantity": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		},
+		"orderedQuantity": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		}
+	},
+	"validations": [],
+	"relations": {
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		},
+		"location": {
+			"type": "belongsTo",
+			"model": "WarehouseLocation",
+			"foreignKey": "locationId"
+		},
+		"stockCountItems": {
+			"type": "hasMany",
+			"model": "StockCountItem",
+			"foreignKey": "stockItemId"
+		},
+		"stockAdjustments": {
+			"type": "hasMany",
+			"model": "StockAdjustment",
+			"foreignKey": "stockItemId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

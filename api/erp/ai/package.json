@@ -1,0 +1,21 @@
+{
+  "name": "gemini-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "worker": "node ./gemini-worker.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.29.1",
+    "bull": "^4.16.5",
+    "bullmq": "^5.10.0",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.3.2"
+  }
+}

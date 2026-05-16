@@ -1,0 +1,49 @@
+{
+  "name": "paymentRequest",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "patientId": {
+      "type": "string",
+      "required": true
+    },
+    "totalPrice": {
+      "type": "number",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "createdBy": {
+      "type": "string"
+    },
+    "receivedAmount": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    },
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,55 @@
+{
+	"name": "Service",
+	"plural": "Services",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"image": {
+			"type": "string"
+		},
+		"price": {
+			"type": "number"
+		},
+		"tax": {
+			"name": "tax",
+			"input": "number"
+		},
+		"description": {
+			"type": "string"
+		},
+		"duration": {
+			"type": "number"
+		},
+		"type": {
+			"type": "number"
+		},
+		"stationId": {
+			"type": "string"
+		},
+		"providerId": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"station": {
+			"type": "belongsTo",
+			"model": "station",
+			"foreignKey": "stationId"
+		},
+		"category": {
+			"type": "belongsTo",
+			"model": "ServiceCategory",
+			"foreignKey": "categoryId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

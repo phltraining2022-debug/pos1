@@ -1,0 +1,109 @@
+{
+	"name": "PurchaseOrder",
+	"plural": "PurchaseOrders",
+	"base": "AppModel",
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"quantityOrder": {
+			"type": "number"
+		},
+		"code": {
+			"type": "string",
+			"index": true,
+			"description": "Mã đơn hàng"
+		},
+		"deliveryDate": {
+			"type": "date",
+			"description": "Ngày nhận hàng dự kiến"
+		},
+		"purchaseDate": {
+			"type": "date"
+		},
+		"purchaseAcct": {
+			"type": "string"
+		},
+		"creditCard": {
+			"type": "string"
+		},
+		"tax": {
+			"type": "boolean"
+		},
+		"taxPercentage": {
+			"type": "number"
+		},
+		"finalCoupon": {
+			"type": "string"
+		},
+		"finalCouponDiscount": {
+			"type": "number"
+		},
+		"finalCashBackCompany": {
+			"type": "string"
+		},
+		"finalCashBackPercentage": {
+			"type": "number"
+		},
+		"followUpDate": {
+			"type": "date"
+		},
+		"reorderAfterShipped": {
+			"type": "boolean"
+		},
+		"returnPolicy": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"Can’t Purchase",
+				"Done",
+				"Need To By More",
+				"Pending",
+				"Repurchasing"
+			]
+		},
+		"images": {
+			"type": "array",
+			"default": [],
+			"inputType": "file"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"approver": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "approvedBy"
+		},
+		"purchaser": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "purchaserId"
+		},
+		"purchaseRequest": {
+			"type": "belongsTo",
+			"model": "PurchaseRequest",
+			"foreignKey": "purchaseRequestId"
+		},
+		"items": {
+			"type": "hasMany",
+			"model": "PurchaseOrderItem",
+			"foreignKey": "purchaseOrderId"
+		},
+		"supplier": {
+			"type": "belongsTo",
+			"model": "Supplier",
+			"foreignKey": "supplierId"
+		},
+		"stockMoves": {
+			"type": "hasMany",
+			"model": "StockMove",
+			"foreignKey": "purchaseOrderId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

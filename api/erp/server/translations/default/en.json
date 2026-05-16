@@ -1,0 +1,28 @@
+{
+  "_comment": "========== Keys cho Nunjucks filter (text động) ==========",
+  
+  "welcome": "Welcome to Mangline Hills",
+  "greeting": "Hello, {{name}}",
+  "items_count": "{{count}} items",
+  "price": "Price: {{price}} VND",
+  "order_status_pending": "Pending",
+  "order_status_completed": "Completed",
+  
+  "_comment2": "========== Exact text cho auto-translate (text static) ==========",
+  
+  "Tinh hoa Đà Lạt – <br />Hương vị vĩnh cửu": "The Essence of Da Lat – <br />Timeless Flavor",
+  "Mỗi ngụm rượu mang theo hương vị sâu lắng, ấm áp, phản chiếu sự tinh tế và đẳng cấp vượt thời gian.": "Each sip carries a deep, warm flavor, reflecting sophistication and timeless class.",
+  "KHÁM PHÁ NGAY": "EXPLORE NOW",
+  "ABOUT US": "ABOUT US",
+  "Khi Hương Vị Kể Chuyện": "When Flavor Tells a Story",
+  "KHÁM PHÁ THÊM": "EXPLORE MORE",
+  "KHÁM PHÁ": "EXPLORE",
+  "Bộ Sưu Tập Rượu Hảo Hạng": "Premium Wine Collection",
+  "Mangline Hills Cool Mint": "Mangline Hills Cool Mint",
+  "Mangline Hills Classic": "Mangline Hills Classic",
+  "Mangline Hills Cinnamon": "Mangline Hills Cinnamon",
+  "Sự bùng nổ tươi mát trong từng tầng hương vị": "A fresh explosion in every layer of flavor",
+  "Hương vị nguyên bản, lưu giữ dấu ấn thời gian": "Original flavor, preserving the mark of time",
+  "Biểu hiện táo bạo của hương vị và lửa": "Bold expression of flavor and fire"
+}
+

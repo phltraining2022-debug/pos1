@@ -1,0 +1,38 @@
+{
+	"name": "Note",
+	"plural": "Notes",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"content": {
+			"type": "string",
+			"required": true
+		},
+		"timePlanToStudy": {
+			"type": "date"
+		},
+		"appointmentDate": {
+			"type": "date"
+		}
+	},
+	"relations": {
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"school": {
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "schoolId"
+		},
+		"event": {
+			"type": "belongsTo",
+			"model": "Event",
+			"foreignKey": "eventId"
+		}
+	},
+	"acls": [],
+	"methods": [],
+	"path": "notepad"
+}

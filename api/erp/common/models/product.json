@@ -1,0 +1,180 @@
+{
+	"name": "Product",
+	"plural": "Products",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"scope": {},
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"image": {
+			"type": "string"
+		},
+		"serialNo": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"alcoholic": {
+			"type": "boolean",
+			"default": false
+		},
+		"code": {
+			"type": "string"
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"sku": {
+			"type": "string"
+		},
+		"shortDescription": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"price": {
+			"type": "number"
+		},
+		"uomId": {
+			"type": "string"
+		},
+		"uomUsageId": {
+			"type": "string"
+		},
+		"category": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		},
+		"brandId": {
+			"type": "string"
+		},
+		"tags": {
+			"type": "array"
+		},
+		"supplierId": {
+			"type": "string"
+		},
+		"sellingPrice": {
+			"type": "number"
+		},
+		"variants": {
+			"type": "array",
+			"default": []
+		},
+		"dimensions": {
+			"type": "object"
+		},
+		"supplierIds": {
+			"type": [
+				"string"
+			],
+			"model": "Suppliers"
+		},
+		"warranty": {
+			"type": "object",
+			"properties": {
+				"conditions": {
+					"type": "string"
+				},
+				"duration": {
+					"type": "number"
+				},
+				"exclusions": {
+					"type": "string"
+				},
+				"note": {
+					"type": "string"
+				}
+			}
+		},
+		"stock": {
+			"type": "number",
+			"default": 0,
+			"description": "Tổng tồn kho trên tất cả các kho, tự động cập nhật khi xuất nhập kho"
+		},
+		"minStockLevel": {
+			"type": "number",
+			"default": 0,
+			"description": "Mức tồn kho tối thiểu, nếu stock <= giá trị này sẽ cảnh báo"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"categoryRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "category"
+		},
+		"typeRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "type"
+		},
+		"productRef": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"brand": {
+			"type": "belongsTo",
+			"model": "Brand",
+			"foreignKey": "brandId"
+		},
+		"uom": {
+			"type": "belongsTo",
+			"model": "UOM",
+			"foreignKey": "uomId"
+		},
+		"uomUsage": {
+			"type": "belongsTo",
+			"model": "UOM",
+			"foreignKey": "uomUsageId"
+		},
+		"boms": {
+			"type": "hasMany",
+			"model": "BOM",
+			"foreignKey": "productId"
+		},
+		"suppliers": {
+			"type": "referencesMany",
+			"model": "Supplier",
+			"foreignKey": "supplierIds"
+		},
+		"relatedProducts": {
+			"type": "referencesMany",
+			"model": "Product",
+			"foreignKey": "relatedProductIds"
+		},
+		"vehicleModels": {
+			"type": "hasMany",
+			"model": "VehicleModel",
+			"through": "VehicleProduct",
+			"foreignKey": "productId",
+			"keyThrough": "vehicleModelId"
+		},
+		"refBlocks": {
+			"type": "referencesMany",
+			"model": "Block",
+			"foreignKey": "refBlockIds"
+		},
+		"productCategory": {
+			"type": "belongsTo",
+			"model": "ProductCategory",
+			"foreignKey": "productCategoryId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

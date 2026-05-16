@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-app="testApp">
+<head>
+    <title>Test StorageService</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body>
+    <div ng-controller="TestController">
+        <h1>Test StorageService</h1>
+        <button ng-click="testStorage()">Test Storage</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        angular.module('testApp', []).service('StorageService', function() {
+            this.get = function(key) {
+                console.log('StorageService.get called for:', key);
+                var data = localStorage.getItem(key);
+                console.log('Raw data:', data);
+                return JSON.parse(data || '[]');
+            };
+            this.set = function(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            };
+        }).controller('TestController', ['$scope', 'StorageService', function($scope, StorageService) {
+            $scope.testStorage = function() {
+                console.log('Testing StorageService...');
+
+                // Test get
+                var rooms = StorageService.get('rooms');
+                var items = StorageService.get('saleorderitems');
+
+                console.log('Rooms:', rooms);
+                console.log('Items:', items);
+
+                document.getElementById('output').innerHTML =
+                    'Rooms: ' + rooms.length + '<br>' +
+                    'Items: ' + items.length + '<br>' +
+                    '<pre>Rooms: ' + JSON.stringify(rooms, null, 2) + '</pre>' +
+                    '<pre>Items: ' + JSON.stringify(items, null, 2) + '</pre>';
+            };
+        }]);
+    </script>
+</body>
+</html>

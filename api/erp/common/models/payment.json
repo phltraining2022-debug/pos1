@@ -1,0 +1,45 @@
+{
+	"name": "Payment",
+	"plural": "Payments",
+	"idInjection": true,
+	"properties": {
+		"accountId": {
+			"type": "string"
+		},
+		"receivedId": {
+			"type": "string"
+		},
+		"amount": {
+			"type": "number",
+			"required": true
+		},
+		"method": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"Cash",
+				"Credit Card",
+				"Bank Transfer"
+			]
+		},
+		"date": {
+			"type": "date",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"account": {
+			"type": "belongsTo",
+			"model": "Account",
+			"foreignKey": "accountId"
+		},
+		"receiver": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "receiverId"
+		}
+	}
+}

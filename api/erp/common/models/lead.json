@@ -1,0 +1,419 @@
+{
+	"name": "Lead",
+	"plural": "Leads",
+	"base": "User",
+	"idInjection": false,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"code": {
+			"type": "string"
+		},
+		"intakeYear": {
+			"type": "number",
+			"enum": [
+				2025,
+				2026,
+				2027,
+				2028
+			]
+		},
+		"intakeMonth": {
+			"type": "number",
+			"enum": [
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12
+			]
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "active",
+			"enum": [
+				"active",
+				"deleted",
+				"archived"
+			]
+		},
+		"movedToCR": {
+			"type": "boolean",
+			"default": false
+		},
+		"name": {
+			"type": "string"
+		},
+		"familyName": {
+			"type": "string"
+		},
+		"givenName": {
+			"type": "string"
+		},
+		"dob": {
+			"type": "date"
+		},
+		"avatar": {
+			"type": "string"
+		},
+		"gender": {
+			"type": "string",
+			"enum": [
+				"Male",
+				"Female",
+				"Other"
+			]
+		},
+		"role": {
+			"type": "string",
+			"enum": [
+				"Phụ huynh",
+				"Học sinh"
+			]
+		},
+		"phone": {
+			"type": "string"
+		},
+		"email": {
+			"type": "string"
+		},
+		"address": {
+			"type": "string"
+		},
+		"trackingWindows": {
+			"type": "string",
+			"enum": [
+				"winthin 1 week",
+				"winthin 1 month",
+				"winthin 3 months",
+				"longer than 3 months"
+			]
+		},
+		"timeToStudyAbroad": {
+			"type": "string",
+			"enum": [
+				"2024",
+				"2025",
+				"2026",
+				"2027"
+			]
+		},
+		"memberStatus": {
+			"type": "string",
+			"enum": [
+				"Hot",
+				"Cold",
+				"Warm",
+				"UAC"
+			]
+		},
+		"rating": {
+			"type": "string",
+			"enum": [
+				"Hot",
+				"Cold",
+				"Warm",
+				"UAC"
+			]
+		},
+		"primaryStatus": {
+			"type": "string",
+			"enum": [
+				"Lead",
+				"Preparation",
+				"Application",
+				"Conditional Offer",
+				"Full Offer",
+				"Payment",
+				"Visa App",
+				"Visa Grant",
+				"App Withdrawn",
+				"Visa Rejected",
+				"Offer Rejected"
+			]
+		},
+		"sourceOfLead": {
+			"type": "string",
+			"enum": [
+				"Digital Campaign",
+				"Facebook Chat",
+				"Institution",
+				"Referral",
+				"Website",
+				"Sub Agent",
+				"Others (SEM.etc)"
+			]
+		},
+		"interestedMajor": {
+			"type": "string",
+			"enum": [
+				"Arts & Social Science",
+				"Business",
+				"Education",
+				"Engineering",
+				"Information Technology",
+				"Language & Linguistics",
+				"Law",
+				"Media & Communication & Creative Arts",
+				"Medicine & Nursing & Health Science",
+				"Others",
+				"Psychology & Cognitive Science",
+				"Science",
+				"Security & Intelligence & Criminology"
+			]
+		},
+		"callTimesCSL": {
+			"type": "number",
+			"enum": [
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		},
+		"callTimesTelesale": {
+			"type": "number",
+			"enum": [
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		},
+		"leadQualityByTelesale": {
+			"type": "string",
+			"enum": [
+				"Valid",
+				"Valid but no",
+				"KFU",
+				"Invalid",
+				"Wrong number",
+				"Duplicate"
+			]
+		},
+		"feeRangePerYear": {
+			"type": "string",
+			"enum": [
+				"Under A$15K a year",
+				"A$15K - A$20K",
+				"A$20K - A$30K",
+				"A$30K - A$40K",
+				"Over A$40K",
+				"Not sure",
+				"Referral",
+				"Others",
+				"Australia"
+			]
+		},
+		"adsPlatform": {
+			"type": "string",
+			"enum": [
+				"facebook / instagram",
+				"tiktok",
+				"kol",
+				"pr",
+				"other (friend, website, etc.)"
+			]
+		},
+		"noteByCSL": {
+			"type": "object"
+		},
+		"noteByTelesale": {
+			"type": "object"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		},
+		"resetCode": {
+			"type": "string"
+		},
+		"resetCodeExpiresAt": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"educationCSL": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "educationCSLId",
+			"optional": true
+		},
+		"visaCSL": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "visaCSLId",
+			"optional": true
+		},
+		"agentCSL": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "agentCSLId",
+			"optional": true
+		},
+		"calls": {
+			"type": "hasMany",
+			"model": "CallLog",
+			"foreignKey": "targetObjectId",
+			"optional": true
+		},
+		"comments": {
+			"type": "hasMany",
+			"model": "Comment",
+			"foreignKey": "targetObjectId"
+		},
+		"studentApplications": {
+			"type": "hasMany",
+			"model": "StudentApplication",
+			"foreignKey": "leadId"
+		},
+		"office": {
+			"type": "belongsTo",
+			"model": "Branch",
+			"foreignKey": "branchId",
+			"optional": true
+		},
+		"attendedEvent": {
+			"type": "belongsTo",
+			"model": "Event",
+			"foreignKey": "attendedEventId",
+			"optional": true
+		},
+		"campaigns": {
+			"type": "referencesMany",
+			"model": "Event",
+			"foreignKey": "campaignIds",
+			"optional": true
+		},
+		"campaign": {
+			"type": "belongsTo",
+			"model": "Event",
+			"foreignKey": "campaignId",
+			"optional": true
+		},
+		"counselor": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "counselorId",
+			"optional": true
+		},
+		"assignedTo": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "assignedToId",
+			"optional": true
+		},
+		"telesalePerson": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "telesalePersonId",
+			"optional": true
+		},
+		"institution": {
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "institutionId",
+			"optional": true
+		},
+		"preferredLocations": {
+			"type": "referencesMany",
+			"model": "location",
+			"foreignKey": "preferredLocationIds"
+		},
+		"interestedMajors": {
+			"type": "referencesMany",
+			"model": "Major",
+			"foreignKey": "majorIds"
+		},
+		"subAgent": {
+			"type": "belongsTo",
+			"model": "SubAgent",
+			"foreignKey": "subAgentId"
+		},
+		"reminders": {
+			"type": "hasMany",
+			"model": "Reminder",
+			"foreignKey": "leadId"
+		},
+		"todos": {
+			"type": "hasMany",
+			"model": "Todo",
+			"foreignKey": "leadId"
+		},
+		"levels": {
+			"type": "referencesMany",
+			"model": "Level",
+			"foreignKey": "levelIds"
+		},
+		"promotions": {
+			"type": "hasMany",
+			"model": "Promotion",
+			"through": "LeadPromotion",
+			"keyThrough": "promotionId"
+		},
+		"instituions": {
+			"type": "referencesMany",
+			"model": "School",
+			"foreignKey": "institutionIds"
+		},
+		"attendedEvents": {
+			"type": "referencesMany",
+			"model": "Event",
+			"foreignKey": "attendedEventIds",
+			"optional": true
+		},
+		"leadCampaigns": {
+			"type": "hasMany",
+			"model": "LeadCampaign",
+			"foreignKey": "leadId"
+		},
+		"contracts": {
+			"type": "hasMany",
+			"model": "contract",
+			"foreignKey": "leadId"
+		},
+		"typeRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "type"
+		},
+		"bookings": {
+			"type": "hasMany",
+			"model": "Booking",
+			"foreignKey": "leadId"
+		},
+		"quotes": {
+			"type": "hasMany",
+			"model": "Quote",
+			"foreignKey": "leadId"
+		},
+		"customers": {
+			"type": "hasMany",
+			"model": "Customer",
+			"foreignKey": "customerIds"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

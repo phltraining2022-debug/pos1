@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="karaApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kara POS">
+    <meta name="theme-color" content="#1f2937">
+    <title>Karaoke Management System</title>
+     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-192.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- AngularJS 1.8.2 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+    
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <!-- Moment.js for date formatting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+        }
+        
+        body {
+            overscroll-behavior-y: contain;
+            touch-action: manipulation;
+        }
+        
+        input, textarea, select {
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        
+        button, .cursor-pointer, [ng-click] {
+            cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.2);
+            touch-action: manipulation;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Animation */
+        .ng-enter {
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .cart-animation {
+            animation: flyToCart 0.5s ease-out;
+        }
+        
+        @keyframes flyToCart {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.5) translateY(-50px); }
+            100% { transform: scale(0) translateY(-100px); opacity: 0; }
+        }
+        
+        /* iPad Landscape optimizations */
+        @media (orientation: landscape) and (min-width: 768px) {
+            .pos-layout {
+                display: grid;
+                grid-template-columns: 40% 30% 30%;
+                height: 100vh;
+            }
+        }
+        
+        /* Room status colors */
+        .room-empty { background: #10b981; }
+        .room-occupied { background: #ef4444; }
+        .room-cleaning { background: #f59e0b; }
+        .room-maintenance { background: #6b7280; }
+        
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+
+
+
+        /* Custom scrollbar styling for bill & cart sections */
+        div[style*="scrollbar-width: thin"] {
+            scrollbar-width: thin;
+            scrollbar-color: #4b5563 #1f2937;
+        }
+
+        div[style*="scrollbar-width: thin"]::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        div[style*="scrollbar-width: thin"]::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        div[style*="scrollbar-width: thin"]::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        div[style*="scrollbar-width: thin"]::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        /* Badge text always white regardless of theme */
+        .light-theme [class*="bg-green-"],
+        .light-theme [class*="bg-red-"],
+        .light-theme [class*="bg-yellow-"],
+        .light-theme [class*="bg-blue-"],
+        .light-theme [class*="bg-purple-"],
+        .light-theme [class*="bg-pink-"],
+        .light-theme [class*="bg-indigo-"],
+        .light-theme [class*="bg-orange-"] {
+            color: #ffffff !important;
+        }
+        /* Same for modal areas */
+        .light-theme-modals [class*="bg-green-"],
+        .light-theme-modals [class*="bg-red-"],
+        .light-theme-modals [class*="bg-yellow-"],
+        .light-theme-modals [class*="bg-blue-"],
+        .light-theme-modals [class*="bg-purple-"],
+        .light-theme-modals [class*="bg-pink-"],
+        .light-theme-modals [class*="bg-indigo-"],
+        .light-theme-modals [class*="bg-orange-"] {
+            color: #ffffff !important;
+        }
+
+        /* ============================================================
+           MENU ITEM - text on image always white + shadow
+        ============================================================ */
+        .menu-item-on-image,
+        .menu-item-on-image .text-white,
+        .menu-item-on-image .text-gray-200 {
+            color: #ffffff !important;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
+        }
+        /* In light mode, DON'T override image-overlay text */
+        .light-theme .menu-item-on-image,
+        .light-theme .menu-item-on-image .text-white,
+        .light-theme .menu-item-on-image .text-gray-200 {
+            color: #ffffff !important;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
+        }
+        /* Boost contrast of the dark overlay in light mode */
+        .light-theme .menu-item-overlay {
+            background: rgba(0,0,0,0.6) !important;
+        }
+        .light-theme .menu-item-overlay:hover {
+            background: rgba(0,0,0,0.5) !important;
+        }
+
+        /* ============================================================
+           TOAST NOTIFICATION
+        ============================================================ */
+        #cashier-toast-container {
+            position: fixed;
+            bottom: 72px;
+            right: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .cashier-toast {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: #1e293b;
+            color: #f8fafc;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+            white-space: nowrap;
+            max-width: 260px;
+            pointer-events: auto;
+            animation: toastIn 0.25s ease, toastOut 0.3s ease 1.7s forwards;
+        }
+        .cashier-toast .toast-icon {
+            color: #4ade80;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .cashier-toast .toast-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* Light mode toast */
+        .light-theme ~ #cashier-toast-container .cashier-toast,
+        .light-mode-toast {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(40px); }
+        }
+        @media (max-width: 767px) {
+            #cashier-toast-container {
+                bottom: 72px;
+                right: 8px;
+                left: 8px;
+                align-items: flex-end;
+            }
+        }
+
+        /* ============================================================
+           THEME TRANSITION
+        ============================================================ */
+        .cashier-root, .cashier-root * {
+            transition: background-color 0.2s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+
+        /* ============================================================
+           LIGHT THEME OVERRIDES
+           Applied when .light-theme is on the root cashier div
+        ============================================================ */
+        .light-theme.bg-gray-900,
+        .light-theme .bg-gray-900 { background-color: #f1f5f9 !important; }
+
+        .light-theme.bg-gray-800,
+        .light-theme .bg-gray-800 { background-color: #e2e8f0 !important; }
+
+        .light-theme.bg-gray-750,
+        .light-theme .bg-gray-750 { background-color: #dde4ee !important; }
+
+        .light-theme.bg-gray-700,
+        .light-theme .bg-gray-700 { background-color: #cbd5e1 !important; }
+
+        .light-theme.bg-gray-600,
+        .light-theme .bg-gray-600 { background-color: #b6c2cf !important; }
+
+        .light-theme .text-white { color: #0f172a !important; }
+        .light-theme .text-gray-400 { color: #475569 !important; }
+        .light-theme .text-gray-500 { color: #64748b !important; }
+
+        .light-theme .border-gray-700 { border-color: #94a3b8 !important; }
+        .light-theme .border-gray-600 { border-color: #94a3b8 !important; }
+        .light-theme .border-gray-500 { border-color: #94a3b8 !important; }
+
+        /* Inputs / selects / textareas */
+        .light-theme input:not([type="checkbox"]):not([type="radio"]),
+        .light-theme textarea,
+        .light-theme select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+        }
+        .light-theme input::placeholder,
+        .light-theme textarea::placeholder { color: #94a3b8 !important; }
+
+        /* Scrollbar in light mode */
+        .light-theme div[style*="scrollbar-color"] {
+            scrollbar-color: #94a3b8 #e2e8f0;
+        }
+        .light-theme div[style*="scrollbar-color"]::-webkit-scrollbar-track { background: #e2e8f0; }
+        .light-theme div[style*="scrollbar-color"]::-webkit-scrollbar-thumb { background: #94a3b8; }
+
+        /* Modal backdrop in light mode (modals are outside cashier-root but share styling) */
+        .light-theme-modals .bg-gray-800 { background-color: #f8fafc !important; }
+        .light-theme-modals .bg-gray-700 { background-color: #e2e8f0 !important; }
+        .light-theme-modals .bg-gray-600 { background-color: #cbd5e1 !important; }
+        .light-theme-modals .text-white { color: #0f172a !important; }
+        .light-theme-modals .text-gray-400 { color: #475569 !important; }
+        .light-theme-modals .border-gray-700 { border-color: #94a3b8 !important; }
+        .light-theme-modals .border-gray-600 { border-color: #94a3b8 !important; }
+        .light-theme-modals input:not([type="checkbox"]):not([type="radio"]),
+        .light-theme-modals textarea,
+        .light-theme-modals select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+        }
+        .light-theme-modals input::placeholder,
+        .light-theme-modals textarea::placeholder { color: #94a3b8 !important; }
+
+        /* ============================================================
+           MOBILE CASHIER LAYOUT  (< 768px)
+        ============================================================ */
+        @media (max-width: 767px) {
+            /* hide desktop view-switch buttons, show only icon buttons */
+            .cashier-desktop-nav { display: none !important; }
+            .cashier-mobile-header { display: flex !important; }
+
+            /* Each column becomes full-width */
+            .cashier-column {
+                width: 100% !important;
+                min-width: 100% !important;
+                flex: none !important;
+            }
+
+            /* Hidden column on mobile */
+            .cashier-column-hidden { display: none !important; }
+
+            /* Mobile bottom tab bar */
+            .cashier-mobile-tabs { display: flex !important; }
+
+            /* POS layout becomes relative/stacked */
+            .cashier-pos-layout { position: relative; }
+
+            /* Slightly smaller fonts in header */
+            .cashier-header-title h1 { font-size: 1rem !important; }
+        }
+
+        @media (min-width: 768px) {
+            .cashier-mobile-tabs { display: none !important; }
+            .cashier-column-hidden { display: flex !important; }
+            .cashier-mobile-header { display: none !important; }
+            .cashier-desktop-nav { display: flex !important; }
+        }
+
+        /* Mobile tab bar style */
+        .cashier-mobile-tabs {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            background: #1f2937;
+            border-top: 1px solid #374151;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .light-theme ~ .cashier-mobile-tabs,
+        .cashier-mobile-tabs.light-tabs {
+            background: #e2e8f0 !important;
+            border-top-color: #94a3b8 !important;
+        }
+        .cashier-mobile-tabs button {
+            flex: 1;
+            padding: 10px 4px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: #9ca3af;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .cashier-mobile-tabs button.active-tab {
+            color: #a78bfa;
+        }
+        .light-tabs button { color: #64748b !important; }
+        .light-tabs button.active-tab { color: #7c3aed !important; }
+        .cashier-mobile-tabs button i { font-size: 18px; }
+
+        /* On mobile, add bottom padding so content isn't hidden behind tab bar */
+        @media (max-width: 767px) {
+            .cashier-pos-layout { padding-bottom: 56px; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div ng-view class="h-screen"></div>
+    
+    <!-- App Scripts (bundled) -->
+    <script src="dist/app.bundle.js?v=1.0.92"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js', {
+                scope: './'
+            })
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.log('Service Worker registration failed', err));
+        }
+        
+        // Debug: Log AngularJS bootstrap
+        console.log('AngularJS app starting...');
+        console.log('Location:', window.location.href);
+    </script>
+</body>
+</html>

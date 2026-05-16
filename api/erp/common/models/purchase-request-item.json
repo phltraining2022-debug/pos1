@@ -1,0 +1,49 @@
+{
+	"name": "PurchaseRequestItem",
+	"plural": "PurchaseRequestItems",
+	"base": "AppModel",
+	"scope": {
+		"include": [
+			"product"
+		]
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"purchaseRequestId": {
+			"type": "number",
+			"required": true
+		},
+		"productId": {
+			"type": "number",
+			"required": true
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"unitPrice": {
+			"type": "number",
+			"required": true
+		},
+		"subTotal": {
+			"type": "number",
+			"required": true
+		}
+	},
+	"relations": {
+		"purchaseRequest": {
+			"type": "belongsTo",
+			"model": "PurchaseRequest",
+			"foreignKey": "purchaseRequestId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		}
+	}
+}

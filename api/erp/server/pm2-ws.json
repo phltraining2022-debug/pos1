@@ -1,0 +1,21 @@
+{
+    "apps": [
+      {
+        "name": "ws",
+        "script": "ws.js",
+        "cwd": "/home/ubuntu/staging/erp/server/",
+        "exec_mode": "fork",
+        "interpreter": "/home/ubuntu/.nvm/versions/node/v16.20.1/bin/node",
+	"instances": "1",
+	"listen_timeout": 8000,
+	"kill_timeout": 16000,
+        "env": {
+          "NODE_ENV": "production",
+          "PORT": 30000,
+          "DB_HOST": "localhost",
+          "DB_NAME": "ats",
+          "DB_PASSWORD": "mypassword"
+        }
+      }
+    ]
+  }

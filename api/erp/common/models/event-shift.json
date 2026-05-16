@@ -1,0 +1,115 @@
+{
+	"name": "EventShift",
+	"plural": "EventShifts",
+	"base": "AppModel",
+	"description": "Ca làm việc sự kiện/tiệc cưới cho nhân sự thời vụ",
+	"properties": {
+		"date": {
+			"type": "date",
+			"required": true,
+			"index": true,
+			"description": "Ngày diễn ra sự kiện"
+		},
+		"dayName": {
+			"type": "string",
+			"description": "Tên ngày trong tuần (Đầu tuần, Thứ Bảy, Chủ Nhật...)"
+		},
+		"roomId": {
+			"type": "string",
+			"required": true,
+			"description": "Liên kết đến phòng/sảnh tổ chức"
+		},
+		"customerName": {
+			"type": "string",
+			"description": "Tên khách hàng / cặp đôi"
+		},
+		"numTables": {
+			"type": "number",
+			"required": true,
+			"default": 0,
+			"description": "Số bàn tiệc"
+		},
+		"shiftTime": {
+			"type": "string",
+			"required": true,
+			"enum": ["Trưa", "Tối"],
+			"description": "Buổi ca: Trưa hoặc Tối"
+		},
+		"timeRange": {
+			"type": "string",
+			"description": "Khung giờ ca làm (ví dụ: 10:00 - 14:00)"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "pending",
+			"enum": ["pending", "confirmed", "completed", "cancelled"],
+			"description": "Trạng thái ca"
+		},
+		"laborDemand": {
+			"type": "object",
+			"description": "Nhu cầu nhân sự: {totalNeeded, serviceNeeded, kitchenNeeded}",
+			"default": {}
+		},
+		"contractId": {
+			"type": "string",
+			"description": "Liên kết đến hợp đồng/sự kiện (nếu có)"
+		},
+		"availableRoles": {
+			"type": "object",
+			"description": "Số chỗ trống theo vai trò: {waiter: 10, bartender: 2}",
+			"default": {}
+		},
+		"registeredCount": {
+			"type": "number",
+			"default": 0,
+			"description": "Tổng số NV thời vụ đã đăng ký"
+		},
+		"paymentPerRole": {
+			"type": "object",
+			"description": "Mức lương theo vai trò (VNĐ): {waiter: 300000, bartender: 350000}",
+			"default": {}
+		},
+		"startTime": {
+			"type": "string",
+			"description": "Giờ bắt đầu ca, ví dụ '10:00'",
+			"icon": "ph-clock"
+		},
+		"endTime": {
+			"type": "string",
+			"description": "Giờ kết thúc ca, ví dụ '14:00'",
+			"icon": "ph-clock"
+		},
+		"duration": {
+			"type": "number",
+			"default": 4,
+			"description": "Thời lượng ca làm (giờ, mặc định 4)",
+			"icon": "ph-hourglass"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"assignments": {
+			"type": "hasMany",
+			"model": "StaffAssignment",
+			"foreignKey": "eventShiftId"
+		},
+		"registrations": {
+			"type": "hasMany",
+			"model": "ShiftRegistration",
+			"foreignKey": "eventShiftId"
+		},
+		"room": {
+			"type": "belongsTo",
+			"model": "Room",
+			"foreignKey": "roomId"
+		},
+		"contract": {
+			"type": "belongsTo",
+			"model": "Contract",
+			"foreignKey": "contractId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

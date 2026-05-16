@@ -1,0 +1,46 @@
+{
+  "initial:before": {
+    "loopback#favicon": {}
+  },
+  "initial": {
+    "compression": {"enabled":false},
+    "cors": {
+      "params": {
+        "origin": true,
+        "credentials": true,
+        "maxAge": 86400
+      }
+    },
+    "loopback-context#per-request": {},
+    "./middleware/tracker": {}
+  },
+  "initial:after": {
+    "express-middleware": {
+      "params": "./middleware/switch-datasource"
+    }
+  },
+  "session": {}, 
+  "parse": {
+    "body-parser#json": { "params" : { "limit" : "50mb"} },
+    "body-parser#urlencoded": {"params": { "limit" : "50mb","extended": true }}
+  },
+  "routes": {
+    "loopback#rest": {
+      "paths": [
+        "${restApiRoot}"
+      ]
+    },
+    "./middleware/auth": {}
+  },
+  "files": {
+    "loopback#static": {
+      "params": "$!../client/app"
+    }
+  },
+  "final": {
+    "loopback#urlNotFound": {}
+  },
+  "final:after": {
+    "loopback#errorHandler": {}
+  }
+}

@@ -1,0 +1,32 @@
+{
+	"name": "Major",
+	"plural": "Majors",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": false,
+			"index": {
+				"unique": true
+			}
+		},
+		"icon": {
+			"type": "string"
+		},
+		"slug": {
+			"type": "string",
+			"required": false,
+			"index": {
+				"unique": true
+			}
+		},
+		"vi-slug": {
+			"type": "string",
+			"required": false,
+			"index": {
+				"unique": true
+			}
+		}
+	}
+}

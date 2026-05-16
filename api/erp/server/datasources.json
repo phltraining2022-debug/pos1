@@ -1,0 +1,34 @@
+{
+  "db": {
+    "host": "127.0.0.1",
+    "port": 27017,
+    "database": "kara",
+    "name": "kara",
+    "connector": "mongodb",
+    "poolSize": 10
+  },
+  "kara": {
+    "host": "127.0.0.1",
+    "port": 27017,
+    "database": "kara",
+    "name": "kara",
+    "connector": "mongodb",
+    "poolSize": 10
+  },
+  "transient": {
+    "name": "transient",
+    "connector": "transient"
+  },
+  "storage": {
+    "name": "storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "/Users/ben/Documents/bk/cdn/builder-1/kara2/api/erp/server/storage"
+  },
+  "mailgun": {
+    "name": "mailgun",
+    "connector": "loopback-connector-mailgun",
+    "apikey": "key-45fae8265fa182af6aa6063eede2245c",
+    "domain": "vietnammedicalpractice.com"
+  }
+}

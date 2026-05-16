@@ -1,0 +1,51 @@
+{
+	"name": "JobCard",
+	"plural": "jobCards",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"cardNumber": {
+			"type": "string",
+			"required": true
+		},
+		"startDate": {
+			"type": "date",
+			"required": true
+		},
+		"endDate": {
+			"type": "date",
+			"required": true
+		},
+		"productionPlanId": {
+			"type": "number",
+			"required": true
+		},
+		"workerId": {
+			"type": "number",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"productionPlan": {
+			"type": "belongsTo",
+			"model": "ProductionPlan",
+			"foreignKey": "productionPlanId"
+		},
+		"worker": {
+			"type": "belongsTo",
+			"model": "Worker",
+			"foreignKey": "workerId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

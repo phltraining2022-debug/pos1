@@ -1,0 +1,61 @@
+{
+	"name": "Warehouse",
+	"plural": "Warehouses",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"code": {
+			"type": "string"
+		},
+		"id": {
+			"type": "string",
+			"id": true,
+			"required": true,
+			"generated": false
+    	},
+		"address": {
+			"type": "string"
+		},
+		"email": {
+			"type": "string"
+		},
+		"phone": {
+			"type": "string"
+		},
+		"city": {
+			"type": "string"
+		},
+		"country": {
+			"type": "string"
+		},
+		"postalCode": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		},
+		"status": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"warehouseItems": {
+			"type": "hasMany",
+			"model": "warehouseItem",
+			"foreignKey": "warehouseId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

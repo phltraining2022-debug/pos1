@@ -1,0 +1,33 @@
+{
+  "name": "contractSideApp",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "contractId": {
+      "type": "string",
+      "required": true
+    },
+    "range": {
+      "type": "number",
+      "required": true
+    },
+    "currentUsed": {
+      "type": "number",
+      "required": true,
+      "default": "0"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "contract": {
+      "type": "belongsTo",
+      "model": "contract",
+      "foreignKey": "contractId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

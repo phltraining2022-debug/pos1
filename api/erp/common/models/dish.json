@@ -1,0 +1,56 @@
+{
+	"name": "Dish",
+	"plural": "Dishes",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"code": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"category": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		},
+		"components": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"material ": {
+						"type": "belongsTo"
+					},
+					"unit": {
+						"type": "string"
+					},
+					"quantity": {
+						"type": "number"
+					}
+				}
+			}
+		}
+	},
+	"validations": [],
+	"relations": {
+		"ingredients": {
+			"type": "hasMany",
+			"model": "Ingredient",
+			"through": "ComponentIngredient",
+			"foreignKey": "dishId"
+		},
+		"componentIngredients": {
+			"type": "hasMany",
+			"model": "ComponentIngredient",
+			"foreignKey": "dishId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,199 @@
+{
+	"name": "Invoice",
+	"plural": "invoices",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"invoiceNumber": {
+			"type": "string",
+			"required": true
+		},
+		"invoiceDate": {
+			"type": "date",
+			"required": true
+		},
+		"customerId": {
+			"type": "number",
+			"required": true
+		},
+		"totalAmount": {
+			"type": "number",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"required": true
+		},
+		"insuranceCompanyId": {
+			"type": "string"
+		},
+		"insuranceCompanyName": {
+			"type": "string"
+		},
+		"totalCost": {
+			"type": "number"
+		},
+		"totalReduction": {
+			"type": "number"
+		},
+		"totalToPay": {
+			"type": "number"
+		},
+		"needToPay": {
+			"type": "number"
+		},
+		"returnReduction": {
+			"type": "number"
+		},
+		"amountToPay": {
+			"type": "number"
+		},
+		"paidAmount": {
+			"type": "number"
+		},
+		"totalInsuranceCoverApprouved": {
+			"type": "number"
+		},
+		"insuranceReduction": {
+			"type": "number"
+		},
+		"deductionPerClaim": {
+			"type": "number"
+		},
+		"sanction": {
+			"type": "number"
+		},
+		"insuranceToPayBeforeVAT": {
+			"type": "number"
+		},
+		"totalInsuranceTax": {
+			"type": "number"
+		},
+		"insuranceToPayAfterVAT": {
+			"type": "number"
+		},
+		"insurancePaid": {
+			"type": "number"
+		},
+		"receivedViaDeposit": {
+			"type": "number"
+		},
+		"cash": {
+			"type": "number"
+		},
+		"remainingAmount": {
+			"type": "number"
+		},
+		"note": {
+			"type": "string"
+		},
+		"supplierId": {
+			"type": "string"
+		},
+		"relatedProductIds": {
+			"type": [
+				"string"
+			]
+		},
+		"isAdjustment": {
+			"type": "boolean",
+			"default": false,
+			"description": "Đánh dấu đây là hoá đơn điều chỉnh"
+		},
+		"originalInvoiceId": {
+			"type": "string",
+			"description": "ID hoá đơn gốc bị điều chỉnh"
+		},
+		"adjustmentType": {
+			"type": "string",
+			"enum": ["increase", "decrease", "correction"],
+			"description": "Loại điều chỉnh: tăng / giảm / đính chính"
+		},
+		"adjustmentReason": {
+			"type": "string",
+			"description": "Lý do điều chỉnh"
+		},
+		"adjustedTotalAmount": {
+			"type": "number",
+			"description": "Tổng tiền sau khi tổng hợp tất cả điều chỉnh (chỉ ghi trên hoá đơn gốc)"
+		},
+		"items": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"productId": {
+						"type": "string",
+						"required": true
+					},
+					"quantity": {
+						"type": "number",
+						"required": true
+					}
+				}
+			}
+		}
+	},
+	"validations": [],
+	"relations": {
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"processedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "processedById"
+		},
+		"createdBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "createdById"
+		},
+		"cancelledBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "cancelledById"
+		},
+		"supplier": {
+			"type": "belongsTo",
+			"model": "Supplier",
+			"foreignKey": "supplierId"
+		},
+		"room": {
+			"type": "belongsTo",
+			"model": "Room",
+			"foreignKey": "roomId"
+		},
+		"transactions": {
+			"type": "hasMany",
+			"model": "Transaction",
+			"foreignKey": "invoiceId"
+		},
+		"relatedProducts": {
+			"type": "referencesMany",
+			"model": "Product",
+			"property": "relatedProductIds"
+		},
+		"adjustments": {
+			"type": "hasMany",
+			"model": "Invoice",
+			"foreignKey": "originalInvoiceId",
+			"description": "Danh sách hoá đơn điều chỉnh của hoá đơn gốc này"
+		},
+		"originalInvoice": {
+			"type": "belongsTo",
+			"model": "Invoice",
+			"foreignKey": "originalInvoiceId",
+			"description": "Hoá đơn gốc (nếu đây là hoá đơn điều chỉnh)"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

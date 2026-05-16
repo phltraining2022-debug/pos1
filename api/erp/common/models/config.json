@@ -1,0 +1,17 @@
+{
+	"name": "Config",
+	"plural": "Configs",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"showMenuGift": {
+			"type": "boolean"
+		}
+	},
+	"validations": [],
+	"relations": {}
+}

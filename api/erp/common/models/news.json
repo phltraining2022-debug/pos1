@@ -1,0 +1,62 @@
+{
+	"name": "News",
+	"plural": "News",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"publishedAt": {
+			"type": "date"
+		},
+		"fileName": {
+			"type": "string"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"metaTitle": {
+			"type": "string"
+		},
+		"shortDescription": {
+			"type": "string"
+		},
+		"metaDescription": {
+			"type": "string"
+		},
+		"locations": {
+			"type": [
+				"string"
+			]
+		},
+		"categories": {
+			"type": [
+				"string"
+			]
+		},
+		"description": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"categoryRefs": {
+			"type": "referencesMany",
+			"model": "Cfg",
+			"foreignKey": "categories"
+		},
+		"categoryRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "category"
+		}
+	},
+	"acls": [],
+	"url": "`/news/${slug}`",
+	"methods": []
+}

@@ -1,0 +1,33 @@
+{
+	"name": "Todo",
+	"plural": "Todos",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"description": {
+			"type": "string",
+			"required": true
+		},
+		"status": {
+			"type": "string"
+		},
+		"link": {
+			"type": "string"
+		},
+		"deadline": {
+			"type": "date"
+		}
+	},
+	"relations": {
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"application": {
+			"type": "belongsTo",
+			"model": "StudentApplication",
+			"foreignKey": "applicationId"
+		}
+	}
+}

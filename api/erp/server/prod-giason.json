@@ -1,0 +1,21 @@
+{
+    "apps": [
+      {
+        "name": "prod-giason",
+        "script": "server.js",
+        "cwd": "/home/ubuntu/staging/erp/server",
+        "exec_mode": "cluster",
+        "interpreter": "/home/ubuntu/.nvm/versions/node/v16.20.1/bin/node",
+	"instances": "4",
+	"listen_timeout": 8000,
+	"kill_timeout": 16000,
+        "env": {
+          "NODE_ENV": "production",
+          "PORT": 20002,
+          "DB_HOST": "localhost",
+          "DB_NAME": "giason",
+          "DB_PASSWORD": "mypassword"
+        }
+      }
+    ]
+  }

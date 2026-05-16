@@ -1,0 +1,35 @@
+{
+  "name": "transferHistory",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "modelName": {
+      "type": "string",
+      "required": true
+    },
+    "objectId": {
+      "type": "string",
+      "required": true
+    },
+    "changeValues": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "createdBy": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

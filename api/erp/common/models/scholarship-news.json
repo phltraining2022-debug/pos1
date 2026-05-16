@@ -1,0 +1,62 @@
+{
+	"name": "ScholarshipNews",
+	"plural": "ScholarshipNews",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"value": {
+			"type": "string"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"schoolId": {
+			"type": "string"
+		},
+		"locationId": {
+			"type": "string"
+		},
+		"levelIds": {
+			"type": "array"
+		},
+		"majorIds": {
+			"type": "array"
+		}
+	},
+	"relations": {
+		"school": {
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "schoolId"
+		},
+		"location": {
+			"type": "belongsTo",
+			"model": "location",
+			"foreignKey": "locationId"
+		},
+		"levels": {
+			"type": "referencesMany",
+			"model": "Level",
+			"foreignKey": "levelIds"
+		},
+		"majors": {
+			"type": "referencesMany",
+			"model": "Major",
+			"foreignKey": "majorIds"
+		}
+	},
+	"url": "`/scholarships/${slug}`"
+}

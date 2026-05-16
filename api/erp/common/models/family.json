@@ -1,0 +1,43 @@
+{
+  "name": "family",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "members": {
+      "type": [
+        "string"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "doctorId": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "doctor": {
+      "type": "hasOne",
+      "model": "user",
+      "foreignKey": "doctorId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

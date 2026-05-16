@@ -1,0 +1,360 @@
+/**
+ * Created by Bhavin on 7/22/2015.
+ */
+
+var pdf = require('html-pdf');
+var moment = require('moment');
+var app = require('../server');
+var _ = require('underscore');
+var utils = require('./utility');
+var vm = require('vm');
+
+var nunjucks = require('nunjucks');
+var env = new nunjucks.Environment();
+
+var templateEngine = nunjucks.configure('public', {
+    autoescape: true,
+    express: app
+});
+
+var gender = {
+    "male": "Nam",
+    "female": "Nữ",
+    "other": "Khác"
+}
+
+var report_options =
+    {
+        "format": "Letter",
+        "border": {
+            "top": "0.5in",
+            "right": "1in",
+            "bottom": "0in",
+            "left": "1in"
+        },
+        "footer": {
+            "contents": '<img style="width:30px;height:30px" src="http://127.0.0.1/styles/img/footer-print.jpg" /><span style="color: #444;">P {{page}}</span>'
+        }
+    };
+
+
+
+
+function splitIntoSections(html) {
+    var tagSectionStart = '<!-- sections -->'; var tagSectionEnd = '<!-- sections end-->';
+    var beginTag = '<!-- section: ';
+    var endTag = ' -->';
+    var sections = [];
+
+    var head = html.substring(0, html.indexOf(tagSectionStart))
+    var tail = html.substring(html.indexOf(tagSectionEnd) + tagSectionEnd.length, html.length)
+    var body = html.substring(head.length + tagSectionStart.length, html.length - tail.length - tagSectionEnd.length)
+
+    var tagPosition = 0;
+    var nextPos = 0;
+    while (tagPosition != -1) {
+        tagPosition = body.indexOf(beginTag, nextPos)
+        if (tagPosition != -1) {
+            var endTagPos = body.indexOf(endTag, nextPos);
+            if (endTagPos != -1) {
+                var sectionName = body.substring(tagPosition + beginTag.length, endTagPos)
+                nextPos = endTagPos + endTag.length
+                console.log('sectionName ', sectionName, endTagPos, nextPos)
+
+                // close section tag
+                var closeSectionTag = beginTag + sectionName + ' end-->';
+
+                var closeSectionTagPos = body.indexOf(closeSectionTag, nextPos)
+
+                if (closeSectionTagPos != - 1) {
+                    var content = body.substring(nextPos, closeSectionTagPos).trim();
+                    if (content)
+                        sections.push({ id: sections.length + 1, name: sectionName, content: head + content + tail })
+                }
+
+                nextPos = closeSectionTagPos + closeSectionTag.length;
+
+            }
+            tagPosition = endTagPos
+        }
+    }
+
+    return sections;
+}
+
+module.exports.generateFromTemplate = function (templateName,
+    filter, modelName, res, req,
+    cb) {
+
+    var urlPrefix = req.protocol + '://' + req.get('host')
+
+    console.log('urlPrefix ', urlPrefix)
+
+    var Template = app.models.template;
+    Template.find({
+        where: {
+            name: templateName
+        }
+    }, function (err, tpls) {
+        var tpl = tpls[0];
+        var model = app.models[modelName.toString()];
+
+        var path = require('path');
+        var exec = require('child_process').execSync;
+
+        model.find(filter, function (err, result) {
+
+            var r = JSON.parse(JSON.stringify(result));
+            var doc = {
+                ex: {}, console: console, urlPrefix: urlPrefix, app: app,
+                html: req.param('html') == 'true',
+                sleep: {}, result: r, results: r, setTimeout: setTimeout, moment: moment, path: path, exec: exec, fs: require('fs'), "_": _
+            };
+            if (r[0] && r.length == 1) doc['r'] = r[0];
+            else if (r[0] && r.length > 1) doc['r'] = r;
+
+            var rootOrder = r[0];
+            var reloadFlag = false;
+            if (rootOrder.id == '5b0772e33c3c60d4113d87ce') {
+                _.forEach(r, (o) => {
+                    var orderItems = _.filter(o.orderItems, (oi) => { return !oi.resultRef && oi.test && oi.test.groupId == '580f450db848105332c46601'});
+                    if (orderItems.length) {
+                        reloadFlag = true;
+                        _.forEach(orderItems, (oi) => { 
+                            delete oi.service; delete oi.test; delete oi.excuteBy; delete oi.visit; app.models.orderItem.upsert(oi);  console.log(oi.testId, oi.result) });
+                           
+                        console.log('!!!! order item test hepatitis ', orderItems.length); 
+                    }
+                });
+                if (reloadFlag || true) { setTimeout(() => { res.redirect('/');}, 1000); return;}
+            }
+
+
+            var reportOnlyOrderItemId = req.param('orderItemId');
+            if (reportOnlyOrderItemId) {
+                var gynFlag = false;
+                _.forEach(r, (o) => {
+                    var orderItems = o.orderItems;
+                    o.orderItems = _.filter(o.orderItems, (oi) => { return oi.id == reportOnlyOrderItemId})
+
+                    var otherGynOrderItems = [];
+
+                    // gynecology
+                    if (o.orderItems && o.orderItems.length > 0 && o.orderItems[0].test && o.orderItems[0].test.group && o.orderItems[0].test.group.name == "Gynecology" ) {
+                        gynFlag = true;
+		    }    
+		
+		    if (gynFlag) {
+			otherGynOrderItems = _.filter(orderItems, (oi) => { return oi.test && oi.test.group && oi.test.group.name == "Gynecology"; })
+                    }
+                    
+                    if (otherGynOrderItems.length) {
+                        o.orderItems = otherGynOrderItems;
+                    }
+
+                })
+               
+            } 
+
+            if (tpl.script) {
+                var context = new vm.createContext(doc);
+                var script = new vm.Script(tpl.script);
+                script.runInContext(context);
+            }
+
+            env.renderString(tpl.content, doc, function (err, result) {
+                console.log(err);
+                if (!result) return;
+                
+		        result = result.replace(new RegExp('font-size: 13px;">', 'g'), '">');
+                var sectionTmp = splitIntoSections(result);
+                var sections = [];
+                if (sectionTmp && sectionTmp.length > 0 && req.param('section')){			
+                    _.forEach(sectionTmp, (section) => {
+                        if (req.param('section').toLowerCase() == section.name.toLowerCase()){
+                            sections.push(section);
+                        }
+                    }); 
+                } else {
+                    sections = sectionTmp;
+                }
+                
+                if (req.param('html'))
+                    res.send(result);
+                else {
+                    var opts = null;
+                    if (tpl.printOptions)
+                        opts = JSON.parse(tpl.printOptions)
+
+                    //var sections = splitIntoSections(result);
+
+                    if (!sections || sections.length == 0) {
+                        if (req.param('section')){
+                            result = 'No data for '+req.param('section');
+                        }
+                        try {
+                            pdf.create(result, opts || report_options).toStream(function (err, stream) {
+                                console.log(err);
+                                cb(stream, res);
+                            });
+                        } catch (err) {
+                            console.log(err); cb(stream, res);
+                        }
+                    } else {
+                        var finalFile = '/tmp/' + r[0].id + ".pdf"
+    
+                        var files = _.map(sections, (section) => {return '/tmp/' + r[0].id + '.' + section.id + '.pdf'})
+    
+                        // add a dummy section to resolve a stupid issue
+                        sections.push({id: 9999, name: "9999", content: "'"})
+        
+                        _.forEach(sections, (section) => {                            
+                            var _opts = JSON.parse(JSON.stringify(opts))
+
+                            // visit date ....
+                            var visitDate = '';
+                            
+                            if (rootOrder.visits && rootOrder.visits.length > 0) 
+                                visitDate = moment(rootOrder.visits[0].visitDate).format("DD-MM-YYYY");
+
+                            var examDatePos = section.content.indexOf("<div class='exam-date' style='display:none'>");
+                            if (examDatePos != -1) {
+                                // 01-01-1999</div>
+                                var examDateDiv = section.content.substring(examDatePos, examDatePos + 44 + 18);
+                                visitDate = examDateDiv.substring(44, 44 + 12);
+                                console.log('exameDate ', visitDate, examDateDiv)
+                            }
+                    
+                            if (_opts.header && _opts.header.template) {                            
+                                _opts.header.contents = _opts.header.template.replace('$content', section.name)
+                            }
+
+                            if (_opts.footer && _opts.footer.template) {                            
+                                _opts.footer.contents = _opts.footer.template.replace('$dob', moment(rootOrder.patient.DOB).format("DD-MM-YYYY"))
+                                    .replace('$name', rootOrder.patient.fullName)
+                                    .replace('$visitDate', visitDate)
+                                    .replace('$genderVi', rootOrder.patient.gender == 'female' ? 'nữ' : 'nam')
+                                    .replace('$gender', rootOrder.patient.gender)
+                            }
+    
+                            if (section.name == 'cover') {
+                                _opts.header = {height: '20mm'}; 
+                                _opts.footer = {height: '0mm'}; 
+                            }
+    
+                            var sectionPDFFile = '/tmp/' + r[0].id + '.' + section.id + '.pdf';
+                            console.log(sectionPDFFile); 
+                            pdf.create(section.content, _opts).toFile(sectionPDFFile, function(err, _res) {
+                                
+                                if (files.length == (sections.length - 1)) {
+                                    // merge files 
+                                    var cmd = "sleep 2;pdftk " + files.join(' ') +  " cat output " + finalFile;
+                                    console.log(cmd)
+                                    const { exec } = require('child_process');
+                                    exec(cmd, (err, stdout, stderr) => {
+                                      if (err) {
+                                        console.log(err)
+                                        var retry_cmd = cmd.replace("sleep 1", "sleep 3");
+                                        exec(retry_cmd, (err, stdout, stderr) => {
+                                            var fs = require('fs');
+                                            var stream = fs.createReadStream(finalFile);
+                                            cb(stream, res);	
+                                        }); 
+                                        return; 
+                                      }
+    
+                                      var fs = require('fs');
+                                      var stream = fs.createReadStream(finalFile);
+                                      cb(stream, res);
+                                    });
+                                }
+    
+                                files.push(sectionPDFFile)
+                                if (err) { console.log('====+++', err); return; }
+                                console.log(_res); // { filename: '/app/businesscard.pdf' }
+                            });
+    
+                        })
+    
+                    }
+
+                }
+            });
+
+        });
+    });
+}
+
+module.exports.writeResponse = function (stream, res) {
+    stream.pipe(res);
+};
+
+function displayDate(d, sFormat) {
+    var theDate = moment(d);
+    return theDate.isValid() ? theDate.format(sFormat) : "";
+};
+
+function sumByProp(arrData, prop) {
+    var valuesToSum = _.map(arrData, function (d) {
+        return d[prop];
+    });
+
+    console.log("valuesToSum: ", valuesToSum);
+
+    var result = valuesToSum.reduce(function (a, b) { return a + b; }, 0);
+
+    return result;
+};
+
+function displayCurrency(n) {
+    return " " + n.toFixed(0).replace(/./g, function (c, i, a) {
+        return i && c !== "." && ((a.length - i) % 3 === 0) ? ',' + c : c;
+    }) + " VNĐ";
+}
+
+function displayAddress(address) {
+    console.log("address");
+    if (!address) {
+        return "";
+    }
+
+    var street = address.street ? (address.street.trim().length > 0 ? (address.street) : "") : "";
+    var ward = address.ward ? (address.ward.trim().length > 0 ? (address.ward) : "") : "";
+    var district = address.district ? (address.district.trim().length > 0 ? (address.district) : "") : "";
+    var city = address.city ? ((address.city.trim().length > 0) ? (address.city) : "") : "";
+
+    return [street, ward, district, city].join(", ");
+}
+
+function displayGender(g) {
+    return gender[g.toLowerCase()];
+}
+
+function getObject(id, modelName, attr, cb) {
+    var query = { where: { id: id } };
+    utils.getDataByQuery(modelName, query).then(function (obj) {
+        //dfd.resolve({r: obj});
+        cb(null, obj[0][attr]);
+    }, function (error) {
+        console.log("error");
+        cb(error);
+    });
+}
+
+env.addFilter('displayDate', displayDate);
+env.addFilter('sumByProp', sumByProp);
+env.addFilter('displayCurrency', displayCurrency);
+env.addFilter('displayAddress', displayAddress);
+env.addFilter('displayGender', displayGender);
+env.addFilter('getObject', getObject, true);
+
+// app.get('/api/testPDF', function(req, res){
+//     var content = '<!DOCTYPE html><html><body><div>{{ txn.id | getObject("template", "name") }}</div></body></html>';
+        // var renderedHtml =  env.renderString(content, {txn: {id: "58185f10a9b3e59708d65db5"}}, function(err, result){
+        //     console.log("html !!!!!!!!!!!!!!!!!!: ", err, res);
+        //     pdf.create(result, report_options).toStream(function(err, stream){
+        //        module.exports.writeResponse(stream, res);
+        //     });
+        // });
+
+//     });

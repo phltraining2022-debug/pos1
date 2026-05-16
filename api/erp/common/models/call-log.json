@@ -1,0 +1,42 @@
+{
+	"name": "CallLog",
+	"plural": "CallLogs",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"targetObjectId": {
+			"type": "string"
+		},
+		"callerName": {
+			"type": "string"
+		},
+		"phoneNumber": {
+			"type": "string"
+		},
+		"callDuration": {
+			"type": "number"
+		},
+		"callDate": {
+			"type": "date",
+			"required": true
+		},
+		"audioUrl": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"customer": {
+        "type": "belongsTo",
+        "model": "Customer",
+        "foreignKey": "customerId"
+      },
+      "user": {
+        "type": "belongsTo",
+        "model": "user",
+        "foreignKey": "userId"
+      }
+	},
+	"acls": [],
+	"methods": []
+}

@@ -1,0 +1,41 @@
+{
+	"name": "Post","plural": "Posts",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"title": {
+			"type": "string",
+			"required": true
+		},
+		"category": {
+			"type": "string",
+			"required": true
+		},
+		"content": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"like": {
+		  "type": "belongsTo",
+		  "model": "Like",
+		  "foreignKey": "likeId"
+		},
+		"customer": {
+		  "type": "belongsTo",
+		  "model": "Customer",
+		  "foreignKey": "customerId"
+		},
+		"user": {
+		  "type": "belongsTo",
+		  "model": "user",
+		  "foreignKey": "userId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

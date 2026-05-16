@@ -1,0 +1,48 @@
+{
+	"name": "TemplateBlock",
+	"plural": "TemplateBlocks",
+	"base": "PersistedModel",
+	"properties": {
+		"templateId": {
+			"type": "string",
+			"required": true
+		},
+		"blockId": {
+			"type": "string",
+			"required": true
+		},
+		"order": {
+			"type": "number",
+			"default": 0
+		}
+	},
+	"scope": {
+		"include": "block"
+	},
+	"validations": [],
+	"relations": {
+		"template": {
+			"type": "belongsTo",
+			"model": "Template",
+			"foreignKey": "templateId"
+		},
+		"block": {
+			"type": "belongsTo",
+			"model": "Block",
+			"foreignKey": "blockId"
+		}
+	},
+	"indexes": {
+		"uniqueCombination": {
+			"keys": {
+				"blockId": 1,
+				"templateId": 1
+			},
+			"options": {
+				"unique": true
+			}
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

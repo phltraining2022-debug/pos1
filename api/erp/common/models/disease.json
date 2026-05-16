@@ -1,0 +1,72 @@
+{
+    "name": "Disease",
+    "plural": "Diseases",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true
+    },
+    "properties": {
+      "name": {
+        "type": "string",
+        "required": true,
+        "description": "The name of the disease"
+      },
+      "description": {
+        "type": "string",
+        "description": "A detailed description of the disease"
+      },
+      "symptoms": {
+        "type": "array",
+        "itemType": "string",
+        "description": "A list of symptoms associated with the disease"
+      },
+      "transmissionMode": {
+        "type": "string",
+        "description": "The way the disease spreads (e.g., airborne, contact, vector)"
+      },
+      "severity": {
+        "type": "string",
+        "description": "The severity of the disease (e.g., mild, moderate, severe)"
+      },
+      "treatment": {
+        "type": "array",
+        "itemType": "string",
+        "description": "Treatment options available for the disease"
+      },
+      "isContagious": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether the disease is contagious"
+      },
+      "recommendedProducts": {
+        "type": "array",
+        "itemType": "object",
+        "description": "An array of recommended products with quantities for treatment or management",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "The ID of the recommended product"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "The quantity of the product to be used"
+          }
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "defaultFn": "now",
+        "description": "The date when the disease record was created"
+      },
+      "updatedAt": {
+        "type": "date",
+        "defaultFn": "now",
+        "description": "The date when the disease record was last updated"
+      }
+    },
+    "validations": [],
+    "acls": [],
+    "methods": {}
+  }
+  

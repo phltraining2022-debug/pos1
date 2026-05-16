@@ -1,0 +1,42 @@
+{
+  "name": "ProductionOrderItem",
+  "base": "AppModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true
+    },
+    "properties": {
+      "productionOrderId": {
+        "type": "string",
+        "required": true
+      },
+      "productId": {
+        "type": "string",
+        "required": true
+      },
+      "quantity": {
+        "type": "number",
+        "required": true
+      },
+      "unitPrice": {
+        "type": "number"
+      },
+      "totalPrice": {
+        "type": "number"
+      }
+    },
+    "validations": [],
+    "relations": {
+      "productionOrder": {
+        "type": "belongsTo",
+        "model": "ProductionOrder",
+        "foreignKey": "productionOrderId"
+      },
+      "product": {
+        "type": "belongsTo",
+        "model": "Product",
+        "foreignKey": "productId"
+      }
+    },
+    "methods": {}
+}

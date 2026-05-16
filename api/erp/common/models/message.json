@@ -1,0 +1,30 @@
+{
+  "name": "message","plural": "messages",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "type": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "fromId": {
+      "type": "string"
+    },
+    "channel_id": {
+      "type": "string"
+    },
+    "toId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+  },
+  "acls": [],
+  "methods": {}
+}

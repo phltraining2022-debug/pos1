@@ -1,0 +1,41 @@
+{
+  "name": "medicalQuestion",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "section": {
+      "type": "string"
+    },
+    "viQuestion": {
+      "type": "string"
+    },
+    "jpQuestion": {
+      "type": "string"
+    },
+    "enQuestion": {
+      "type": "string"
+    },
+    "korQuestion": {
+      "type": "string"
+    },
+    "sortOrder": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "medicalQuestionSection": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "section"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

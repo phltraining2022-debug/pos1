@@ -1,0 +1,25 @@
+{
+	"name": "Material",
+	"plural": "Materials",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true,
+			"index": true
+		}
+	},
+	"relations": {
+		"group": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "groupId"
+		},
+		"type": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "typeId"
+		}
+	}
+}

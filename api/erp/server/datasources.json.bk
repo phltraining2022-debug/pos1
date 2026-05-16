@@ -1,0 +1,17 @@
+{
+  "db": {
+    "database": "ats",
+    "name": "db",
+    "connector": "mongodb"
+  },
+  "transient": {
+    "name": "transient",
+    "connector": "transient"
+  },
+  "mailgun": {
+    "name": "mailgun",
+    "connector": "loopback-connector-mailgun",
+    "apikey": "key-45fae8265fa182af6aa6063eede2245c",
+    "domain": "vietnammedicalpractice.com"
+  }
+}

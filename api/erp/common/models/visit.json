@@ -1,0 +1,190 @@
+{
+	"name": "visit",
+	"plural": "visits",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"visitId": {
+			"type": "string"
+		},
+		"visitDate": {
+			"type": "date",
+			"required": true
+		},
+		"orderId": {
+			"type": "string"
+		},
+		"subOrderIds": {
+			"type": [
+				"string"
+			]
+		},
+		"subOrders": {
+			"type": [
+				"object"
+			]
+		},
+		"doctorId": {
+			"type": "string"
+		},
+		"appointmentId": {
+			"type": "string"
+		},
+		"doctor": {
+			"type": "object"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"medicalRecordId": {
+			"type": "string"
+		},
+		"medicalRecord": {
+			"type": "object"
+		},
+		"updatedAt": {
+			"type": "date"
+		},
+		"patientId": {
+			"type": "string"
+		},
+		"reportTemplateId": {
+			"type": "string"
+		},
+		"patient": {
+			"type": "object"
+		},
+		"order": {
+			"type": "object"
+		},
+		"clinicId": {
+			"type": "string"
+		},
+		"updatedById": {
+			"type": "string"
+		},
+		"licensePlate": {
+			"type": "string"
+		},
+		"customerId": {
+			"type": "string"
+		},
+		"customerName": {
+			"type": "string"
+		},
+		"numberOfKm": {
+			"type": "number"
+		},
+		"plannedDueDate": {
+			"type": "date"
+		},
+		"manufactureDate": {
+			"type": "date"
+		},
+		"numberOfKmWhenWorkDone": {
+			"type": "number"
+		},
+		"serviceConsulting": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		},
+		"insuranceName": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"patient": {
+			"type": "belongsTo",
+			"model": "patient",
+			"foreignKey": "patientId"
+		},
+		"branch": {
+			"type": "belongsTo",
+			"model": "Branch",
+			"foreignKey": "branchId"
+		},
+		"order": {
+			"type": "belongsTo",
+			"model": "order",
+			"foreignKey": "orderId"
+		},
+		"statusRef": {
+			"type": "belongsTo",
+			"model": "NCfg",
+			"foreignKey": "status"
+		},
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"receptionist": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "receptionistId"
+		},
+		"orders": {
+			"type": "hasMany",
+			"model": "order",
+			"foreignKey": "visitId"
+		},
+		"doctor": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "doctorId"
+		},
+		"appointment": {
+			"type": "belongsTo",
+			"model": "Appointment",
+			"foreignKey": "appointmentId"
+		},
+		"testResult": {
+			"type": "hasOne",
+			"model": "testResult",
+			"foreignKey": ""
+		},
+		"subOrders": {
+			"type": "hasMany",
+			"model": "order",
+			"foreignKey": ""
+		},
+		"medicalRecord": {
+			"type": "hasOne",
+			"model": "medicalRecord",
+			"foreignKey": ""
+		},
+		"prescriptions": {
+			"type": "hasMany",
+			"model": "prescription",
+			"foreignKey": ""
+		},
+		"clinic": {
+			"type": "belongsTo",
+			"model": "clinic",
+			"foreignKey": "clinicId"
+		},
+		"updatedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "updatedById"
+		},
+		"diseases": {
+			"type": "referencesMany",
+			"model": "Disease",
+			"foreignKey": "diseaseIds"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

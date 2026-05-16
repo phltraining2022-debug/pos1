@@ -1,0 +1,118 @@
+{
+	"name": "Customer",
+	"plural": "Customers",
+	"base": "User",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"email": {
+			"type": "string",
+			"validatesFormatOf": {
+				"arg": "email",
+				"type": "email",
+				"message": "Email is not valid."
+			}
+		},
+		"phone": {
+			"type": "string",
+			"required": true
+		},
+		"dob": {
+			"type": "date"
+		},
+		"CCCD": {
+			"type": "string"
+		},
+		"taxCode": {
+			"type": "string"
+		},
+		"issueDate": {
+			"type": "date"
+		},
+		"address": {
+			"type": "string"
+		},
+		"city": {
+			"type": "string"
+		},
+		"country": {
+			"type": "string"
+		},
+		"postalCode": {
+			"type": "string"
+		},
+		"isActive": {
+			"type": "boolean",
+			"default": true
+		},
+		"password": {
+			"type": "string"
+		},
+		"oauthId": {
+            "type": "string",
+            "description": "OAuth ID"
+        },
+        "avatar": {
+            "type": "string",
+            "description": "Profile picture URL from OAuth provider"
+        },
+        "oauthProvider": {
+            "type": "string",
+            "description": "OAuth provider name (facebook, google)"
+        }
+	},
+	"scope": {
+		"include": "typeRef"
+	},
+	"validations": [],
+	"relations": {
+		"orders": {
+			"type": "hasMany",
+			"model": "SaleOrder",
+			"foreignKey": "customerId"
+		},
+		"transactions": {
+			"type": "hasMany",
+			"model": "Transaction",
+			"foreignKey": "customerId"
+		},
+		"redemptionCodes": {
+			"type": "hasMany",
+			"model": "RedemptionCode",
+			"foreignKey": "redeemedByCustomerId"
+		},
+		"membership": {
+			"type": "belongsTo",
+			"model": "MembershipTier",
+			"foreignKey": "membershipId"
+		},
+		"installations": {
+			"type": "hasMany",
+			"model": "installation",
+			"foreignKey": "userId"
+		},
+		"typeRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "type"
+		},
+		"vehicles": {
+			"type": "hasMany",
+			"model": "Vehicle",
+			"foreignKey": "customerId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Kitchen Items</title>
+</head>
+<body>
+    <h1>Test Kitchen Items</h1>
+    <button onclick="addTestItem()">Add Test Item</button>
+    <button onclick="addTestRoom()">Add Test Room</button>
+    <button onclick="mockKitchenLogin()">Mock Kitchen Login</button>
+    <div id="output"></div>
+
+    <script>
+        function addTestItem() {
+            const testItem = {
+                id: 'test-kitchen-1',
+                saleOrderId: 'test-order-123',
+                productId: 'product-1',
+                name: 'Test Beer',
+                quantity: 2,
+                unitPrice: 25000,
+                unit: 'chai',
+                note: 'Test note',
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                isTimeBased: false
+            };
+
+            const existing = JSON.parse(localStorage.getItem('saleorderitems') || '[]');
+            existing.push(testItem);
+            localStorage.setItem('saleorderitems', JSON.stringify(existing));
+            document.getElementById('output').innerHTML = 'Added test item to localStorage';
+        }
+
+        function addTestRoom() {
+            const testRoom = {
+                id: 'test-room-1',
+                name: 'Test Room 1',
+                code: 'TR1',
+                type: 'Small',
+                status: 'occupied',
+                saleOrderId: 'test-order-123',
+                startTime: new Date().toISOString(),
+                customerInfo: {
+                    name: 'Test Customer',
+                    phone: '0123456789',
+                    guests: 4
+                },
+                images: [],
+                updatedAt: new Date().toISOString()
+            };
+
+            const existing = JSON.parse(localStorage.getItem('rooms') || '[]');
+            existing.push(testRoom);
+            localStorage.setItem('rooms', JSON.stringify(existing));
+            document.getElementById('output').innerHTML = 'Added test room to localStorage';
+        }
+
+        function mockKitchenLogin() {
+            // Mock user profile for kitchen role
+            const userProfile = {
+                id: 1,
+                username: 'kitchen',
+                email: 'kitchen@test.com',
+                roles: [{ name: 'kitchen' }]
+            };
+
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            localStorage.setItem('$LoopBack$user', JSON.stringify(userProfile));
+            localStorage.setItem('$LoopBack$accessTokenId', 'mock-token-123');
+
+            document.getElementById('output').innerHTML = 'Mock kitchen login completed. Go to /#/kitchen';
+        }
+    </script>
+</body>
+</html>

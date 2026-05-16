@@ -1,0 +1,71 @@
+{
+	"name": "import",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"toWarehouseId": {
+			"type": "string",
+			"required": true
+		},
+		"fromWarehouseId": {
+			"type": "string"
+		},
+		"executedByStaffId": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date",
+			"required": true
+		},
+		"isInternal": {
+			"type": "boolean",
+			"default": false
+		},
+		"updatedAt": {
+			"type": "date"
+		},
+		"totalPrice": {
+			"type": "number",
+			"required": true
+		},
+		"status": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"toWarehouse": {
+			"type": "belongsTo",
+			"model": "warehouse",
+			"foreignKey": "toWarehouseId"
+		},
+		"fromWarehouse": {
+			"type": "belongsTo",
+			"model": "warehouse",
+			"foreignKey": "fromWarehouseId"
+		},
+		"executedByStaff": {
+			"type": "belongsTo",
+			"model": "warehouse",
+			"foreignKey": "fromWarehouseId"
+		},
+		"items": {
+			"type": "hasMany",
+			"model": "warehouseItem",
+			"foreignKey": "importId"
+		},
+		"supplier": {
+			"type": "belongsTo",
+			"model": "supplier",
+			"foreignKey": "supplierId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

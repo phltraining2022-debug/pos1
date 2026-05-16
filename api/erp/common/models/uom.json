@@ -1,0 +1,27 @@
+{
+	"name": "UOM",
+	"plural": "UOMs",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"symbol": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"conversions": {
+			"type": "object",
+			"default": {},
+			"required": true
+		}
+	},
+	"validations": [],
+	"acls": [],
+	"methods": {}
+}

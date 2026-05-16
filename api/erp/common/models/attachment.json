@@ -1,0 +1,52 @@
+{
+  "name": "attachment",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "uploadedById": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "path": {
+      "type": "string",
+      "required": true
+    },
+    "size": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "belongToId": {
+      "type": "string",
+      "required": true
+    },
+    "images": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "uploadedBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "uploadedById"
+    },
+    "belongTo": {
+      "type": "belongsTo",
+      "model": "orderItem",
+      "foreignKey": "belongToId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

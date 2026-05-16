@@ -1,0 +1,46 @@
+{
+  "name": "MembershipTier",
+  "base": "AppModel",
+  "plural": "MembershipTiers",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "The public name of the membership tier (e.g., Bronze, Silver, Gold, Platinum)."
+    },
+    "level": {
+      "type": "number",
+      "required": true,
+      "unique": true,
+      "description": "A numeric rank for sorting tiers, e.g., 1 for Bronze, 2 for Silver. Higher is better."
+    },
+    "minPoints": {
+      "type": "number",
+      "required": true,
+      "description": "The minimum number of points required to achieve this tier."
+    },
+    "description": {
+      "type": "string",
+      "description": "A short, user-facing description of the tier and its core value."
+    },
+    "benefits": {
+      "type": [
+        "string"
+      ],
+      "description": "A list of benefits or perks associated with this tier."
+    },
+    "iconUrl": {
+      "type": "string",
+      "description": "URL to a badge or icon representing the tier."
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

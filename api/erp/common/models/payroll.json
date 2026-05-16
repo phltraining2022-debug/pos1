@@ -1,0 +1,181 @@
+{
+	"name": "Payroll",
+	"plural": "Payrolls",
+	"idInjection": true,
+	"base": "AppModel",
+	"description": "Phiếu lương tháng của nhân viên chính thức",
+	"properties": {
+		"period": {
+			"type": "string",
+			"required": true,
+			"index": true,
+			"description": "Kỳ lương, ví dụ '2026-03'",
+			"icon": "ph-calendar"
+		},
+		"employeeId": {
+			"type": "string",
+			"required": true,
+			"index": true,
+			"icon": "ph-user"
+		},
+		"employeeName": {
+			"type": "string",
+			"description": "Tên nhân viên (lưu trực tiếp)",
+			"icon": "ph-user"
+		},
+		"employeeCode": {
+			"type": "string",
+			"description": "Mã nhân viên (lưu trực tiếp)",
+			"icon": "ph-identification-badge"
+		},
+		"departmentId": {
+			"type": "string",
+			"index": true,
+			"icon": "ph-building"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "draft",
+			"enum": ["draft", "pending", "approved", "paid"],
+			"description": "Trạng thái: nháp → chờ duyệt → đã duyệt → đã thanh toán",
+			"icon": "ph-circle"
+		},
+		"attendanceDays": {
+			"type": "number",
+			"default": 0,
+			"description": "Số ngày công thực tế trong kỳ",
+			"icon": "ph-calendar-check"
+		},
+		"standardDays": {
+			"type": "number",
+			"default": 26,
+			"description": "Số ngày công chuẩn trong tháng"
+		},
+		"leaveDays": {
+			"type": "number",
+			"default": 0
+		},
+		"absentDays": {
+			"type": "number",
+			"default": 0
+		},
+		"otHours": {
+			"type": "number",
+			"default": 0,
+			"description": "Số giờ tăng ca",
+			"icon": "ph-clock"
+		},
+		"otMultiplier": {
+			"type": "string",
+			"default": "1.5",
+			"description": "Hệ số tăng ca (1.5 / 2 / 3)"
+		},
+		"baseSalary": {
+			"type": "number",
+			"default": 0,
+			"description": "Lương cơ bản × hệ số công",
+			"icon": "ph-currency-dollar"
+		},
+		"allowances": {
+			"type": "number",
+			"default": 0,
+			"description": "Tổng phụ cấp (nhà ở + đi lại + ăn + điện thoại)"
+		},
+		"bonus": {
+			"type": "number",
+			"default": 0
+		},
+		"otPay": {
+			"type": "number",
+			"default": 0,
+			"description": "Tiền tăng ca"
+		},
+		"grossSalary": {
+			"type": "number",
+			"default": 0,
+			"description": "Lương CB + phụ cấp + thưởng + tăng ca"
+		},
+		"socialInsurance": {
+			"type": "number",
+			"default": 0,
+			"description": "BHXH người lao động đóng (8%)"
+		},
+		"healthInsurance": {
+			"type": "number",
+			"default": 0,
+			"description": "BHYT người lao động đóng (1.5%)"
+		},
+		"unemploymentInsurance": {
+			"type": "number",
+			"default": 0,
+			"description": "BHTN người lao động đóng (1%)"
+		},
+		"incomeTax": {
+			"type": "number",
+			"default": 0,
+			"description": "Thuế TNCN lũy tiến (TT111/2013)"
+		},
+		"deductions": {
+			"type": "number",
+			"default": 0,
+			"description": "Tổng khấu trừ (BHXH + BHYT + BHTN + thuế TNCN + các khoản khác)"
+		},
+		"otherDeductions": {
+			"type": "number",
+			"default": 0
+		},
+		"advancedAmount": {
+			"type": "number",
+			"default": 0,
+			"description": "Tạm ứng lương đã nhận"
+		},
+		"dependents": {
+			"type": "number",
+			"default": 0,
+			"description": "Số người phụ thuộc giảm trừ thuế (4.4 triệu/người)"
+		},
+		"netSalary": {
+			"type": "number",
+			"default": 0,
+			"description": "Lương thực lĩnh",
+			"icon": "ph-money"
+		},
+		"paymentDate": {
+			"type": "date",
+			"description": "Ngày chi lương"
+		},
+		"payPeriodStart": {
+			"type": "date"
+		},
+		"payPeriodEnd": {
+			"type": "date"
+		},
+		"notes": {
+			"type": "string",
+			"icon": "ph-note"
+		}
+	},
+	"relations": {
+		"employee": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "employeeId"
+		},
+		"department": {
+			"type": "belongsTo",
+			"model": "Department",
+			"foreignKey": "departmentId"
+		}
+	},
+	"validations": [],
+	"acls": [],
+	"methods": {
+		"generate": {
+			"accepts": [{"arg": "period", "type": "string", "required": true, "http": {"source": "body"}}],
+			"returns": {"arg": "result", "type": "object"},
+			"http": {"verb": "post", "path": "/generate"},
+			"description": "Tự động tạo bảng lương tháng cho toàn bộ nhân viên từ dữ liệu chấm công"
+		}
+	}
+}

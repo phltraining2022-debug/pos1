@@ -1,0 +1,60 @@
+{
+	"name": "BOMComponent",
+	"base": "PersistedModel",
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"productId": {
+			"type": "string",
+			"required": true
+		},
+		"bomId": {
+			"type": "string",
+			"required": true
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"unit": {
+			"type": "string"
+		},
+		"notes": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"material": {
+			"type": "belongsTo",
+			"model": "Material",
+			"foreignKey": "materialId"
+		},
+		"bom": {
+			"type": "belongsTo",
+			"model": "BOM",
+			"foreignKey": "bomId"
+		},
+		"uom": {
+			"type": "belongsTo",
+			"model": "UOM",
+			"foreignKey": "uomId"
+		}
+	},
+	"acls": [],
+	"methods": [],
+	"scope": {
+		"include": [
+			"product",
+			"uom"
+		]
+	}
+}

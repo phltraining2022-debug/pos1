@@ -1,0 +1,1611 @@
+<!-- Cashier POS Dashboard - iPad Landscape 3-Column Layout -->
+<div class="cashier-root h-screen flex flex-col bg-gray-900">
+    <!-- Header -->
+    <div class="bg-gray-800 text-white px-4 py-3 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-cash-register text-2xl text-purple-400"></i>
+            <div>
+                <h1 class="text-xl font-bold">Thu Ngân - POS</h1>
+                <p class="text-sm text-gray-400">{{currentTime | date:'HH:mm - dd/MM/yyyy'}}</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-1 sm:space-x-2">
+
+            <!-- Sync Status -->
+            <div class="flex items-center" title="Trạng thái đồng bộ">
+                <span ng-if="getSyncStatus().isOnline" class="flex items-center text-green-400 text-xs sm:text-sm">
+                    <i class="fas fa-wifi"></i>
+                    <span class="hidden sm:inline ml-1">Online</span>
+                    <span ng-if="getSyncStatus().pendingCount > 0" class="ml-1 bg-yellow-600 text-white text-xs px-1.5 py-0.5 rounded-full">{{getSyncStatus().pendingCount}}</span>
+                </span>
+                <span ng-if="!getSyncStatus().isOnline" class="flex items-center text-red-400 text-xs sm:text-sm">
+                    <i class="fas fa-wifi-slash"></i>
+                    <span class="hidden sm:inline ml-1">Offline</span>
+                </span>
+            </div>
+
+            <!-- View Tabs (unified, responsive: icon-only on mobile, icon+text on sm+) -->
+            <button ng-click="switchView('pos')"
+                    ng-class="{'bg-purple-600': view === 'pos', 'bg-gray-700': view !== 'pos'}"
+                    class="px-2 sm:px-4 py-2 rounded-lg transition-colors hover:bg-purple-700 flex items-center">
+                <i class="fas fa-cash-register"></i><span class="hidden sm:inline ml-2">POS</span>
+            </button>
+            <button ng-click="switchView('dashboard')"
+                    ng-class="{'bg-purple-600': view === 'dashboard', 'bg-gray-700': view !== 'dashboard'}"
+                    class="px-2 sm:px-4 py-2 rounded-lg transition-colors hover:bg-purple-700 flex items-center">
+                <i class="fas fa-chart-bar"></i><span class="hidden sm:inline ml-2">Tổng Hợp</span>
+            </button>
+            <button ng-click="switchView('bills')"
+                    ng-class="{'bg-purple-600': view === 'bills', 'bg-gray-700': view !== 'bills'}"
+                    class="px-2 sm:px-4 py-2 rounded-lg transition-colors hover:bg-purple-700 flex items-center">
+                <i class="fas fa-receipt"></i><span class="hidden sm:inline ml-2">Hóa đơn</span>
+            </button>
+
+            <!-- Staff Panel Button (avatar + check-in dot) -->
+            <button ng-click="staffPanel.show = true"
+                    class="flex items-center space-x-1 bg-gray-700 hover:bg-gray-600 px-2 sm:px-3 py-2 rounded-lg transition-colors"
+                    title="Hồ sơ nhân viên">
+                <i class="fas fa-user-circle text-purple-400"></i>
+                <span class="hidden md:inline text-sm ml-1">{{currentUser.username}}</span>
+                <span ng-if="attendanceTodayRecord && attendanceTodayRecord.checkInTime && !attendanceTodayRecord.checkOutTime"
+                      class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0 ml-1" title="Đang trong ca"></span>
+            </button>
+
+            <!-- Click-outside overlay for overflow menu -->
+            <div ng-if="overflowMenuOpen" ng-click="overflowMenuOpen = false" class="fixed inset-0 z-40"></div>
+
+            <!-- Overflow Menu (⋮) -->
+            <div class="relative z-50">
+                <button ng-click="overflowMenuOpen = !overflowMenuOpen"
+                        class="w-9 h-9 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center justify-center transition-colors"
+                        title="Thêm">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div ng-if="overflowMenuOpen" class="absolute right-0 top-full mt-1 bg-gray-700 rounded-lg shadow-xl min-w-[180px] overflow-hidden">
+                    <button ng-click="switchView('inventory'); overflowMenuOpen = false"
+                            class="w-full text-left px-4 py-3 hover:bg-gray-600 flex items-center space-x-2 text-white">
+                        <i class="fas fa-boxes fa-fw"></i>
+                        <span>QL Hàng Hoá</span>
+                    </button>
+                    <div class="border-t border-gray-600"></div>
+                    <button ng-click="toggleTheme(); overflowMenuOpen = false"
+                            class="w-full text-left px-4 py-3 hover:bg-gray-600 flex items-center space-x-2 text-white">
+                        <i class="fas fa-fw" ng-class="theme === 'light' ? 'fa-moon' : 'fa-sun'"></i>
+                        <span>{{theme === 'light' ? 'Chế độ tối' : 'Chế độ sáng'}}</span>
+                    </button>
+                    <button ng-click="clearCache(); overflowMenuOpen = false"
+                            class="w-full text-left px-4 py-3 hover:bg-gray-600 flex items-center space-x-2 text-yellow-400">
+                        <i class="fas fa-database fa-fw"></i>
+                        <span>Cập nhật app</span>
+                    </button>
+                    <div class="border-t border-gray-600"></div>
+                    <button ng-click="logout(); overflowMenuOpen = false"
+                            class="w-full text-left px-4 py-3 hover:bg-red-700 flex items-center space-x-2 text-red-400">
+                        <i class="fas fa-sign-out-alt fa-fw"></i>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content - POS View -->
+    <div ng-if="view === 'pos'" class="flex-1 flex overflow-hidden cashier-pos-layout">
+        <!-- Column 1: Room Map -->
+        <div class="w-[30%] bg-gray-800 p-4 overflow-y-auto no-scrollbar cashier-column"
+             ng-class="{'cashier-column-hidden': mobileTab !== 'rooms'}">
+
+            
+            <div class="grid grid-cols-3 gap-3">
+                <div ng-repeat="room in rooms" 
+                     ng-click="!editBillMode && selectRoom(room)"
+                     class="rounded-lg p-4 cursor-pointer transition-all hover:scale-105 text-white"
+                     ng-class="[getRoomClass(room), editBillMode ? 'opacity-40 cursor-not-allowed' : '']">
+                    <div class="mb-1">
+                        <span class="font-bold text-lg block">{{room.name}}</span>
+                    </div>
+                    <div class="flex items-center justify-end mb-1">
+                        <i class="fas {{getRoomIcon(room)}} text-xl"></i>
+                    </div>
+                    
+                    <div class="text-sm opacity-90">
+                        <div ng-if="room.status === 'empty'">
+                            <i class="fas fa-check-circle mr-1"></i>Trống
+                        </div>
+                        <div ng-if="room.status === 'occupied'">
+                            <div class="font-mono text-lg mb-1">{{room.timer}}</div>
+                        </div>
+                        <div ng-if="room.status === 'cleaning'">
+                            <i class="fas fa-broom mr-1"></i>Đang dọn
+                        </div>
+                        <div ng-if="room.status === 'maintenance'">
+                            <i class="fas fa-wrench mr-1"></i>Bảo trì
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Column 2: Bill & Cart -->
+        <div class="w-[30%] bg-gray-700 p-4 flex flex-col cashier-column"
+             ng-class="{'cashier-column-hidden': mobileTab !== 'bill'}">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-white text-lg font-bold flex items-center">
+                    <i class="fas fa-receipt mr-2"></i>Hóa đơn
+                    <button ng-if="selectedRoom" ng-click="refreshCart()"
+                            class="ml-2 text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center rounded transition-colors"
+                            title="Làm mới đơn">
+                        <i class="fas fa-sync-alt text-xs"></i>
+                    </button>
+                </h2>
+                <div ng-if="selectedRoom" class="text-white text-sm">
+                    <span class="bg-purple-600 px-3 py-1 rounded-full">{{selectedRoom.name}}</span>
+                </div>
+            </div>
+            
+            <div ng-if="!selectedRoom" class="flex-1 flex items-center justify-center text-gray-400 text-center">
+                <div>
+                    <i class="fas fa-hand-pointer text-6xl mb-4 opacity-50"></i>
+                    <p class="text-lg">Chọn phòng để xem bill</p>
+                </div>
+            </div>
+            
+            <div ng-if="selectedRoom" class="flex-1 flex flex-col overflow-hidden">
+                <!-- Edit Bill Mode Banner -->
+                <div ng-if="editBillMode" class="flex items-center justify-between bg-yellow-900 border-2 border-yellow-500 rounded-lg px-3 py-2 mb-2 text-sm flex-shrink-0">
+                    <span class="text-yellow-300 font-semibold"><i class="fas fa-edit mr-1"></i>Đang sửa bill — chỉ Thanh toán &amp; In bill khả dụng</span>
+                    <button ng-click="exitEditBillMode()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-2 py-1 rounded text-xs font-semibold ml-2 flex-shrink-0">Thoát sửa</button>
+                </div>
+
+                <!-- Bill Info -->
+                <div class=" mb-1 text-white text-sm">
+                    <div class="flex justify-between items-center">
+                        <span>Giờ vào: <strong>{{selectedRoom.startTime | date:'HH:mm'}}</strong>
+                            <button ng-click="showEditTimeModal()" class="ml-1 text-yellow-400 hover:text-yellow-300" title="Sửa giờ vào">
+                                <i class="fas fa-pencil-alt text-xs"></i>
+                            </button>
+                        </span>
+                        <span>Đã hát: <strong class="font-mono">{{selectedRoom.timer}}</strong></span>
+                        <span>Khách: <strong>{{selectedRoom.customerInfo.name || 'Khách lẻ'}}</strong></span>
+                    </div>
+                </div>
+                
+                <!-- Cart Items -->
+                <div class="flex-1 bg-gray-800 rounded-lg p-3 mb-3 overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: #4b5563 #1f2937;">
+                    <div ng-if="cart.length === 0" class="text-gray-400 text-center py-8">
+                        <i class="fas fa-shopping-cart text-4xl mb-2 opacity-50"></i>
+                        <p>Chưa có món</p>
+                    </div>
+                    
+                    <div ng-repeat="item in cart" class="rounded-lg p-2 mb-2"
+                         ng-class="item.isSurcharge ? 'bg-yellow-900 border-2 border-yellow-600' : 'bg-gray-700'">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-semibold" ng-class="item.isSurcharge ? 'text-yellow-300' : item.isTimeBased ? 'text-blue-300' : 'text-white'">
+                                <i ng-if="item.isSurcharge" class="fas fa-clock mr-1"></i>
+                                <i ng-if="item.isTimeBased" class="fas fa-clock text-blue-400 mr-1"></i>
+                                {{item.name}}
+                            </span>
+                            <div class="flex space-x-2">
+                                <button ng-if="!item.isSurcharge && !item.isTimeBased" ng-click="editNote(item)" class="text-blue-400 hover:text-blue-500" title="Ghi chú">
+                                    <i class="fas fa-sticky-note text-sm"></i>
+                                </button>
+                                <button ng-if="!item.isSurcharge && !item.isTimeBased" ng-click="showReturnModal()" class="text-yellow-400 hover:text-yellow-500" title="Trả món">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                <button ng-if="item.isTimeBased" ng-click="editTimeBasedItem(item)" class="text-blue-400 hover:text-blue-300" title="Chỉnh giờ">
+                                    <i class="fas fa-edit text-sm"></i>
+                                </button>
+                                <button ng-click="removeFromCart(item)" class="text-red-400 hover:text-red-500" title="Xóa">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div ng-if="item.note" class="text-xs text-yellow-300 mb-1">
+                            <i class="fas fa-sticky-note mr-1"></i>{{item.note}}
+                        </div>
+                        <div ng-if="item.isSurcharge && item.surchargeConfig.autoCalculate" class="text-xs text-yellow-400 mb-1">
+                            <i class="fas fa-info-circle mr-1"></i>Số lượng tự động tính theo thời gian
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <!-- Quantity controls - ẩn hoàn toàn cho time-based products -->
+                            <div ng-if="!item.isTimeBased" class="flex items-center space-x-2">
+                                <button ng-click="updateQuantity(item, -1)" 
+                                        ng-disabled="item.isSurcharge && item.surchargeConfig.autoCalculate"
+                                        class="w-8 h-8 rounded-lg"
+                                        ng-class="(item.isSurcharge && item.surchargeConfig.autoCalculate) ? 'bg-gray-500 text-gray-400 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-500 text-white'">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="font-bold w-12 text-center" ng-class="item.isSurcharge ? 'text-yellow-300' : 'text-white'">
+                                    {{item.quantity}}
+                                </span>
+                                <button ng-click="updateQuantity(item, 1)" 
+                                        ng-disabled="item.isSurcharge && item.surchargeConfig.autoCalculate"
+                                        class="w-8 h-8 rounded-lg"
+                                        ng-class="(item.isSurcharge && item.surchargeConfig.autoCalculate) ? 'bg-gray-500 text-gray-400 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-500 text-white'">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <!-- Read-only quantity display cho time-based products -->
+                            <div ng-if="item.isTimeBased" class="flex flex-col space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-blue-400 font-bold">
+                                        <i class="fas fa-clock mr-1"></i>{{item.quantity}} giờ
+                                    </span>
+                                </div>
+                                <div class="text-xs text-gray-400">
+                                    <i class="fas fa-play-circle text-green-400 mr-1"></i>
+                                    <span ng-if="item._manualStartTime">{{item._manualStartTime | date:'HH:mm dd/MM'}}</span>
+                                    <span ng-if="!item._manualStartTime">{{(item.startTime || item.createdAt) | date:'HH:mm dd/MM'}}</span>
+                                    <span ng-if="item._manualEndTime"> &rarr; <i class="fas fa-stop-circle text-red-400 mr-1"></i>{{item._manualEndTime | date:'HH:mm dd/MM'}}</span>
+                                    <span ng-if="!item._manualEndTime" class="text-gray-500"> &rarr; hiện tại</span>
+                                </div>
+                            </div>
+                            <span class="font-semibold" ng-class="item.isSurcharge ? 'text-yellow-400' : item.isTimeBased ? 'text-blue-400' : 'text-purple-400'">
+                                {{item.price * item.quantity | number:0}}đ
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Totals Section -->
+                <div class="bg-gray-600 rounded-lg p-2 text-white space-y-1 mb-2 flex-shrink-0">
+                    <div class="flex justify-between text-sm">
+                        <span>Tiền giờ:</span>
+                        <span class="font-semibold">{{roomCharge | number:0}}đ</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Tiền món + Phụ thu:</span>
+                        <span class="font-semibold">{{foodTotal | number:0}}đ</span>
+                    </div>
+                    
+                    <!-- Tạm tính + Giảm giá (only show if discount > 0) -->
+                    <div ng-if="discount > 0" class="border-t border-gray-500 pt-1"></div>
+                    <div ng-if="discount > 0" class="flex justify-between text-sm">
+                        <span>Tạm tính:</span>
+                        <span class="font-semibold">{{subtotal | number:0}}đ</span>
+                    </div>
+                    <div ng-if="discount > 0" class="flex justify-between text-sm">
+                        <span>Giảm giá:</span>
+                        <span class="font-semibold text-red-400">-{{discount | number:0}}đ</span>
+                    </div>
+                    <div ng-if="discount > 0" class="border-t border-gray-500 pt-1"></div>
+                    <div class="flex justify-between text-base font-bold">
+                        <span>Tổng cộng:</span>
+                        <span class="text-green-400">{{total | number:0}}đ</span>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-3 gap-1 mt-2">
+                    <button ng-click="printBill()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold transition-colors text-sm">
+                        In bill
+                    </button>
+                    <button ng-click="showPaymentModal()" class="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors text-sm">
+                        Thanh toán
+                    </button>
+                    <button ng-if="!editBillMode" ng-click="showDiscountModal()" class="bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg text-sm transition-colors">
+                        Giảm giá
+                    </button>
+                    <button ng-if="!editBillMode" ng-click="showChangeRoomModal()" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm transition-colors">
+                        Đổi phòng
+                    </button>
+                    <button ng-if="!editBillMode" ng-click="showMergeBillModal()" class="bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg text-sm transition-colors">
+                        Gộp bill
+                    </button>
+                    <button ng-if="!editBillMode" ng-click="showSplitBillModal()" class="bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg text-sm transition-colors">
+                        Tách bill
+                    </button>
+                </div>
+
+                <!-- Frozen indicator -->
+                <div ng-if="selectedRoom && selectedRoom.timeFrozen" class="flex items-center justify-between bg-blue-900 border border-blue-500 rounded-lg px-3 py-2 mt-2 text-sm">
+                    <span class="text-blue-300"><i class="fas fa-pause-circle mr-1"></i>Đang ngưng tính giờ</span>
+                    <button ng-click="resumeTimeCounting()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-xs font-semibold">Tiếp tục tính</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Column 3: Menu -->
+        <div class="w-[40%] bg-gray-900 p-4 flex flex-col cashier-column"
+             ng-class="{'cashier-column-hidden': mobileTab !== 'menu'}">
+            <h2 class="text-white text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-utensils mr-2"></i>Thực đơn
+            </h2>
+            
+            <!-- Search -->
+            <div class="mb-3">
+                <input type="text"
+                       ng-model="search.query"
+                       ng-change="searchMenu()"
+                       placeholder="Tìm món..."
+                       class="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600">
+            </div>
+            
+            <!-- Categories -->
+            <div class="flex space-x-2 mb-3 overflow-x-auto">
+                <button ng-repeat="category in categories" 
+                        ng-click="selectCategory(category)"
+                        class="px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors"
+                        ng-class="selectedCategory.id === category.id ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'">
+                    <i class="fas {{category.icon}} mr-1"></i>{{category.name}}
+                </button>
+            </div>
+            
+            <!-- Menu Items -->
+            <div class="flex-1 overflow-y-auto no-scrollbar">
+                <div class="grid grid-cols-2 gap-3">
+                    <div ng-repeat="item in menuItems" 
+                         ng-click="addToCart(item)"
+                         ng-style="(item.image || (item.images && item.images.length)) ? {'background-image': 'url(' + (item.image || item.images[0].url) + ')', 'background-size': 'cover', 'background-position': 'center'} : {}"
+                         class="menu-item relative rounded-lg p-3 cursor-pointer transition-all text-white overflow-hidden active:scale-95"
+                         ng-class="(item.image || (item.images && item.images.length)) ? '' : 'bg-gray-800 hover:bg-gray-700'">
+                        <!-- dark overlay when image present -->
+                        <div ng-if="item.image || (item.images && item.images.length)" class="menu-item-overlay absolute inset-0 bg-black bg-opacity-50 transition-all rounded-lg"></div>
+                        <!-- content: add menu-item-on-image class when over a photo so text stays white in all themes -->
+                        <div class="relative z-10" ng-class="(item.image || (item.images && item.images.length)) ? 'menu-item-on-image' : ''">
+                            <div class="font-semibold mb-1 text-sm">{{item.name}}</div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-lg" ng-class="(item.image || (item.images && item.images.length)) ? 'text-white' : 'text-purple-400'">{{item.price | number:0}}đ</span>
+                                <span class="text-xs opacity-80">/ {{item.unit}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Tab Bar (POS sub-navigation, only shown on mobile) -->
+    <div class="cashier-mobile-tabs" ng-if="view === 'pos'" ng-class="{'light-tabs': theme === 'light'}">
+        <button ng-click="setMobileTab('rooms')" ng-class="{'active-tab': mobileTab === 'rooms'}">
+            <i class="fas fa-door-open"></i>
+            <span>Phòng</span>
+        </button>
+        <button ng-click="setMobileTab('bill')" ng-class="{'active-tab': mobileTab === 'bill'}">
+            <i class="fas fa-receipt"></i>
+            <span>Hóa đơn</span>
+        </button>
+        <button ng-click="setMobileTab('menu')" ng-class="{'active-tab': mobileTab === 'menu'}">
+            <i class="fas fa-utensils"></i>
+            <span>Thực đơn</span>
+        </button>
+    </div>
+    
+    <!-- Dashboard View -->
+    <div ng-if="view === 'dashboard'" class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-900">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header + Date picker -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white">Tổng Hợp</h2>
+                    <button ng-click="setDashboardToday()"
+                            class="text-xs bg-purple-700 hover:bg-purple-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fas fa-calendar-day mr-1"></i>Hôm nay
+                    </button>
+                </div>
+                <!-- Date range row -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2 flex-1 min-w-0">
+                        <label class="text-gray-400 text-xs flex-shrink-0">Từ</label>
+                        <input type="date" ng-model="dashboard.dateFrom"
+                               class="flex-1 bg-transparent text-white text-sm focus:outline-none min-w-0">
+                    </div>
+                    <span class="text-gray-500 flex-shrink-0">→</span>
+                    <div class="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2 flex-1 min-w-0">
+                        <label class="text-gray-400 text-xs flex-shrink-0">Đến</label>
+                        <input type="date" ng-model="dashboard.dateTo"
+                               class="flex-1 bg-transparent text-white text-sm focus:outline-none min-w-0">
+                    </div>
+                    <button ng-click="applyDashboardRange()"
+                            ng-disabled="dashboard.loading"
+                            class="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1">
+                        <i class="fas fa-search" ng-if="!dashboard.loading"></i>
+                        <i class="fas fa-spinner fa-spin" ng-if="dashboard.loading"></i>
+                        <span class="hidden sm:inline ml-1">Xem</span>
+                    </button>
+                </div>
+                <!-- Current range label -->
+                <p class="text-gray-400 text-sm mt-2" ng-if="dashboard.label">
+                    <i class="fas fa-calendar-alt mr-1 opacity-60"></i>{{dashboard.label}}
+                </p>
+            </div>
+            
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- Total Revenue Card -->
+                <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-6 text-white shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-semibold mb-1">Tổng Thu Ngân</p>
+                            <h3 class="text-4xl font-bold">{{dailySummary.totalRevenue | number:0}}đ</h3>
+                            <p class="text-green-100 text-xs mt-2" ng-if="dailySummary.totalRevenue > 0">
+                                <i class="fas fa-arrow-up"></i> Tăng so với hôm qua
+                            </p>
+                        </div>
+                        <i class="fas fa-money-bill-wave text-5xl opacity-30"></i>
+                    </div>
+                </div>
+                
+                <!-- Total Orders Card -->
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-6 text-white shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-semibold mb-1">Tổng Đơn Hàng</p>
+                            <h3 class="text-4xl font-bold">{{dailySummary.totalOrders}}</h3>
+                            <p class="text-blue-100 text-xs mt-2">Đơn hàng đã thanh toán</p>
+                        </div>
+                        <i class="fas fa-shopping-cart text-5xl opacity-30"></i>
+                    </div>
+                </div>
+                
+                <!-- Total Transactions Card -->
+                <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg p-6 text-white shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-semibold mb-1">Số Giao Dịch</p>
+                            <h3 class="text-4xl font-bold">{{dailySummary.totalTransactions}}</h3>
+                            <p class="text-purple-100 text-xs mt-2">Giao dịch hoàn tất</p>
+                        </div>
+                        <i class="fas fa-exchange-alt text-5xl opacity-30"></i>
+                    </div>
+                </div>
+                
+                <!-- Average Order Value Card -->
+                <div class="bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg p-6 text-white shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm font-semibold mb-1">Giá Trị Trung Bình</p>
+                            <h3 class="text-4xl font-bold">{{dailySummary.averageOrderValue | number:0}}đ</h3>
+                            <p class="text-orange-100 text-xs mt-2" ng-if="dailySummary.totalOrders > 0">
+                                Trên {{dailySummary.totalOrders}} đơn hàng
+                            </p>
+                        </div>
+                        <i class="fas fa-calculator text-5xl opacity-30"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Methods & Details -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Transactions List -->
+                <div class="bg-gray-800 rounded-lg p-6 text-white shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-list mr-3 text-blue-400"></i>
+                        Danh Sách Giao Dịch
+                    </h3>
+                    <div class="space-y-2 max-h-80 overflow-y-auto">
+                        <div ng-repeat="transaction in dailySummary.transactions"
+                             ng-click="viewTransactionDetail(transaction)"
+                             class="flex items-center justify-between pb-2 px-3 py-2 bg-gray-700 rounded border-l-4 border-green-400 hover:bg-gray-600 active:bg-gray-500 transition-colors cursor-pointer">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">{{transaction.time}}</span>
+                                    <span class="text-sm text-gray-300">{{transaction.invoiceNumber}}</span>
+                                    <span class="text-xs bg-blue-600 px-2 py-0.5 rounded">{{transaction.paymentMethod}}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-green-400">{{transaction.amount | number:0}}đ</span>
+                                <i class="fas fa-chevron-right text-gray-500 text-xs"></i>
+                            </div>
+                        </div>
+                        <div ng-if="dailySummary.transactions.length === 0" class="text-gray-500 py-8 text-center">
+                            Chưa có giao dịch
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Items -->
+                <div class="bg-gray-800 rounded-lg p-6 text-white shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-star mr-3 text-yellow-400"></i>
+                        Top Sản Phẩm Bán Chạy
+                    </h3>
+                    <div class="space-y-3">
+                        <div ng-repeat="item in dailySummary.topItems" class="flex items-center justify-between pb-3 border-b border-gray-700 last:border-0">
+                            <div class="flex-1">
+                                <p class="text-gray-200">{{item.name}}</p>
+                                <p class="text-sm text-gray-500">{{item.quantity | number:1}} {{item.unit || 'phần'}}</p>
+                            </div>
+                            <span class="font-semibold text-green-400">{{item.totalSales | number:0}}đ</span>
+                        </div>
+                        <div ng-if="dailySummary.topItems.length === 0" class="text-gray-500 py-4 text-center">
+                            Chưa có dữ liệu
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Bills History View -->
+    <div ng-if="view === 'bills'" class="flex-1 overflow-y-auto p-3 sm:p-6 bg-gray-900">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-xl sm:text-2xl font-bold text-white mb-4">
+                <i class="fas fa-receipt mr-2"></i>Lịch sử hóa đơn
+            </h2>
+
+            <!-- Card list (mobile-first) -->
+            <div class="space-y-2">
+                <div ng-repeat="bill in displayBills"
+                     ng-click="viewBillDetail(bill)"
+                     class="bg-gray-800 rounded-lg px-4 py-3 flex items-center gap-3 cursor-pointer active:bg-gray-700 hover:bg-gray-750 transition-colors">
+
+                    <!-- Left: icon -->
+                    <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
+                         ng-class="bill.type === 'adjustment' ? 'bg-yellow-700' : 'bg-purple-700'">
+                        <i class="fas text-sm"
+                           ng-class="bill.type === 'adjustment' ? 'fa-exchange-alt text-yellow-300' : 'fa-receipt text-purple-300'"></i>
+                    </div>
+
+                    <!-- Middle: main info -->
+                    <div class="flex-1 min-w-0">
+                        <!-- Row 1: date + invoice # -->
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-white text-sm font-semibold">{{(bill.paidAt || bill.createdAt) | date:'HH:mm dd/MM'}}</span>
+                            <span class="text-gray-400 font-mono text-xs truncate">{{bill.id}}</span>
+                        </div>
+                        <!-- Row 2: room + badges -->
+                        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                            <span class="text-gray-300 text-xs"><i class="fas fa-door-open mr-1 opacity-60"></i>Phòng {{bill.roomId}}</span>
+
+                            <!-- status badge -->
+                            <span ng-if="bill.status === 'paid'" class="bg-green-700 text-green-100 px-1.5 py-0.5 rounded text-xs">Đã TT</span>
+                            <span ng-if="bill.status === 'refunded'" class="bg-yellow-700 text-yellow-100 px-1.5 py-0.5 rounded text-xs">Hoàn trả</span>
+                            <span ng-if="bill.status === 'cancelled'" class="bg-red-700 text-red-100 px-1.5 py-0.5 rounded text-xs">Đã hủy</span>
+
+                            <!-- adjusted badge -->
+                            <span ng-if="bill._adjustments && bill._adjustments.length > 0"
+                                  class="bg-orange-800 text-orange-200 px-1.5 py-0.5 rounded text-xs">
+                                <i class="fas fa-exchange-alt mr-0.5"></i>Đã điều chỉnh
+                                <span ng-if="bill._adjustments.length > 1">({{bill._adjustments.length}})</span>
+                            </span>
+
+                            <!-- sync dot -->
+                            <span ng-if="bill.syncStatus === 'synced' || bill.status === 'paid' || (bill.status === 'completed' && bill.type === 'adjustment')"
+                                  class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" title="Đã đồng bộ"></span>
+                            <span ng-if="bill.syncStatus === 'pending' && bill.status !== 'paid' && !(bill.status === 'completed' && bill.type === 'adjustment')"
+                                  class="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0" title="Đang đồng bộ"></span>
+                            <span ng-if="!bill.syncStatus && bill.status !== 'paid' && !(bill.status === 'completed' && bill.type === 'adjustment')"
+                                  class="w-2 h-2 rounded-full bg-gray-500 flex-shrink-0" title="Chưa đồng bộ"></span>
+                        </div>
+                    </div>
+
+                    <!-- Right: amount + chevron -->
+                    <div class="flex-shrink-0 text-right">
+                        <div class="font-bold text-base text-green-400">
+                            {{bill.total | number:0}}đ
+                        </div>
+                        <div ng-if="bill._adjustments && bill._adjustments.length > 0" class="text-xs text-orange-400 mt-0.5">
+                            HT: {{bill._adjustmentNetTotal | number:0}}đ
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-600 text-xs mt-1"></i>
+                    </div>
+                </div>
+
+                <div ng-if="displayBills.length === 0" class="text-gray-500 text-center py-12">
+                    <i class="fas fa-receipt text-4xl mb-3 opacity-30"></i>
+                    <p>Chưa có hóa đơn</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Management View -->
+    <div ng-if="view === 'inventory'" class="flex-1 flex flex-col overflow-hidden bg-gray-900">
+        <!-- Sub-header -->
+        <div class="bg-gray-800 px-4 pt-3 pb-2 border-b border-gray-700 flex-shrink-0">
+            <!-- Row 1: back + title -->
+            <div class="flex items-center gap-3 mb-2">
+                <button ng-click="switchView('pos')" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded flex-shrink-0">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="text-white font-bold text-lg">
+                    <i class="fas fa-boxes mr-2 text-purple-400"></i>QL Hàng Hoá
+                </h2>
+            </div>
+            <!-- Row 2: tabs (full width) -->
+            <div class="flex gap-1">
+                <button ng-click="switchInventoryTab('list')"
+                        ng-class="inventoryTab === 'list' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'"
+                        class="flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-colors text-center">
+                    <i class="fas fa-list mr-1"></i>Danh sách
+                </button>
+                <button ng-click="switchInventoryTab('import')"
+                        ng-class="inventoryTab === 'import' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'"
+                        class="flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-colors text-center">
+                    <i class="fas fa-truck mr-1"></i>Nhập hàng
+                </button>
+                <button ng-click="switchInventoryTab('history')"
+                        ng-class="inventoryTab === 'history' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'"
+                        class="flex-1 px-2 py-2 rounded-lg text-sm font-semibold transition-colors text-center">
+                    <i class="fas fa-history mr-1"></i>Lịch sử
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab content -->
+        <div class="flex-1 overflow-y-auto p-4">
+
+            <!-- Tab: Danh sách hàng -->
+            <div ng-if="inventoryTab === 'list'">
+                <div class="flex items-center gap-3 mb-4">
+                    <input type="text" ng-model="inventorySearch" placeholder="Tìm tên hoặc mã sản phẩm..."
+                           class="flex-1 px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600">
+                    <button ng-click="_loadInventoryProducts()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg" title="Tải lại">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div ng-if="inventoryLoading" class="text-center py-16 text-gray-400">
+                    <i class="fas fa-spinner fa-spin text-3xl mb-3 block"></i>
+                    <p>Đang tải...</p>
+                </div>
+
+                <div ng-if="!inventoryLoading" class="bg-gray-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
+                                <th class="px-2 py-3 w-12"></th>
+                                <th class="px-4 py-3 text-left">Tên hàng hoá</th>
+                                <th class="px-4 py-3 text-left hidden sm:table-cell">Mã</th>
+                                <th class="px-4 py-3 text-left">Đơn vị</th>
+                                <th class="px-4 py-3 text-right">Tồn kho</th>
+                                <th class="px-4 py-3 text-right">Giá bán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="p in inventoryProducts | filter:inventorySearch"
+                                ng-if="p.type === 'Hàng hóa'"
+                                class="border-b border-gray-700 hover:bg-gray-700 transition-colors">
+                                <td class="px-2 py-2 w-12">
+                                    <img ng-if="p.images && p.images.length"
+                                         ng-src="{{p.images[0].url}}"
+                                         class="w-10 h-10 rounded object-cover">
+                                    <div ng-if="!p.images || !p.images.length"
+                                         class="w-10 h-10 rounded bg-gray-700 flex items-center justify-center">
+                                        <i class="fas fa-box text-gray-500 text-xs"></i>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-white font-medium">{{p.name}}</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-400 font-mono text-xs hidden sm:table-cell">{{p.code}}</td>
+                                <td class="px-4 py-3 text-gray-300">{{p.unitOfMeasure}}</td>
+                                <td class="px-4 py-3 text-right font-semibold"
+                                    ng-class="(p.stock || 0) > 0 ? 'text-white' : 'text-red-400'">
+                                    {{p.stock || 0}}
+                                </td>
+                                <td class="px-4 py-3 text-right text-purple-300 font-semibold">
+                                    {{(p.sellingPrice || p.price || 0) | number:0}}đ
+                                </td>
+                            </tr>
+                            <tr ng-if="(inventoryProducts | filter:inventorySearch).length === 0 && !inventoryLoading">
+                                <td colspan="6" class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-box-open text-3xl mb-2 block opacity-40"></i>
+                                    Không tìm thấy sản phẩm
+                                </td>
+                            </tr>
+                            <!-- fix colspan after removing type col -->
+                            <tr style="display:none"><td colspan="5"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Nhập hàng -->
+            <div ng-if="inventoryTab === 'import'" class="max-w-5xl mx-auto">
+                <div class="bg-gray-800 rounded-xl p-4 mb-4 space-y-3">
+                    <!-- Chọn kho -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">
+                            <i class="fas fa-warehouse mr-1 text-purple-400"></i>Kho nhập hàng
+                            <span class="text-red-400 ml-0.5">*</span>
+                        </label>
+                        <div ng-if="warehouses.length === 0" class="text-gray-500 text-sm py-2">
+                            <i class="fas fa-spinner fa-spin mr-1"></i>Đang tải kho...
+                        </div>
+                        <select ng-if="warehouses.length > 0"
+                                ng-model="selectedWarehouseId"
+                                class="w-full px-3 py-2.5 bg-gray-700 text-white rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-600 text-base">
+                            <option value="">-- Chọn kho --</option>
+                            <option ng-repeat="wh in warehouses" value="{{wh.id}}">{{wh.name}}</option>
+                        </select>
+                    </div>
+                    <!-- Ghi chú -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Ghi chú phiếu nhập</label>
+                        <input type="text" ng-model="importNote"
+                               placeholder="VD: Nhập hàng từ nhà cung cấp A..."
+                               class="w-full px-3 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-600">
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 rounded-xl overflow-hidden mb-4">
+                    <!-- Card-per-row layout (mobile-friendly) -->
+                    <div ng-repeat="row in importRows"
+                         class="border-b border-gray-700 p-3 last:border-0">
+                        <!-- Row 1: product search + delete -->
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="relative flex-1">
+                                <input type="text"
+                                       ng-model="row._search"
+                                       ng-change="onImportSearch(row)"
+                                       ng-focus="row._open = true"
+                                       placeholder="Tìm hàng hoá..."
+                                       autocomplete="off"
+                                       class="w-full px-3 py-2.5 bg-gray-700 text-white rounded-lg border border-gray-600 text-base focus:ring-2 focus:ring-purple-600">
+                                <div ng-if="row._open && row._filtered && row._filtered.length"
+                                     class="absolute left-0 top-full mt-0.5 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl w-full max-h-56 overflow-y-auto">
+                                    <div ng-repeat="p in row._filtered | limitTo:20"
+                                         ng-click="selectImportProduct(row, p)"
+                                         class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-gray-700">
+                                        <img ng-if="p.images && p.images.length" ng-src="{{p.images[0].url}}" class="w-8 h-8 rounded object-cover flex-shrink-0">
+                                        <span class="text-white flex-1 text-sm">{{p.name}}</span>
+                                        <span class="text-gray-500 text-xs font-mono flex-shrink-0">{{p.code}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button ng-click="removeImportRow($index)"
+                                    ng-if="importRows.length > 1"
+                                    class="flex-shrink-0 text-red-400 hover:text-red-300 w-9 h-9 flex items-center justify-center rounded-lg hover:bg-red-900 transition-colors">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        <!-- Row 2: unit / qty / price / total -->
+                        <div class="flex items-end gap-2">
+                            <div class="flex-shrink-0 min-w-0">
+                                <div class="text-xs text-gray-500 mb-1">Đ.vị</div>
+                                <div class="px-2 py-2.5 bg-gray-750 text-gray-300 text-sm rounded-lg border border-gray-600 min-w-[2.5rem] text-center">{{row.unit || '—'}}</div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-gray-500 mb-1">Số lượng</div>
+                                <input type="number" ng-model="row.quantity" min="0.01" step="0.01"
+                                       class="w-full px-2 py-2.5 bg-gray-700 text-white rounded-lg border border-gray-600 text-base text-center focus:ring-2 focus:ring-purple-600">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-gray-500 mb-1">Giá nhập</div>
+                                <input type="number" ng-model="row.unitCost" min="0"
+                                       class="w-full px-2 py-2.5 bg-gray-700 text-white rounded-lg border border-gray-600 text-base text-right focus:ring-2 focus:ring-purple-600">
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                <div class="text-xs text-gray-500 mb-1">Thành tiền</div>
+                                <div class="px-2 py-2.5 text-purple-300 font-bold text-sm whitespace-nowrap">{{getImportRowTotal(row) | number:0}}đ</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-4 py-3 border-t border-gray-700">
+                        <button ng-click="addImportRow()"
+                                class="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1 transition-colors">
+                            <i class="fas fa-plus"></i>
+                            <span>Thêm dòng</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-300">Tổng giá trị nhập hàng:</span>
+                        <span class="text-green-400 text-2xl font-bold">{{getImportGrandTotal() | number:0}}đ</span>
+                    </div>
+                    <button ng-click="submitImport()"
+                            ng-disabled="importSubmitting"
+                            class="w-full py-3 rounded-xl font-semibold text-base transition-colors"
+                            ng-class="importSubmitting ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'">
+                        <i class="fas fa-check mr-2" ng-if="!importSubmitting"></i>
+                        <i class="fas fa-spinner fa-spin mr-2" ng-if="importSubmitting"></i>
+                        {{importSubmitting ? 'Đang lưu...' : 'Xác nhận nhập hàng'}}
+                    </button>
+                    <div ng-if="importSuccess"
+                         class="mt-3 bg-green-900 border border-green-600 text-green-200 rounded-lg p-3 text-center text-sm">
+                        <i class="fas fa-check-circle mr-2"></i>Nhập hàng thành công! Tồn kho đã được cập nhật.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Lịch sử nhập hàng -->
+            <div ng-if="inventoryTab === 'history'" class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-400 text-sm">{{importHistory.length}} phiếu nhập gần đây</span>
+                    <button ng-click="_loadImportHistory()" class="text-gray-400 hover:text-white text-sm flex items-center gap-1">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div ng-if="importHistoryError"
+                     class="bg-red-900 border border-red-600 text-red-200 rounded-lg p-4 mb-4 text-sm flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>{{importHistoryError}}</span>
+                    <button ng-click="_loadImportHistory()" class="ml-auto text-red-300 hover:text-white underline">Đổng</button>
+                </div>
+
+                <div ng-if="importHistoryLoading" class="text-center py-16 text-gray-400">
+                    <i class="fas fa-spinner fa-spin text-3xl block mb-3"></i>
+                    Đang tải...
+                </div>
+
+                <div ng-if="!importHistoryLoading && importHistory.length === 0" class="text-center py-16 text-gray-500">
+                    <i class="fas fa-inbox text-4xl block mb-3 opacity-40"></i>
+                    Chưa có phiếu nhập
+                </div>
+
+                <div ng-repeat="sm in importHistory" class="bg-gray-800 rounded-xl mb-3 overflow-hidden">
+                    <!-- Phếu header -->
+                    <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-750"
+                         ng-click="toggleHistoryDetail(sm)">
+                        <div>
+                            <div class="text-white font-semibold">{{sm.createdAt | date:'dd/MM/yyyy HH:mm'}}</div>
+                            <div ng-if="sm.note" class="text-gray-400 text-xs mt-0.5">{{sm.note}}</div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-green-400 font-bold">{{(sm.totalAmount || 0) | number:0}}đ</span>
+                            <i class="fas text-gray-500 text-xs" ng-class="sm._open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </div>
+                    </div>
+                    <!-- Phếu items -->
+                    <div ng-if="sm._open">
+                        <div ng-if="sm._loading" class="text-center py-4 text-gray-400 text-sm">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>Đang tải...
+                        </div>
+                        <div ng-if="!sm._loading && sm._items">
+                            <div class="px-3 py-2 border-t border-gray-700 space-y-2">
+                                <div ng-repeat="it in sm._items"
+                                     class="bg-gray-750 rounded-lg p-3 border border-gray-700">
+                                    <!-- Product name + quantity -->
+                                    <div class="flex items-start justify-between gap-2 mb-1.5">
+                                        <div class="font-medium text-gray-100 text-sm leading-snug flex-1">
+                                            {{it.product.name || it.productName || it.name || '(không rõ)'}}
+                                        </div>
+                                        <div class="text-gray-400 text-sm flex-shrink-0">
+                                            x{{it.quantity}} {{it.unit}}
+                                        </div>
+                                    </div>
+                                    <!-- Price row -->
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-gray-500">
+                                            Giá: <span class="text-gray-300">{{(it.unitCost || it.price || it.buyingPrice || 0) | number:0}}đ</span>
+                                        </span>
+                                        <span class="text-purple-300 font-semibold text-sm">
+                                            {{(it.totalCost || it.subTotal || (it.quantity * (it.unitCost || it.price || it.buyingPrice || 0))) | number:0}}đ
+                                        </span>
+                                    </div>
+                                </div>
+                                <div ng-if="sm._items.length === 0" class="text-center py-4 text-gray-500 text-sm">
+                                    Không có sản phẩm
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Container -->
+<div id="cashier-toast-container"></div>
+
+<ng-include src="'app/views/_staff-panel.html'"></ng-include>
+<!-- Bill Detail Modal -->
+<div id="billDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-y-auto">
+    <div class="bg-gray-800 rounded-xl p-4 sm:p-6 w-full max-w-2xl text-white m-3 max-h-screen overflow-y-auto">
+
+        <!-- Header -->
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs text-gray-400 mb-0.5" ng-if="!selectedBill.type || selectedBill.type === 'normal'">Hóa đơn</p>
+                <p class="text-xs text-yellow-400 mb-0.5" ng-if="selectedBill.type === 'adjustment'"><i class="fas fa-exchange-alt mr-1"></i>Phiếu điều chỉnh</p>
+                <h3 class="text-base font-mono font-bold truncate">{{selectedBill.invoiceNumber || selectedBill.id}}</h3>
+            </div>
+            <button ng-click="closeBillDetailModal()" class="ml-3 text-gray-400 hover:text-white text-xl leading-none flex-shrink-0">&times;</button>
+        </div>
+
+        <!-- Info row -->
+        <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+            <div class="bg-gray-700 rounded-lg px-3 py-2">
+                <p class="text-gray-400 text-xs">Phòng</p>
+                <p class="font-semibold">Phòng {{selectedBill.roomId}}</p>
+            </div>
+            <div class="bg-gray-700 rounded-lg px-3 py-2">
+                <p class="text-gray-400 text-xs">Thời gian</p>
+                <p class="font-semibold">{{(selectedBill.paidAt || selectedBill.createdAt) | date:'HH:mm dd/MM/yy'}}</p>
+            </div>
+            <div class="bg-gray-700 rounded-lg px-3 py-2">
+                <p class="text-gray-400 text-xs">{{selectedBill.type === 'adjustment' ? 'Người tạo' : 'Thu ngân'}}</p>
+                <p class="font-semibold">{{selectedBill._cashier}}</p>
+            </div>
+            <div class="bg-gray-700 rounded-lg px-3 py-2">
+                <p class="text-gray-400 text-xs">Trạng thái</p>
+                <span ng-if="selectedBill.status === 'paid'" class="bg-green-600 text-xs px-2 py-0.5 rounded">Đã thanh toán</span>
+                <span ng-if="selectedBill.status === 'refunded'" class="bg-yellow-600 text-xs px-2 py-0.5 rounded">Đã hoàn trả</span>
+                <span ng-if="selectedBill.status === 'cancelled'" class="bg-red-600 text-xs px-2 py-0.5 rounded">Đã hủy</span>
+                <span ng-if="selectedBill.status === 'completed' && selectedBill.type === 'adjustment'" class="bg-purple-600 text-xs px-2 py-0.5 rounded">Đã xử lý</span>
+            </div>
+        </div>
+
+        <!-- Link to original bill -->
+        <div ng-if="selectedBill.type === 'adjustment' && selectedBill.originalBill" class="mb-3 bg-blue-900 bg-opacity-40 border border-blue-600 rounded-lg px-3 py-2 text-sm">
+            <span class="text-blue-300"><i class="fas fa-link mr-1"></i>Hóa đơn gốc: </span>
+            <button ng-click="viewBillDetail(selectedBill.originalBill)" class="text-blue-400 hover:text-blue-300 font-mono underline">
+                {{selectedBill.originalBill.invoiceNumber || selectedBill.originalBill.id}}
+            </button>
+        </div>
+
+        <!-- Adjustment reason -->
+        <div ng-if="selectedBill.type === 'adjustment' && selectedBill.reason" class="mb-3 bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg px-3 py-2 text-sm">
+            <span class="text-gray-400">Lý do: </span><span class="text-white">{{selectedBill.reason}}</span>
+        </div>
+
+        <!-- Items list -->
+        <div class="mb-4">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Chi tiết món</p>
+            <div class="bg-gray-900 rounded-lg divide-y divide-gray-700">
+                <!-- Normal bill: flattened _allItems -->
+                <div ng-if="!selectedBill.type || selectedBill.type === 'normal'">
+                    <div ng-if="selectedBill._allItems.length === 0" class="px-4 py-3 text-gray-500 text-sm text-center">Không có dữ liệu món</div>
+                    <div ng-repeat="item in selectedBill._allItems" class="px-4 py-2.5 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
+                             ng-class="item.isTimeBased ? 'bg-blue-800 text-blue-300' : item.isSurcharge ? 'bg-yellow-800 text-yellow-300' : 'bg-gray-700 text-gray-400'">{{$index + 1}}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium leading-tight"
+                               ng-class="item.isTimeBased ? 'text-blue-300' : item.isSurcharge ? 'text-yellow-300' : 'text-white'">{{item.name}}</p>
+                            <p class="text-xs text-gray-400 mt-0.5" ng-if="item.note"><i class="fas fa-sticky-note mr-1"></i>{{item.note}}</p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-sm font-bold" ng-class="item.isTimeBased ? 'text-blue-400' : item.isSurcharge ? 'text-yellow-400' : 'text-white'">{{item.price * item.quantity | number:0}}đ</p>
+                            <p class="text-xs text-gray-500">{{item.quantity}} × {{item.price | number:0}}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Adjustment bill items -->
+                <div ng-if="selectedBill.type === 'adjustment'">
+                    <div ng-repeat="item in selectedBill.items" class="px-4 py-2.5 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-yellow-800 flex items-center justify-center flex-shrink-0 text-xs font-bold text-yellow-300">{{$index + 1}}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white">{{item.name}}</p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-sm font-bold text-yellow-400">-{{item.price * (item.returnQuantity || item.quantity) | number:0}}đ</p>
+                            <p class="text-xs text-gray-500">{{item.returnQuantity || item.quantity}} × {{item.price | number:0}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="bg-gray-700 rounded-lg px-4 py-3 mb-4 text-sm space-y-1.5">
+            <div ng-if="!selectedBill.type || selectedBill.type === 'normal'">
+                <div class="flex justify-between" ng-if="selectedBill._roomCharge > 0">
+                    <span class="text-gray-300"><i class="fas fa-clock mr-1 text-blue-400"></i>Tiền phòng / giờ:</span>
+                    <span class="font-semibold text-blue-300">{{selectedBill._roomCharge | number:0}}đ</span>
+                </div>
+                <div class="flex justify-between" ng-if="selectedBill._foodTotal > 0">
+                    <span class="text-gray-300"><i class="fas fa-utensils mr-1 text-purple-400"></i>Tiền món:</span>
+                    <span class="font-semibold">{{selectedBill._foodTotal | number:0}}đ</span>
+                </div>
+                <div ng-repeat="surcharge in selectedBill.surcharges" class="flex justify-between">
+                    <span class="text-yellow-300">{{surcharge.note}}:</span>
+                    <span class="font-semibold text-yellow-300">+{{surcharge.amount | number:0}}đ</span>
+                </div>
+                <div class="flex justify-between text-red-400" ng-if="selectedBill.discount > 0">
+                    <span>Giảm giá:</span>
+                    <span class="font-semibold">-{{selectedBill.discount | number:0}}đ</span>
+                </div>
+                <div class="border-t border-gray-600 pt-2 mt-1 flex justify-between text-base font-bold">
+                    <span>Tổng cộng:</span>
+                    <span class="text-green-400">{{selectedBill.total | number:0}}đ</span>
+                </div>
+            </div>
+            <div ng-if="selectedBill.type === 'adjustment'" class="flex justify-between text-base font-bold">
+                <span>Số tiền hoàn trả:</span>
+                <span class="text-yellow-400">{{-selectedBill.refundAmount | number:0}}đ</span>
+            </div>
+        </div>
+        
+        <!-- Show related adjustment bills -->
+        <div ng-if="relatedAdjustments.length > 0" class="mb-4 bg-gray-900 rounded-lg p-4 border border-yellow-600">
+            <h4 class="font-semibold mb-3 text-yellow-400">
+                <i class="fas fa-exchange-alt mr-2"></i>Hóa đơn liên quan ({{relatedAdjustments.length}})
+            </h4>
+            <div class="space-y-2">
+                <div ng-repeat="adj in relatedAdjustments" 
+                     class="bg-gray-800 rounded-lg p-3 hover:bg-gray-750 cursor-pointer transition-colors"
+                     ng-click="viewAdjustmentDetail(adj.id)">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-mono text-sm text-blue-400">{{adj.id}}</p>
+                            <p class="text-xs text-gray-400 mt-1">{{adj.createdAt | date:'dd/MM/yyyy HH:mm'}}</p>
+                            <p class="text-xs text-gray-300 mt-1">
+                                <span ng-if="adj.type === 'refund' && adj.refundType === 'full'" class="bg-yellow-600 px-2 py-0.5 rounded">Hoàn trả toàn bộ</span>
+                                <span ng-if="adj.type === 'refund' && adj.refundType === 'partial'" class="bg-yellow-600 px-2 py-0.5 rounded">Hoàn trả một phần</span>
+                                <span ng-if="adj.type === 'cancel'" class="bg-red-600 px-2 py-0.5 rounded">Hủy hóa đơn</span>
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-yellow-400 font-semibold">-{{-adj.refundAmount | number:0}}đ</p>
+                            <p class="text-xs text-gray-400 mt-1">bởi {{adj.createdBy}}</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2 italic">{{adj.reason}}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex space-x-3">
+            <button ng-click="printBill(selectedBill)" class="flex-1 bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-print mr-2"></i>In hóa đơn
+            </button>
+            <button ng-if="selectedBill.roomId" ng-click="editBill(selectedBill)" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-edit mr-2"></i>Sửa bill
+            </button>
+            <button ng-click="closeBillDetailModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Đóng
+            </button>
+            <button ng-if="selectedBill.status === 'paid' && (!selectedBill.type || selectedBill.type === 'normal')" 
+                    ng-click="showReturnBillModal(selectedBill)" 
+                    class="flex-1 bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-undo mr-2"></i>Trả hàng
+            </button>
+            <button ng-if="selectedBill.status === 'paid' && (!selectedBill.type || selectedBill.type === 'normal')" 
+                    ng-click="cancelBill(selectedBill)" 
+                    class="flex-1 bg-red-600 hover:bg-red-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-times mr-2"></i>Hủy HĐ
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Return Bill Modal -->
+<div id="returnBillModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-y-auto">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-4xl text-white m-4">
+        <h3 class="text-2xl font-bold mb-4 text-yellow-400">
+            <i class="fas fa-undo mr-2"></i>Trả hàng - HĐ: {{returnBill.id}}
+        </h3>
+        
+        <div class="mb-4">
+            <label class="block mb-2 font-semibold">Loại trả hàng:</label>
+            <div class="flex space-x-4">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" ng-model="returnBillType" value="partial" class="mr-2">
+                    <span>Trả một phần</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" ng-model="returnBillType" value="full" class="mr-2">
+                    <span>Trả toàn bộ</span>
+                </label>
+            </div>
+        </div>
+        
+        <div ng-if="returnBillType === 'partial'" class="mb-4">
+            <h4 class="font-semibold mb-2">Chọn món cần trả:</h4>
+            <div class="bg-gray-700 rounded-lg p-4 space-y-2 max-h-64 overflow-y-auto">
+                <div ng-repeat="item in returnBillItems" class="flex items-center justify-between py-2 border-b border-gray-600">
+                    <label class="flex items-center flex-1 cursor-pointer">
+                        <input type="checkbox" ng-model="item.toReturn" class="mr-3">
+                        <span>{{item.name}}</span>
+                    </label>
+                    <div ng-if="item.toReturn" class="flex items-center space-x-2">
+                        <span class="text-sm">SL:</span>
+                        <input type="number" 
+                               ng-model="item.returnQuantity" 
+                               min="1" 
+                               max="{{item.maxQuantity}}"
+                               class="w-16 px-2 py-1 bg-gray-600 rounded text-center">
+                        <span class="text-sm text-gray-400">/ {{item.maxQuantity}}</span>
+                        <span class="text-sm font-semibold ml-2">{{item.price * item.returnQuantity | number:0}}đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block mb-2 font-semibold">Lý do trả hàng (bắt buộc):</label>
+            <select ng-model="returnBillReason" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg mb-2">
+                <option value="">-- Chọn lý do --</option>
+                <option value="Khách yêu cầu hoàn tiền">Khách yêu cầu hoàn tiền</option>
+                <option value="Món không đúng chất lượng">Món không đúng chất lượng</option>
+                <option value="Phục vụ sai món">Phục vụ sai món</option>
+                <option value="Khách hủy đơn">Khách hủy đơn</option>
+                <option value="Lỗi tính tiền">Lỗi tính tiền</option>
+                <option value="Khác">Khác</option>
+            </select>
+            <textarea ng-if="returnBillReason === 'Khác'" 
+                      ng-model="returnBillReasonOther"
+                      rows="2"
+                      placeholder="Nhập lý do cụ thể..."
+                      class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg"></textarea>
+        </div>
+        
+        <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg p-4 mb-4">
+            <p class="text-yellow-300 text-sm">
+                <i class="fas fa-info-circle mr-2"></i>
+                Hệ thống sẽ tạo <strong>Phiếu điều chỉnh</strong> liên kết với hóa đơn gốc. 
+                Hóa đơn gốc không bị thay đổi để đảm bảo audit trail.
+            </p>
+        </div>
+        
+        <div class="flex space-x-3">
+            <button ng-click="closeReturnBillModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="confirmReturnBill()" class="flex-1 bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-check mr-2"></i>Xác nhận trả hàng
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Check-in Modal -->
+<div id="checkInModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md text-white">
+        <h3 class="text-xl font-bold mb-4">Mở phòng: {{checkInRoom.name}}</h3>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm mb-2">Giờ bắt đầu</label>
+                <input type="datetime-local" 
+                       ng-model="checkInData.startTime" 
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+            </div>
+            
+            <div>
+                <label class="block text-sm mb-2">Tên khách hàng</label>
+                <input type="text" 
+                       ng-model="checkInData.customerName" 
+                       placeholder="Nhập tên khách (tùy chọn)"
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+            </div>
+            
+            <div>
+                <label class="block text-sm mb-2">Số điện thoại</label>
+                <input type="tel" 
+                       ng-model="checkInData.customerPhone" 
+                       placeholder="Số điện thoại"
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+            </div>
+            
+            <div>
+                <label class="block text-sm mb-2">Số người</label>
+                <input type="number" 
+                       ng-model="checkInData.numberOfGuests" 
+                       min="1"
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+            </div>
+        </div>
+        
+        <div class="flex space-x-3 mt-6">
+            <button ng-click="closeCheckInModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="confirmCheckIn()" class="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-semibold">
+                Xác nhận mở phòng
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-lg text-white">
+        <h3 class="text-2xl font-bold mb-4">Thanh toán - {{selectedRoom.name}}</h3>
+        
+        <div class="bg-gray-700 rounded-lg p-4 mb-4">
+            <div class="text-3xl font-bold text-green-400 text-center">
+                {{total | number:0}}đ
+            </div>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm mb-2">Phương thức thanh toán</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button ng-click="paymentMethod = 'cash'" 
+                            class="py-3 rounded-lg font-semibold transition-colors"
+                            ng-class="paymentMethod === 'cash' ? 'bg-green-600' : 'bg-gray-700 hover:bg-gray-600'">
+                        <i class="fas fa-money-bill-wave block text-2xl mb-1"></i>
+                        <span class="text-xs">Tiền mặt</span>
+                    </button>
+                    <button ng-click="paymentMethod = 'transfer'" 
+                            class="py-3 rounded-lg font-semibold transition-colors"
+                            ng-class="paymentMethod === 'transfer' ? 'bg-green-600' : 'bg-gray-700 hover:bg-gray-600'">
+                        <i class="fas fa-credit-card block text-2xl mb-1"></i>
+                        <span class="text-xs">Chuyển khoản</span>
+                    </button>
+                    <button ng-click="paymentMethod = 'qr'" 
+                            class="py-3 rounded-lg font-semibold transition-colors"
+                            ng-class="paymentMethod === 'qr' ? 'bg-green-600' : 'bg-gray-700 hover:bg-gray-600'">
+                        <i class="fas fa-qrcode block text-2xl mb-1"></i>
+                        <span class="text-xs">QR Code</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div ng-if="paymentMethod === 'cash'">
+                <label class="block text-sm mb-2">Tiền khách đưa</label>
+                <input type="number" 
+                       ng-model="paymentReceived" 
+                       ng-change="calculateChange()"
+                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-xl font-semibold">
+                
+                <div class="mt-3 text-lg">
+                    <span>Tiền thừa: </span>
+                    <span class="font-bold text-yellow-400">{{paymentChange | number:0}}đ</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex space-x-3 mt-6">
+            <button ng-click="closePaymentModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="processPayment()" class="flex-1 bg-green-600 hover:bg-green-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-check mr-2"></i>Xác nhận thanh toán
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Change Room Modal -->
+<div id="changeRoomModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-2xl text-white">
+        <h3 class="text-xl font-bold mb-4">Đổi phòng: {{selectedRoom.name}}</h3>
+        
+        <div class="grid grid-cols-4 gap-3 mb-4">
+            <div ng-repeat="room in availableRooms" 
+                 ng-click="changeRoom(room)"
+                 class="bg-green-600 hover:bg-green-700 rounded-lg p-4 cursor-pointer transition-all text-center">
+                <div class="font-bold text-lg">{{room.name}}</div>
+                <div class="text-sm opacity-90">{{room.type}}</div>
+            </div>
+        </div>
+        
+        <button ng-click="closeChangeRoomModal()" class="w-full bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+            Đóng
+        </button>
+    </div>
+</div>
+
+<!-- Edit Time Modal -->
+<div id="editTimeModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md text-white">
+        <h3 class="text-xl font-bold mb-4">Sửa giờ vào - {{selectedRoom.name}}</h3>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm mb-2">Giờ vào mới</label>
+                <input type="datetime-local" 
+                       ng-model="editTimeData.startTime" 
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+            </div>
+            
+            <div>
+                <label class="block text-sm mb-2">Lý do (bắt buộc)</label>
+                <textarea ng-model="editTimeData.reason" 
+                          rows="3"
+                          placeholder="Nhập lý do sửa giờ..."
+                          class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg"></textarea>
+            </div>
+        </div>
+        
+        <div class="flex space-x-3 mt-6">
+            <button ng-click="closeEditTimeModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="confirmEditTime()" class="flex-1 bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-semibold">
+                Xác nhận sửa
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Note Modal for Items -->
+<div id="noteModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md text-white">
+        <h3 class="text-xl font-bold mb-4">Ghi chú: {{currentItemForNote.name}}</h3>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm mb-2">Ghi chú (không bắt buộc)</label>
+                <textarea ng-model="itemNote" 
+                          rows="3"
+                          placeholder="VD: Thêm đá, không cay, nhiều rau..."
+                          class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg"></textarea>
+            </div>
+            
+            <div class="text-sm text-gray-400">
+                <p>Ví dụ ghi chú:</p>
+                <ul class="list-disc list-inside mt-1">
+                    <li>Thêm đá, thêm ly</li>
+                    <li>Không cay</li>
+                    <li>Nhiều rau, ít hành</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="flex space-x-3 mt-6">
+            <button ng-click="closeNoteModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="saveItemNote()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-check mr-2"></i>Lưu ghi chú
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Return Item Modal -->
+<div id="returnModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md text-white">
+        <h3 class="text-xl font-bold mb-4 text-yellow-400">
+            <i class="fas fa-undo mr-2"></i>Trả món
+        </h3>
+        
+        <div class="space-y-4">
+            <!-- Select item to return -->
+            <div>
+                <label class="block text-sm mb-2">Chọn món cần trả</label>
+                <div class="space-y-2 max-h-48 overflow-y-auto">
+                    <div ng-repeat="item in returnableItems" 
+                         ng-click="selectReturnItem(item)"
+                         ng-class="{'bg-yellow-600': selectedReturnItem === item, 'bg-gray-700 hover:bg-gray-600': selectedReturnItem !== item}"
+                         class="rounded-lg p-3 cursor-pointer transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="font-semibold">{{item.name}}</div>
+                                <div class="text-xs text-gray-400">SL: {{item.quantity}} {{item.unit}} × {{item.price | number:0}}đ</div>
+                            </div>
+                            <i ng-if="selectedReturnItem === item" class="fas fa-check-circle text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quantity to return -->
+            <div ng-if="selectedReturnItem">
+                <label class="block text-sm mb-2">Số lượng trả (Tối đa: {{maxReturnQuantity}})</label>
+                <input type="number" 
+                       ng-model="returnQuantity" 
+                       min="1" 
+                       max="{{maxReturnQuantity}}"
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+                <div class="text-xs text-gray-400 mt-1">
+                    Giá trị trả: {{returnQuantity * selectedReturnItem.price | number:0}}đ
+                </div>
+            </div>
+            
+            <!-- Return reason -->
+            <div ng-if="selectedReturnItem">
+                <label class="block text-sm mb-2">Lý do trả món (bắt buộc)</label>
+                <select ng-model="returnReason" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg mb-2">
+                    <option value="">-- Chọn lý do --</option>
+                    <option value="Khách đợi quá lâu">Khách đợi quá lâu</option>
+                    <option value="Khách đổi món">Khách đổi món</option>
+                    <option value="Món không đúng yêu cầu">Món không đúng yêu cầu</option>
+                    <option value="Món hết hàng">Món hết hàng</option>
+                    <option value="Nhân viên order sai">Nhân viên order sai</option>
+                    <option value="Khác">Khác</option>
+                </select>
+                <textarea ng-if="returnReason === 'Khác'" 
+                          ng-model="returnReasonOther" 
+                          rows="2"
+                          placeholder="Nhập lý do cụ thể..."
+                          class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg"></textarea>
+            </div>
+        </div>
+        
+        <div class="flex space-x-3 mt-6">
+            <button ng-click="closeReturnModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="confirmReturn()" 
+                    ng-disabled="!selectedReturnItem"
+                    ng-class="{'opacity-50 cursor-not-allowed': !selectedReturnItem}"
+                    class="flex-1 bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-check mr-2"></i>Xác nhận trả
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Merge Bill Modal -->
+<div id="mergeBillModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-2xl text-white">
+        <h3 class="text-xl font-bold mb-4">
+            <i class="fas fa-compress-alt mr-2"></i>Gộp bill vào: {{selectedRoom.name}}
+        </h3>
+        
+        <div class="grid grid-cols-3 gap-3 mb-4">
+            <div ng-repeat="room in mergableRooms" 
+                 ng-click="mergeBill(room)"
+                 class="bg-red-600 hover:bg-red-700 rounded-lg p-4 cursor-pointer transition-all">
+                <div class="font-bold text-lg">{{room.name}}</div>
+                <div class="text-sm opacity-90">{{room.timer}}</div>
+                <div class="text-xs">{{room.currentCharge | number:0}}đ</div>
+            </div>
+        </div>
+        
+        <button ng-click="closeMergeBillModal()" class="w-full bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+            Đóng
+        </button>
+    </div>
+</div>
+
+<!-- Split Bill Modal -->
+<div id="splitBillModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-3xl text-white">
+        <h3 class="text-xl font-bold mb-4">
+            <i class="fas fa-cut mr-2"></i>Tách bill từ: {{selectedRoom.name}}
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <!-- Left: Items to split -->
+            <div>
+                <h4 class="font-semibold mb-2">Chọn món để tách:</h4>
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <div ng-repeat="item in splitItems" class="bg-gray-700 rounded-lg p-3">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" ng-model="item.toSplit" class="mr-3">
+                            <div class="flex-1">
+                                <div class="font-semibold">{{item.name}}</div>
+                                <div class="text-sm text-gray-400">
+                                    {{item.quantity}} x {{item.price | number:0}}đ = {{item.quantity * item.price | number:0}}đ
+                                </div>
+                                <div ng-if="item.note" class="text-xs text-yellow-300">{{item.note}}</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Select target room -->
+            <div>
+                <h4 class="font-semibold mb-2">Chọn phòng đích:</h4>
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <div ng-repeat="room in availableRoomsForSplit" 
+                         ng-click="splitTargetRoom = room"
+                         ng-class="{'bg-green-600': splitTargetRoom === room, 'bg-gray-700': splitTargetRoom !== room}"
+                         class="rounded-lg p-3 cursor-pointer hover:bg-green-700 transition-all">
+                        <div class="font-bold">{{room.name}}</div>
+                        <div class="text-sm opacity-90">{{room.type}} - Trống</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex space-x-3">
+            <button ng-click="closeSplitBillModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="splitBill(splitTargetRoom)" class="flex-1 bg-pink-600 hover:bg-pink-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-check mr-2"></i>Xác nhận tách
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Discount Modal -->
+<div id="discountModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md text-white">
+        <h3 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fas fa-tag mr-3 text-orange-400"></i>Giảm Giá - {{selectedRoom.name}}
+        </h3>
+        
+        <!-- Discount Type Toggle -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold mb-3">Loại giảm giá</label>
+            <div class="flex items-center space-x-3 bg-gray-700 rounded-lg p-1">
+                <button ng-click="discountType = 'percentage'" 
+                        ng-class="{'bg-orange-600': discountType === 'percentage', 'bg-transparent': discountType !== 'percentage'}"
+                        class="flex-1 py-2 rounded text-sm font-semibold transition-colors">
+                    <i class="fas fa-percent mr-1"></i>Phần trăm
+                </button>
+                <button ng-click="discountType = 'amount'" 
+                        ng-class="{'bg-orange-600': discountType === 'amount', 'bg-transparent': discountType !== 'amount'}"
+                        class="flex-1 py-2 rounded text-sm font-semibold transition-colors">
+                    <i class="fas fa-dong-sign mr-1"></i>Tiền
+                </button>
+            </div>
+        </div>
+        
+        <!-- Discount Input -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold mb-2">
+                <span ng-if="discountType === 'percentage'">Nhập phần trăm (%)</span>
+                <span ng-if="discountType === 'amount'">Nhập số tiền (đ)</span>
+            </label>
+            <input type="number" 
+                   ng-model="discountInput" 
+                   ng-change="applyDiscount()"
+                   placeholder="0"
+                   min="0"
+                   ng-max="discountType === 'percentage' ? 100 : subtotal"
+                   class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-lg font-semibold focus:ring-2 focus:ring-orange-500">
+        </div>
+        
+        <!-- Discount Preview -->
+        <div ng-if="discountInput > 0" class="mb-6 bg-orange-900 bg-opacity-30 border border-orange-600 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-300">Tạm tính:</span>
+                <span class="font-semibold">{{subtotal | number:0}}đ</span>
+            </div>
+            <div class="flex justify-between items-center mb-3 border-b border-orange-600 pb-3">
+                <span class="text-sm text-orange-300">Giảm:</span>
+                <span class="font-bold text-orange-400">-{{discount | number:0}}đ</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-semibold text-green-300">Tổng cộng:</span>
+                <span class="text-xl font-bold text-green-400">{{total | number:0}}đ</span>
+            </div>
+        </div>
+        
+        <!-- Voucher Code Section -->
+        <div class="mb-6 border-t border-gray-700 pt-6">
+            <label class="block text-sm font-semibold mb-3">Hoặc nhập voucher code</label>
+            <div class="flex items-center space-x-2 mb-2">
+                <input type="text" 
+                       ng-model="voucherCode" 
+                       ng-keyup="searchVoucher($event)"
+                       placeholder="Voucher code..."
+                       class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                <button ng-click="applyVoucher()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+            <div ng-if="voucherMessage" class="text-xs px-3 py-2 rounded" ng-class="{'bg-green-900 text-green-200': voucherMessage.success, 'bg-red-900 text-red-200': !voucherMessage.success}">
+                {{voucherMessage.text}}
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex space-x-3">
+            <button ng-click="clearDiscount()" class="flex-1 bg-red-600 hover:bg-red-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-trash mr-2"></i>Xóa
+            </button>
+            <button ng-click="closeDiscountModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Time-Based Item Modal -->
+<div id="editTimeBasedItemModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md text-white">
+        <h3 class="text-xl font-bold mb-1"><i class="fas fa-clock text-blue-400 mr-2"></i>Chỉnh giờ: {{_editTimeItem.name}}</h3>
+        <p class="text-sm text-gray-400 mb-4">Nhập giờ bắt đầu và kết thúc để tính lại thời lượng &amp; tiền.</p>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm text-gray-300 mb-1"><i class="fas fa-play-circle text-green-400 mr-1"></i>Giờ bắt đầu</label>
+                <input type="datetime-local"
+                       ng-model="_editTimeData.startTime"
+                       step="60"
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-300 mb-1"><i class="fas fa-stop-circle text-red-400 mr-1"></i>Giờ kết thúc <span class="text-gray-500">(để trống = hiện tại)</span></label>
+                <input type="datetime-local"
+                       ng-model="_editTimeData.endTime"
+                       step="60"
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                <button ng-click="_editTimeData.endTime = null" class="mt-1 text-xs text-gray-400 hover:text-white">
+                    <i class="fas fa-times mr-1"></i>Xóa → dùng giờ hiện tại
+                </button>
+            </div>
+        </div>
+
+        <div class="flex space-x-3 mt-6">
+            <button ng-click="closeEditTimeBasedModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-semibold">
+                Hủy
+            </button>
+            <button ng-click="saveEditTimeBased()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
+                <i class="fas fa-check mr-2"></i>Xác nhận
+            </button>
+        </div>
+    </div>
+</div>
+
+

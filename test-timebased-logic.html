@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test TimeBased Logic</title>
+</head>
+<body>
+    <h1>Test TimeBased Item Loading</h1>
+    <button onclick="testLocalStorageData()">Check LocalStorage Data</button>
+    <button onclick="testLoadLogic()">Test Load Logic</button>
+    <div id="output"></div>
+
+    <script>
+        // Mock StorageService
+        const StorageService = {
+            get: function(key) {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            },
+            set: function(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            }
+        };
+
+        function testLocalStorageData() {
+            const saleOrderItems = StorageService.get('saleorderitems');
+            const timeBasedItems = saleOrderItems.filter(item => item.isTimeBased === true);
+
+            document.getElementById('output').innerHTML =
+                '<h2>LocalStorage Data:</h2>' +
+                '<p>Total SaleOrderItems: ' + saleOrderItems.length + '</p>' +
+                '<p>TimeBased Items: ' + timeBasedItems.length + '</p>' +
+                '<pre>' + JSON.stringify(timeBasedItems, null, 2) + '</pre>';
+        }
+
+        function testLoadLogic() {
+            const saleOrderId = 'test-order-123';
+            const allItems = StorageService.get('saleorderitems');
+            const orderItems = allItems.filter(item => item.saleOrderId === saleOrderId);
+
+            // Simulate loadSaleOrderItems logic
+            const cart = [];
+            orderItems.forEach(function(item) {
+                const cartItem = {
+                    itemId: item.productId,
+                    name: item.name || 'Unknown Item',
+                    price: item.unitPrice,
+                    quantity: item.quantity,
+                    unit: 'phần',
+                    note: item.note || '',
+                    isTimeBased: item.isTimeBased || false,  // FIXED: Now gets from localStorage
+                    timeBasedConfig: item.timeBasedConfig || null,  // FIXED: Now gets from localStorage
+                    createdAt: item.createdAt || item.updatedAt,
+                    fromLocal: true
+                };
+                cart.push(cartItem);
+            });
+
+            // Simulate loadBill grouping logic
+            const groupedItems = {};
+            orderItems.forEach(function(item) {
+                const key = item.productId + '|' + (item.note || '');
+                if (!groupedItems[key]) {
+                    groupedItems[key] = {
+                        itemId: item.productId,
+                        name: item.name,
+                        price: item.unitPrice,
+                        quantity: 0,
+                        unit: item.uomId || 'phần',
+                        note: item.note || '',
+                        isTimeBased: item.isTimeBased || false,  // FIXED: Gets from SaleOrderItems
+                        timeBasedConfig: item.timeBasedConfig || null,  // FIXED: Gets from SaleOrderItems
+                        createdAt: item.createdAt || item.updatedAt || new Date(),
+                        startTime: item.createdAt || item.updatedAt
+                    };
+                }
+                groupedItems[key].quantity += item.quantity;
+            });
+
+            const groupedCart = Object.values(groupedItems);
+
+            document.getElementById('output').innerHTML =
+                '<h2>Test Results:</h2>' +
+                '<p>Order Items from localStorage: ' + orderItems.length + '</p>' +
+                '<p>Cart after loadSaleOrderItems: ' + cart.length + '</p>' +
+                '<p>Grouped cart after loadBill: ' + groupedCart.length + '</p>' +
+                '<h3>Cart Items (loadSaleOrderItems):</h3>' +
+                '<pre>' + JSON.stringify(cart.map(item => ({
+                    name: item.name,
+                    isTimeBased: item.isTimeBased,
+                    timeBasedConfig: item.timeBasedConfig
+                })), null, 2) + '</pre>' +
+                '<h3>Grouped Items (loadBill):</h3>' +
+                '<pre>' + JSON.stringify(groupedCart.map(item => ({
+                    name: item.name,
+                    isTimeBased: item.isTimeBased,
+                    timeBasedConfig: item.timeBasedConfig
+                })), null, 2) + '</pre>';
+        }
+    </script>
+</body>
+</html>

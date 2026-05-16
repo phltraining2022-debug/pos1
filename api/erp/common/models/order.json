@@ -1,0 +1,286 @@
+{
+  "name": "order",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "reason": {
+      "type": "string"
+    },
+    "type": {
+      "type": "number"
+    },
+    "searchPatientDOB": {
+      "type": "date"
+    },
+    "searchPatientName": {
+      "type": "string"
+    },
+    "searchPatientCompany": {
+      "type": "string"
+    },
+    "searchPatientPackage": {
+      "type": "string"
+    },
+    "status": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "orderItems": {
+      "type": [
+        "object"
+      ]
+    },
+    "patientId": {
+      "type": "string",
+      "required": true
+    },
+    "companyId": {
+      "type": "string"
+    },
+    "doctorId": {
+      "type": "string"
+    },
+    "appointmentDate": {
+      "type": "date"
+    },
+    "servicePackageId": {
+      "type": [
+        "string"
+      ]
+    },
+    "servicePackage": {
+      "type": "object"
+    },
+    "promoCode": {
+      "type": "string"
+    },
+    "promotionId": {
+      "type": "string"
+    },
+    "totalAmount": {
+      "type": "number"
+    },
+    "note": {
+      "type": "string"
+    },
+    "appointmentId": {
+      "type": "string"
+    },
+    "firstVisitCode": {
+      "type": "string"
+    },
+    "specializationId": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "clinicIds": {
+      "type": [
+        "string"
+      ]
+    },
+    "clinicId": {
+      "type": "string"
+    },
+    "serviceGroupId": {
+      "type": "string"
+    },
+    "serviceIds": {
+      "type": [
+        "string"
+      ]
+    },
+    "services": {
+      "type": [
+        "object"
+      ]
+    },
+    "diagnosis": {
+      "type": "string"
+    },
+    "MDH": {
+      "type": "string"
+    },
+    "createdById": {
+      "type": "string"
+    },
+    "refOrderId": {
+      "type": "string"
+    },
+    "copyFromOrderId": {
+      "type": "string"
+    },
+    "orgOrder": {
+      "type": "object"
+    },
+    "createdBy": {
+      "type": "object"
+    },
+    "doctor": {
+      "type": "object"
+    },
+    "visitId": {
+      "type": "string"
+    },
+    "labTestCompleteDate": {
+      "type": "date"
+    },
+    "labTestOrderDates": {
+      "type": [
+        "date"
+      ]
+    },
+    "labTestOrderDate": {
+      "type": "date"
+    },
+    "targetIds": {
+      "type": [
+        "string"
+      ]
+    },
+    "refClinic": {
+      "type": "string"
+    },
+    "labTestCompletedBy": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    },
+    "company": {
+      "type": "belongsTo",
+      "model": "company",
+      "foreignKey": "companyId"
+    },
+    "doctor": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "doctorId"
+    },
+    "visit": {
+      "type": "belongsTo",
+      "model": "visit",
+      "foreignKey": "visitId"
+    },
+    "appointment": {
+      "type": "belongsTo",
+      "model": "appointment",
+      "foreignKey": "appointmentId"
+    },
+    "labTestCompletedBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "labTestCompletedById"
+    },
+    "appointments": {
+      "type": "hasMany",
+      "model": "appointment",
+      "foreignKey": "orderId"
+    },
+    "visits": {
+      "type": "hasMany",
+      "model": "visit",
+      "foreignKey": "orderId"
+    },
+    "samples": {
+      "type": "hasMany",
+      "model": "Sample",
+      "foreignKey": "refOrderId"
+    },
+    "promotions": {
+      "type": "belongsTo",
+      "model": "promotion",
+      "foreignKey": "promotionId"
+    },
+    "specialization": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "specializationId"
+    },
+    "clinic": {
+      "type": "belongsTo",
+      "model": "clinic",
+      "foreignKey": "clinicId"
+    },
+    "transactions": {
+      "type": "hasMany",
+      "model": "transaction",
+      "foreignKey": ""
+    },
+    "medicalRecords": {
+      "type": "hasMany",
+      "model": "medicalRecord",
+      "foreignKey": ""
+    },
+    "orgOrder": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "refOrderId"
+    },
+    "orderItems": {
+      "type": "hasMany",
+      "model": "orderItem",
+      "foreignKey": ""
+    },
+    "refOrder": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "refOrderId"
+    },
+    "subOrders": {
+      "type": "hasMany",
+      "model": "order",
+      "foreignKey": "refOrderId"
+    },
+    "paymentRequest": {
+      "type": "hasOne",
+      "model": "paymentRequest",
+      "foreignKey": ""
+    },
+    "package": {
+      "type": "belongsTo",
+      "model": "package",
+      "foreignKey": "packageId"
+    },
+    "contract": {
+      "type": "belongsTo",
+      "model": "contract",
+      "foreignKey": "contractId"
+    },
+    "insurancePackage": {
+      "type": "belongsTo",
+      "model": "insurancePackage",
+      "foreignKey": "insurancePackageId"
+    },
+    "insuranceCompany": {
+      "type": "belongsTo",
+      "model": "insuranceCompany",
+      "foreignKey": "insuranceCompanyId"
+    },
+    "orderArticles": {
+      "type": "hasMany",
+      "model": "orderArticle",
+      "foreignKey": "orderId"
+    },
+    "referenceClinic": {
+      "type": "belongsTo",
+      "model": "clinic",
+      "foreignKey": "refClinic"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

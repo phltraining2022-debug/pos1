@@ -1,0 +1,48 @@
+
+{
+  "name": "RedemptionCode",
+  "base": "AppModel",
+  "plural": "RedemptionCodes",
+  "idInjection": true,
+  "properties": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "The unique, non-sequential redemption code printed on the bottle. e.g., WHKY-A7B3-9P4K-L2M1"
+    },
+    "pointsValue": {
+      "type": "number",
+      "required": true,
+      "description": "How many loyalty points this code is worth."
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "available",
+      "description": "The current state of the code. Can be 'available', 'redeemed', 'expired'."
+    },
+    "redeemedAt": {
+      "type": "date",
+      "description": "Timestamp of when the code was successfully redeemed."
+    },
+    "expiresAt": {
+      "type": "date",
+      "description": "Optional expiry date for the redemption code."
+    }
+  },
+  "validations": [],
+  "relations": {
+    "productionBatch": {
+      "type": "belongsTo",
+      "model": "ProductionBatch",
+      "foreignKey": "productionBatchId"
+    },
+    "redeemedByCustomer": {
+      "type": "belongsTo",
+      "model": "Customer",
+      "foreignKey": "redeemedByCustomerId"
+    }
+  },
+  "methods": {}
+}

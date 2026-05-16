@@ -1,0 +1,72 @@
+{
+  "name": "ProductionOrder",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "description": "Mã lệnh sản xuất duy nhất, vd: KPO-2025-001"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "new",
+      "enum": ["new", "confirmed", "in_progress", "completed", "cancelled"],
+      "description": "Trạng thái: new, confirmed, in_progress, completed, cancelled"
+    },
+    "dueDate": {
+      "type": "date",
+      "description": "Thời gian bếp phải hoàn thành"
+    },
+    "eventName": {
+      "type": "string",
+      "description": "Denormalized: Tên sự kiện cho dễ nhìn"
+    },
+    "hallName": {
+      "type": "string",
+      "description": "Denormalized: Tên sảnh tiệc"
+    },
+    "pax": {
+      "type": "number",
+      "default": 0,
+      "description": "Denormalized: Số lượng khách"
+    },
+    "tableQty": {
+      "type": "number",
+      "default": 0,
+      "description": "Denormalized: Số lượng bàn"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Ghi chú đặc biệt cho toàn bộ lệnh"
+    },
+    "contractId": {
+      "type": "string",
+      "description": "Reference to Contract that triggered this production order"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "contract": {
+      "type": "belongsTo",
+      "model": "contract",
+      "foreignKey": "contractId"
+    },
+    "event": {
+      "type": "belongsTo",
+      "model": "Event",
+      "foreignKey": "eventId"
+    },
+    "productionItems": {
+      "type": "hasMany",
+      "model": "ProductionItem",
+      "foreignKey": "productionOrderId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,27 @@
+{
+	"name": "Expense",
+	"base": "AppModel",
+	"plural": "expense",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"description": {
+			"type": "string",
+			"required": true
+		},
+		"amount": {
+			"type": "number",
+			"required": true
+		},
+		"date": {
+			"type": "date",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

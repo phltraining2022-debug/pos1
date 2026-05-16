@@ -1,0 +1,194 @@
+{
+  "name": "ContractorPayment",
+  "plural": "ContractorPayments",
+  "base": "AppModel",
+  "description": "Phiếu thanh toán lương cho nhân viên thời vụ",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "contractorId": {
+      "type": "string",
+      "required": true,
+      "index": true,
+      "description": "Liên kết đến Contractor",
+      "icon": "ph-user"
+    },
+    "shiftRegistrationId": {
+      "type": "string",
+      "index": true,
+      "description": "Liên kết đến đăng ký ca",
+      "icon": "ph-calendar"
+    },
+    "amount": {
+      "type": "number",
+      "required": true,
+      "description": "Số tiền thanh toán (VNĐ)",
+      "icon": "ph-currency-circle-dollar"
+    },
+    "paymentDate": {
+      "type": "date",
+      "default": "$now",
+      "description": "Ngày thanh toán",
+      "icon": "ph-calendar-check"
+    },
+    "paymentMethod": {
+      "type": "string",
+      "enum": ["cash", "bank-transfer", "momo", "zalopay", "other"],
+      "default": "bank-transfer",
+      "description": "Phương thức thanh toán",
+      "icon": "ph-money"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "pending",
+      "enum": ["pending", "processing", "completed", "failed", "refunded"],
+      "description": "Trạng thái thanh toán",
+      "icon": "ph-circle"
+    },
+    "transactionId": {
+      "type": "string",
+      "description": "Mã giao dịch ngân hàng hoặc cổng thanh toán",
+      "icon": "ph-hash"
+    },
+    "bankAccount": {
+      "type": "string",
+      "description": "Số tài khoản ngân hàng của NV thời vụ"
+    },
+    "bankName": {
+      "type": "string",
+      "description": "Tên ngân hàng"
+    },
+    "paidBy": {
+      "type": "string",
+      "description": "Mã người thực hiện thanh toán",
+      "icon": "ph-user-gear"
+    },
+    "paidAt": {
+      "type": "date",
+      "description": "Thời điểm thanh toán hoàn thành"
+    },
+    "failureReason": {
+      "type": "string",
+      "description": "Lý do thất bại (nếu có)"
+    },
+    "receipt": {
+      "type": "string",
+      "description": "Ảnh/URL biên lai thanh toán"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Ghi chú thêm",
+      "icon": "ph-note"
+    },
+    "period": {
+      "type": "string",
+      "index": true,
+      "description": "Kỳ lương, ví dụ '2026-03'"
+    },
+    "role": {
+      "type": "string",
+      "index": true,
+      "enum": ["waiter", "bartender", "pa", "technician", "security", "valet", "kitchen", "host"],
+      "description": "Vai trò của NV thời vụ trong kỳ lương này",
+      "icon": "ph-briefcase"
+    },
+    "contractorName": {
+      "type": "string",
+      "description": "Tên NV thời vụ (lưu trực tiếp)",
+      "icon": "ph-user"
+    },
+    "totalShifts": {
+      "type": "number",
+      "default": 0,
+      "description": "Số ca đã hoàn thành trong kỳ",
+      "icon": "ph-calendar-check"
+    },
+    "totalHours": {
+      "type": "number",
+      "default": 0,
+      "description": "Tổng số giờ làm việc trong kỳ",
+      "icon": "ph-clock"
+    },
+    "ratePerShift": {
+      "type": "number",
+      "default": 0,
+      "description": "Đơn giá trung bình mỗi ca (VNĐ)",
+      "icon": "ph-currency-circle-dollar"
+    },
+    "grossAmount": {
+      "type": "number",
+      "default": 0,
+      "description": "Tổng thu nhập trước thuế",
+      "icon": "ph-money"
+    },
+    "applyTax": {
+      "type": "boolean",
+      "default": false,
+      "description": "Có áp dụng thuế TNCN 10% không (khi thu nhập ≥ 2.000.000 VNĐ)"
+    },
+    "taxAmount": {
+      "type": "number",
+      "default": 0,
+      "description": "Thuế TNCN vãng lai 10% (TT111/2013)",
+      "icon": "ph-percent"
+    },
+    "netAmount": {
+      "type": "number",
+      "default": 0,
+      "description": "Thực lĩnh sau thuế",
+      "icon": "ph-hand-coins"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "contractor": {
+      "type": "belongsTo",
+      "model": "Contractor",
+      "foreignKey": "contractorId"
+    },
+    "shiftRegistration": {
+      "type": "belongsTo",
+      "model": "ShiftRegistration",
+      "foreignKey": "shiftRegistrationId"
+    },
+    "payer": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "paidBy"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {
+    "generateBatch": {
+      "accepts": [
+        {"arg": "period", "type": "string", "required": true, "http": {"source": "body"}},
+        {"arg": "role",   "type": "string", "required": false, "http": {"source": "body"}}
+      ],
+      "returns": {"arg": "result", "type": "object"},
+      "http": {"verb": "post", "path": "/generate-batch"},
+      "description": "Tự động tạo bảng lương hàng loạt cho NV thời vụ từ các ca đã hoàn thành trong kỳ"
+    }
+  }
+}

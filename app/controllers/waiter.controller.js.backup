@@ -1,0 +1,703 @@
+// Waiter/Staff Controller
+angular.module('karaApp').controller('WaiterController', 
+    ['$scope', '$location', '$interval', 'ApiService', 'RoomService', 'MenuService', 'OrderService', 'StaffService', 'SocketService', 'TimeBasedService', 'StorageService', 'SyncService',
+    function($scope, $location, $interval, ApiService, RoomService, MenuService, OrderService, StaffService, SocketService, TimeBasedService, StorageService, SyncService) {
+        var currentUser = ApiService.getCurrentUser();
+        if (!currentUser) {
+            $location.path('/login');
+            return;
+        }
+        
+        $scope.currentUser = currentUser;
+        $scope.view = 'rooms'; // rooms, room-items, order, cleaning
+        $scope.rooms = RoomService.getRooms();
+        $scope.categories = MenuService.getCategories();
+        $scope.selectedRoom = null;
+        $scope.cart = [];
+        $scope.sentItems = [];
+        $scope.cleaningRoom = null;
+        $scope.checklist = null;
+        
+        // Helper function for modal management
+        function showModal(modalId) {
+            setTimeout(function() {
+                var modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                }
+            }, 0);
+        }
+        
+        function hideModal(modalId) {
+            var modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        // Update room status periodically
+        $interval(function() {
+            $scope.rooms = RoomService.getRooms();
+        }, 5000);
+        
+        // Socket.IO real-time event listeners
+        $scope.$on('socket:sync_data', function(event, data) {
+            console.log('📡 Waiter received real-time update:', data);
+            
+            switch(data.action) {
+                case 'ROOM_STATUS_UPDATE':
+                    // Refresh room list when status changes
+                    $scope.rooms = RoomService.getRooms();
+                    
+                    // Handle cleaning updates
+                    if (data.payload.cleaningStarted) {
+                        console.log('🧹 Cleaning started for room by:', data.payload.cleanedBy);
+                    }
+                    if (data.payload.cleaningCompleted) {
+                        console.log('✅ Cleaning completed for room by:', data.payload.cleanedBy);
+                        // If we were cleaning this room, switch back to rooms view
+                        if ($scope.cleaningRoom && $scope.cleaningRoom.id === data.payload.roomId) {
+                            alert('Phòng ' + $scope.cleaningRoom.name + ' đã được dọn xong bởi nhân viên khác!');
+                            $scope.cleaningRoom = null;
+                            $scope.checklist = null;
+                            $scope.view = 'rooms';
+                        }
+                    }
+                    
+                    console.log('🔄 Room status updated for waiter');
+                    // Force UI update
+                    $scope.$apply();
+                    break;
+                    
+                case 'CART_UPDATE':
+                    // Update cart if we're viewing the same room
+                    if ($scope.selectedRoom && $scope.selectedRoom.id === data.payload.roomId) {
+                        $scope.cart = data.payload.cart || [];
+                        console.log('🛒 Cart updated for waiter');
+                    }
+                    break;
+                    
+                case 'CLEANING_STARTED':
+                    // Another staff started cleaning
+                    console.log('🧹 Cleaning started by another staff:', data.payload.staffName);
+                    $scope.rooms = RoomService.getRooms();
+                    $scope.$apply();
+                    break;
+                    
+                case 'CLEANING_COMPLETED':
+                    // Cleaning completed by another staff
+                    console.log('✅ Cleaning completed by:', data.payload.staffName);
+                    $scope.rooms = RoomService.getRooms();
+                    // If we were cleaning this room, switch back to rooms view
+                    if ($scope.cleaningRoom && $scope.cleaningRoom.id === data.payload.roomId) {
+                        alert('Phòng ' + $scope.cleaningRoom.name + ' đã được dọn xong bởi nhân viên khác!');
+                        $scope.cleaningRoom = null;
+                        $scope.checklist = null;
+                        $scope.view = 'rooms';
+                    }
+                    $scope.$apply();
+                    break;
+            }
+        });
+        
+        $scope.switchView = function(view) {
+            $scope.view = view;
+            if (view === 'rooms') {
+                $scope.selectedRoom = null;
+                $scope.cart = [];
+                $scope.sentItems = [];
+            } else if (view === 'room-items' && $scope.selectedRoom) {
+                $scope.loadRoomItems();
+            } else if (view === 'order' && $scope.selectedRoom) {
+                // Reload cart when switching to order view
+                $scope.cart = [];
+                if ($scope.selectedRoom.saleOrderId) {
+                    loadRoomCart($scope.selectedRoom.saleOrderId);
+                }
+            }
+        };
+        
+        // Room selection for ordering
+        $scope.selectRoomForOrder = function(room) {
+            if (room.status !== 'occupied') {
+                alert('Phòng này chưa mở hoặc không khả dụng!');
+                return;
+            }
+            $scope.selectedRoom = room;
+            $scope.view = 'order';
+            $scope.cart = [];
+            $scope.currentOrder = null; // Reset current order
+            
+            // Load current cart items for the room
+            if (room.saleOrderId) {
+                loadRoomCart(room.saleOrderId);
+            }
+            
+            // Load current sale order data
+            RoomService.getRoomWithOrder(room.id).then(function(data) {
+                if (data && data.orderData) {
+                    $scope.currentOrder = data.orderData;
+                }
+            }).catch(function(error) {
+                console.warn('Failed to load order for room:', error);
+            });
+            
+            if ($scope.categories.length > 0) {
+                $scope.selectCategory($scope.categories[0]);
+            }
+        };
+        
+        // Room selection for viewing items or ordering
+        $scope.selectRoomForView = function(room, view) {
+            if (room.status !== 'occupied') {
+                alert('Phòng này chưa mở hoặc không khả dụng!');
+                return;
+            }
+            
+            $scope.selectedRoom = room;
+            $scope.view = view;
+            $scope.sentItems = [];
+            
+            if (view === 'order') {
+                $scope.cart = [];
+                $scope.currentOrder = null;
+                
+                // Load current cart items for the room
+                if (room.saleOrderId) {
+                    loadRoomCart(room.saleOrderId);
+                }
+                
+                // Load current sale order data
+                RoomService.getRoomWithOrder(room.id).then(function(data) {
+                    if (data && data.orderData) {
+                        $scope.currentOrder = data.orderData;
+                    }
+                }).catch(function(error) {
+                    console.warn('Failed to load order for room:', error);
+                });
+                
+                if ($scope.categories.length > 0) {
+                    $scope.selectCategory($scope.categories[0]);
+                }
+            } else if (view === 'room-items') {
+                $scope.loadRoomItems();
+            }
+        };
+        
+        // Load cart items for a room
+        function loadRoomCart(saleOrderId) {
+            if (!saleOrderId) return;
+            
+            console.log('📦 Loading cart for room:', saleOrderId);
+            
+            // Load from local storage first
+            var localItems = StorageService.get('saleorderitems') || [];
+            var localOrderItems = localItems.filter(function(item) {
+                return item.saleOrderId === saleOrderId;
+            });
+            
+            if (localOrderItems.length > 0) {
+                console.log('✅ Loaded local cart items:', localOrderItems.length);
+                localOrderItems.forEach(function(item) {
+                    // Convert to cart format
+                    var cartItem = {
+                        itemId: item.productId,
+                        name: item.name || 'Unknown Item',
+                        price: item.unitPrice,
+                        quantity: item.quantity,
+                        unit: 'phần',
+                        note: item.note || '',
+                        isTimeBased: false,
+                        fromLocal: true
+                    };
+                    
+                    $scope.cart.push(cartItem);
+                });
+                
+                // Trigger digest cycle to update UI
+                $scope.$apply();
+            }
+            
+            // Load from server if not temp ID
+            if (!saleOrderId.startsWith('temp-') && !saleOrderId.startsWith('local-')) {
+                ApiService.getAll('saleorderitems', {
+                    where: { saleOrderId: saleOrderId }
+                }).then(function(serverItems) {
+                    if (serverItems && serverItems.length > 0) {
+                        serverItems.forEach(function(serverItem) {
+                            // Check if already in cart
+                            var existingIndex = $scope.cart.findIndex(function(cartItem) {
+                                return cartItem.itemId === serverItem.productId && 
+                                       cartItem.note === (serverItem.note || '');
+                            });
+                            
+                            if (existingIndex === -1) {
+                                // Add to cart
+                                var cartItem = {
+                                    itemId: serverItem.productId,
+                                    name: serverItem.name || 'Unknown Item',
+                                    price: serverItem.unitPrice,
+                                    quantity: serverItem.quantity,
+                                    unit: 'phần',
+                                    note: serverItem.note || '',
+                                    isTimeBased: false,
+                                    fromServer: true
+                                };
+                                
+                                $scope.cart.push(cartItem);
+                            }
+                        });
+                        
+                        // Trigger digest cycle to update UI
+                        $scope.$apply();
+                    }
+                }).catch(function(error) {
+                    console.warn('Failed to load server cart items:', error);
+                });
+            }
+            
+            console.log('🛒 Final cart length:', $scope.cart.length);
+        }
+        
+        // Load all items for a room (both cart and sent items)
+        $scope.loadRoomItems = function() {
+            console.log('🔄 loadRoomItems called');
+            if (!$scope.selectedRoom || !$scope.selectedRoom.saleOrderId) {
+                console.log('❌ No selected room or saleOrderId');
+                $scope.sentItems = [];
+                return;
+            }
+            
+            var saleOrderId = $scope.selectedRoom.saleOrderId;
+            console.log('📋 Loading all items for room:', $scope.selectedRoom.name, 'order:', saleOrderId);
+            
+            // Reset sent items
+            $scope.sentItems = [];
+            
+            // Load from local storage first (current cart items)
+            var localItems = StorageService.get('saleorderitems') || [];
+            var localOrderItems = localItems.filter(function(item) {
+                return item.saleOrderId === saleOrderId;
+            });
+            console.log('📦 Local items for this order:', localOrderItems.length);
+            
+            // Load from server (all saved items)
+            if (!saleOrderId.startsWith('temp-') && !saleOrderId.startsWith('local-')) {
+                console.log('🌐 Loading from server...');
+                ApiService.getAll('saleorderitems', {
+                    where: { saleOrderId: saleOrderId }
+                }).then(function(serverItems) {
+                    console.log('📥 Server response:', serverItems ? serverItems.length : 0, 'items');
+                    if (serverItems && serverItems.length > 0) {
+                        serverItems.forEach(function(serverItem) {
+                            // Check if this item is already in local cart (not yet sent)
+                            var isInLocalCart = localOrderItems.some(function(localItem) {
+                                return localItem.productId === serverItem.productId && 
+                                       localItem.note === (serverItem.note || '');
+                            });
+                            
+                            // Only add to sent items if not in local cart
+                            if (!isInLocalCart) {
+                                $scope.sentItems.push({
+                                    id: serverItem.id,
+                                    name: serverItem.name,
+                                    quantity: serverItem.quantity,
+                                    unit: 'phần', // Default unit
+                                    unitPrice: serverItem.unitPrice,
+                                    subtotal: serverItem.subtotal,
+                                    note: serverItem.note || '',
+                                    status: serverItem.status || 'Đã gửi',
+                                    createdAt: serverItem.createdAt,
+                                    updatedAt: serverItem.updatedAt
+                                });
+                            }
+                        });
+                        console.log('✅ Loaded sent items:', $scope.sentItems.length);
+                    }
+                    $scope.$apply();
+                }).catch(function(error) {
+                    console.warn('Failed to load sent items:', error);
+                    $scope.sentItems = [];
+                });
+            }
+        };
+        
+        // Refresh room items
+        $scope.refreshRoomItems = function() {
+            $scope.loadRoomItems();
+        };
+        
+        $scope.selectCategory = function(category) {
+            $scope.selectedCategory = category;
+            $scope.menuItems = MenuService.getMenuItems(category.id);
+        };
+        
+        $scope.addToCart = function(item) {
+            if (!$scope.selectedRoom || $scope.selectedRoom.status !== 'occupied') {
+                alert('Vui lòng chọn phòng đang sử dụng!');
+                return;
+            }
+            
+            // Xử lý time-based products đặc biệt
+            if (item.isTimeBased) {
+                // Ensure startTime is a Date object
+                var roomStartTime = $scope.selectedRoom.startTime;
+                if (typeof roomStartTime === 'string') {
+                    roomStartTime = new Date(roomStartTime);
+                }
+                TimeBasedService.addOrUpdateTimeBasedItem($scope.cart, item, roomStartTime);
+                autoSaveOrder();
+                $scope.calculateTotal();
+                return;
+            }
+            
+            // Check if item exists with or without note
+            var existingWithoutNote = $scope.cart.find(function(i) {
+                return i.itemId === item.id && !i.note;
+            });
+            
+            var existingWithNote = $scope.cart.filter(function(i) {
+                return i.itemId === item.id && i.note;
+            });
+            
+            // Case 1: Has item without note -> just increase quantity
+            if (existingWithoutNote) {
+                existingWithoutNote.quantity++;
+                autoSaveOrder();
+                $scope.calculateTotal();
+                return;
+            }
+            
+            // Case 2: Has item(s) with note -> ask user
+            if (existingWithNote.length > 0) {
+                var noteItem = existingWithNote[0];
+                var message = 'Món "' + item.name + '" đã có trong giỏ với ghi chú: "' + noteItem.note + '"\n\nThêm vào món có ghi chú này?\n\n- OK: Tăng số lượng món có ghi chú\n- Cancel: Thêm món mới không có ghi chú';
+                
+                if (confirm(message)) {
+                    // User chose to add to existing item with note
+                    noteItem.quantity++;
+                } else {
+                    // User chose to add new item without note
+                    var newCartItem = {
+                        itemId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: 1,
+                        unit: item.unit,
+                        note: '',
+                        addedAt: new Date()
+                    };
+                    
+                    // Handle combo BOM
+                    if (item.items && item.items.length > 0) {
+                        newCartItem.isCombo = true;
+                        newCartItem.bomItems = item.items;
+                    }
+                    
+                    $scope.cart.push(newCartItem);
+                }
+                
+                autoSaveOrder();
+                $scope.calculateTotal();
+                return;
+            }
+            
+            // Case 3: No existing item -> add new without note
+            var cartItem = {
+                itemId: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: 1,
+                unit: item.unit,
+                note: '',
+                addedAt: new Date()
+            };
+            
+            // Handle combo BOM
+            if (item.items && item.items.length > 0) {
+                cartItem.isCombo = true;
+                cartItem.bomItems = item.items;
+            }
+            
+            $scope.cart.push(cartItem);
+            
+            // Auto-save to order
+            autoSaveOrder();
+            $scope.calculateTotal();
+            
+            // Real-time update: Notify other clients about cart changes
+            if ($scope.selectedRoom) {
+                SocketService.updateCart($scope.selectedRoom.id, $scope.cart);
+            }
+        };
+        
+        $scope.updateQuantity = function(item, delta) {
+            item.quantity += delta;
+            if (item.quantity < 1) {
+                var index = $scope.cart.indexOf(item);
+                $scope.cart.splice(index, 1);
+            }
+            
+            // Auto-save and calculate total
+            autoSaveOrder();
+            $scope.calculateTotal();
+            
+            // Real-time update: Notify other clients about cart changes
+            if ($scope.selectedRoom) {
+                SocketService.updateCart($scope.selectedRoom.id, $scope.cart);
+            }
+        };
+        
+        // Edit item note
+        $scope.editItemNote = function(item) {
+            $scope.editingItem = angular.copy(item);
+            showModal('editNoteModal');
+        };
+        
+        $scope.saveItemNote = function() {
+            // Find the original item in cart and update its note
+            var originalItem = $scope.cart.find(function(item) {
+                return item.itemId === $scope.editingItem.itemId && 
+                       item.name === $scope.editingItem.name;
+            });
+            
+            if (originalItem) {
+                originalItem.note = $scope.editingItem.note;
+                                // Auto-save after note update
+                autoSaveOrder();
+                                // Real-time update: Notify other clients about cart changes
+                if ($scope.selectedRoom) {
+                    SocketService.updateCart($scope.selectedRoom.id, $scope.cart);
+                }
+            }
+            
+            hideModal('editNoteModal');
+            $scope.editingItem = null;
+        };
+        
+        $scope.cancelEditNote = function() {
+            hideModal('editNoteModal');
+            $scope.editingItem = null;
+        };
+        
+        $scope.sendOrder = function() {
+            if ($scope.cart.length === 0) {
+                alert('Chưa có món nào để gửi!');
+                return;
+            }
+            
+            if (!$scope.selectedRoom.saleOrderId) {
+                alert('Phòng chưa có đơn hàng!');
+                return;
+            }
+            
+            // Add each item to the sale order
+            $scope.cart.forEach(function(item) {
+                RoomService.addItemToSaleOrder($scope.selectedRoom.saleOrderId, item);
+            });
+            
+            alert('Đã gửi order cho ' + $scope.selectedRoom.name + '!');
+            $scope.cart = [];
+            $scope.switchView('rooms');
+        };
+        
+        // Cleaning management
+        $scope.selectRoomForCleaning = function(room) {
+            if (room.status !== 'cleaning') {
+                alert('Phòng này không ở trạng thái "Đang dọn"!');
+                return;
+            }
+            
+            $scope.cleaningRoom = room;
+            
+            // Check if there's an active checklist
+            var activeChecklist = StaffService.getActiveChecklist(room.id);
+            if (activeChecklist) {
+                $scope.checklist = activeChecklist;
+            } else {
+                $scope.checklist = StaffService.startCleaning(room.id, currentUser.username);
+                
+                // Real-time update: Notify other clients that cleaning has started
+                SocketService.notifyCleaningStarted(room.id, currentUser.username);
+            }
+            
+            $scope.view = 'cleaning';
+        };
+        
+        $scope.toggleChecklistItem = function(item) {
+            item.checked = !item.checked;
+            StaffService.updateChecklist($scope.cleaningRoom.id, item.id, item.checked);
+        };
+        
+        $scope.completeCleaning = function() {
+            var allChecked = $scope.checklist.items.every(function(item) {
+                return item.checked;
+            });
+            
+            if (!allChecked) {
+                alert('Vui lòng hoàn thành tất cả các mục kiểm tra!');
+                return;
+            }
+            
+            var completed = StaffService.completeCleaning($scope.cleaningRoom.id, currentUser.username);
+            if (completed) {
+                // Update room status to available
+                RoomService.updateRoomStatus($scope.cleaningRoom.id, 'available');
+                
+                // Refresh rooms list to update UI immediately
+                $scope.rooms = RoomService.getRooms();
+                
+                // Real-time update: Notify other clients that cleaning is completed
+                SocketService.notifyCleaningCompleted($scope.cleaningRoom.id, currentUser.username, completed.duration);
+                
+                // Also update room status for consistency
+                SocketService.updateRoomStatus($scope.cleaningRoom.id, 'available', {
+                    cleaningCompleted: true,
+                    cleanedBy: currentUser.username,
+                    cleaningDuration: completed.duration,
+                    completedAt: new Date()
+                });
+                
+                alert('Đã hoàn tất dọn phòng ' + $scope.cleaningRoom.name + '!\nThời gian: ' + completed.duration + ' phút');
+                $scope.cleaningRoom = null;
+                $scope.checklist = null;
+                $scope.switchView('rooms');
+            }
+        };
+        
+        $scope.logout = function() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                // Clear API authentication data
+                localStorage.removeItem('$LoopBack$accessTokenId');
+                localStorage.removeItem('$LoopBack$user');
+                localStorage.removeItem('userProfile');
+                ApiService.clearCache();
+                $location.path('/login');
+            }
+        };
+        
+        // Auto-save order when cart changes
+        function autoSaveOrder() {
+            if ($scope.selectedRoom && $scope.selectedRoom.saleOrderId) {
+                // Create/update SaleOrderItems for each cart item - LOCAL FIRST
+                var saleOrderId = $scope.selectedRoom.saleOrderId;
+                
+                // Load existing items from localStorage
+                var allItems = StorageService.get('saleorderitems') || [];
+                var existingItems = allItems.filter(function(item) {
+                    return item.saleOrderId === saleOrderId;
+                });
+                
+                console.log('Existing SaleOrderItems in localStorage:', existingItems.length);
+                
+                // Process each cart item
+                $scope.cart.forEach(function(cartItem) {
+                    // Check if item already exists in localStorage
+                    var existing = existingItems.find(function(item) {
+                        return item.productId === cartItem.itemId && 
+                               item.note === (cartItem.note || '');
+                    });
+                    
+                    var itemData = {
+                        saleOrderId: saleOrderId,
+                        productId: cartItem.itemId,
+                        name: cartItem.name,
+                        quantity: cartItem.quantity,
+                        unitPrice: cartItem.price,
+                        discount: 0,
+                        subtotal: cartItem.quantity * cartItem.price,
+                        note: cartItem.note || '',
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    if (existing) {
+                        // Update existing item in localStorage
+                        itemData.id = existing.id;
+                        itemData.createdAt = existing.createdAt;
+                        
+                        // Update in array
+                        var index = allItems.findIndex(function(item) {
+                            return item.id === existing.id;
+                        });
+                        if (index >= 0) {
+                            allItems[index] = itemData;
+                        }
+                        
+                        // Add to sync queue
+                        SyncService.addToQueue('update', 'saleorderitems', itemData);
+                    } else {
+                        // Create new item in localStorage
+                        itemData.id = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                        itemData.createdAt = new Date().toISOString();
+                        itemData._localOnly = true; // Mark as not yet synced
+                        
+                        // Add to array
+                        allItems.push(itemData);
+                        
+                        // Add to sync queue
+                        SyncService.addToQueue('create', 'saleorderitems', itemData);
+                    }
+                });
+                
+                // Save back to localStorage
+                StorageService.set('saleorderitems', allItems);
+                console.log('✓ SaleOrderItems saved to localStorage:', allItems.length);
+                
+                // Update SaleOrder total in localStorage
+                var total = $scope.cart.reduce(function(sum, item) {
+                    return sum + (item.quantity * item.price);
+                }, 0);
+                
+                var saleOrders = StorageService.get('saleorders') || [];
+                var orderIndex = saleOrders.findIndex(function(o) {
+                    return o.id === saleOrderId;
+                });
+                
+                if (orderIndex >= 0) {
+                    saleOrders[orderIndex].total = total;
+                    saleOrders[orderIndex].updatedAt = new Date().toISOString();
+                    StorageService.set('saleorders', saleOrders);
+                    
+                    // Add to sync queue
+                    SyncService.addToQueue('update', 'saleorders', saleOrders[orderIndex]);
+                }
+            } else if ($scope.cart.length > 0 && $scope.selectedRoom) {
+                // Fallback: tạo order local nếu chưa có SaleOrder
+                var order = OrderService.createOrder(
+                    $scope.selectedRoom.id,
+                    $scope.selectedRoom.billId,
+                    angular.copy($scope.cart),
+                    'Auto-saved',
+                    currentUser.username
+                );
+                
+                // Sync lên server qua ApiService
+                if (order) {
+                    // Order đã được lưu local, sync sẽ được xử lý bởi queue
+                }
+            }
+        }
+        
+        // Calculate total for display
+        $scope.calculateTotal = function() {
+            var total = 0;
+            var foodTotal = 0;
+            var timeBasedTotal = 0;
+            
+            $scope.cart.forEach(function(item) {
+                var itemTotal = item.quantity * item.price;
+                total += itemTotal;
+                
+                if (item.isTimeBased) {
+                    timeBasedTotal += itemTotal;
+                } else {
+                    foodTotal += itemTotal;
+                }
+            });
+            
+            $scope.total = total;
+            $scope.foodTotal = foodTotal;
+            $scope.timeBasedTotal = timeBasedTotal;
+        };
+    }
+]);

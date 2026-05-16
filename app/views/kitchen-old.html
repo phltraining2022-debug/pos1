@@ -1,0 +1,125 @@
+<!-- Kitchen Display System - Tablet Landscape -->
+<div class="min-h-screen bg-gray-900 flex flex-col">
+    <!-- Header -->
+    <div class="bg-gray-800 text-white px-6 py-4 shadow-lg">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-utensils text-3xl text-orange-400"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">Bếp / Bar</h1>
+                    <p class="text-sm text-gray-400">{{currentUser.username}}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Filter Tabs -->
+                <div class="flex space-x-2">
+                    <button ng-click="filter = 'all'" 
+                            class="px-4 py-2 rounded-lg font-semibold transition-colors"
+                            ng-class="filter === 'all' ? 'bg-white text-gray-900' : 'bg-gray-700 text-gray-300'">
+                        Tất cả ({{orders.length}})
+                    </button>
+                    <button ng-click="filter = 'pending'" 
+                            class="px-4 py-2 rounded-lg font-semibold transition-colors"
+                            ng-class="filter === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'">
+                        Chờ làm ({{(orders | filter:{status:'pending'}).length}})
+                    </button>
+                    <button ng-click="filter = 'preparing'" 
+                            class="px-4 py-2 rounded-lg font-semibold transition-colors"
+                            ng-class="filter === 'preparing' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'">
+                        Đang làm ({{(orders | filter:{status:'preparing'}).length}})
+                    </button>
+                </div>
+                
+                <button ng-click="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Orders Queue -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div ng-if="getFilteredOrders().length === 0" class="text-center text-gray-400 py-20">
+            <i class="fas fa-check-circle text-8xl mb-4 opacity-50"></i>
+            <p class="text-2xl font-bold">Không có đơn hàng</p>
+            <p class="text-lg mt-2">Hệ thống sẽ tự động cập nhật khi có order mới</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div ng-repeat="order in getFilteredOrders()" 
+                 class="rounded-xl shadow-lg p-5 border-l-4 transition-all"
+                 ng-class="getOrderClass(order)">
+                
+                <!-- Order Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center">
+                            <i class="fas fa-door-open text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Phòng {{order.roomId}}</h3>
+                            <p class="text-sm text-gray-600">{{order.orderedAt | date:'HH:mm:ss'}}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        <span class="px-3 py-1 rounded-full text-white text-xs font-bold"
+                              ng-class="getStatusBadgeClass(order.status)">
+                            {{getStatusText(order.status)}}
+                        </span>
+                        <div class="mt-1 font-mono text-lg font-bold"
+                             ng-class="order.urgent ? 'text-red-600' : 'text-gray-600'">
+                            <i class="fas fa-clock mr-1"></i>{{order.waitTime}} phút
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Items -->
+                <div class="bg-white rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="font-bold text-gray-800 text-lg">{{order.name}}</div>
+                            <div ng-if="order.note" class="text-sm text-orange-600 mt-1">
+                                <i class="fas fa-sticky-note mr-1"></i>{{order.note}}
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl font-bold text-blue-600">×{{order.quantity}}</span>
+                            <button ng-click="markOutOfStock(order)" 
+                                    class="text-red-500 hover:text-red-700 text-sm">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Info -->
+                <div class="bg-gray-100 rounded-lg p-3 mb-4 text-sm text-gray-700">
+                    <div class="flex items-center justify-between">
+                        <span><i class="fas fa-user mr-2"></i>{{order.orderedBy}}</span>
+                        <span><i class="fas fa-hashtag mr-1"></i>{{order.id}}</span>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button ng-if="order.status === 'pending'" 
+                            ng-click="startPreparing(order)"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg font-bold transition-colors">
+                        <i class="fas fa-play mr-2"></i>Bắt đầu làm
+                    </button>
+                    
+                    <button ng-if="order.status === 'preparing'" 
+                            ng-click="markReady(order)"
+                            class="col-span-2 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-bold transition-colors">
+                        <i class="fas fa-check-circle mr-2"></i>Đã xong
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sound notification for new orders (optional) -->
+    <audio id="newOrderSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZWBQPS6Lh8bllHQU2jdXy0H0pBSl+zPDajkILEnC76+ijVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkILEnC76+mjVxQLTKPi8bllHQU1i9Py0n4qBSl+zPDajkIL"></audio>
+</div>

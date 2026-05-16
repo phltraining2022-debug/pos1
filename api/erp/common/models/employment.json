@@ -1,0 +1,51 @@
+{
+  "name": "employment",
+  "plural": "employments",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "employeeId": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "fromDate": {
+      "type": "date"
+    },
+    "toDate": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "employerId": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "employer": {
+      "type": "belongsTo",
+      "model": "company",
+      "foreignKey": "employerId"
+    },
+    "employee": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "employeeId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

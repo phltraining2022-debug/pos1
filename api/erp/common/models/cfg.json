@@ -1,0 +1,80 @@
+{
+	"name": "Cfg",
+	"plural": "Cfgs",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"required": true,
+			"fmt": "XXX",
+			"fmtProperties": {
+				"XXX": "(obj.type && (obj.type=='state' || obj.type=='type')&&obj.value) || [obj.model, obj.value].filter(e=>e).join('.')"
+			}
+		},
+		"models": {
+			"type": [
+				"string"
+			],
+			"required": false
+		},
+		"field": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"short": {
+			"type": "string"
+		},
+		"nameVi": {
+			"type": "string"
+		},
+		"value": {
+			"type": "string",
+			"required": true
+		},
+		"isActive": {
+			"type": "boolean",
+			"default": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"isLocked": {
+			"type": "boolean"
+		},
+		"order": {
+			"type": "number"
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"state",
+				"category",
+				"type",
+				"primary"
+			]
+		}
+	},
+	"validations": [],
+	"relations": {
+		"parent": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "parentId"
+		},
+		"children": {
+			"type": "hasMany",
+			"model": "Cfg",
+			"foreignKey": "parentId"
+		}
+	},
+	"acls": [],
+	"methods": {},
+	"path": "cfg"
+}

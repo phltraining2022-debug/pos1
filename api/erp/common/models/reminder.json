@@ -1,0 +1,83 @@
+{
+	"name": "Reminder",
+	"plural": "Reminders",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"licensePlate": {
+			"type": "string"
+		},
+		"dueDate": {
+			"type": "date",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"Done",
+				"Discarded",
+				"Pending",
+				"Overdue"
+			],
+			"default": "Pending"
+		},
+		"studentName": {
+			"type": "string"
+		},
+		"customerName": {
+			"type": "string"
+		},
+		"leadId": {
+			"type": "string"
+		},
+		"contractId": {
+			"type": "string"
+		},
+		"employeeId": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		},
+		"phoneNumber": {
+			"type": "string"
+		},
+		"numberOfMaintenance": {
+			"type": "number"
+		},
+		"numberOfMaintenanceKm": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId",
+			"optional": true
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"owner": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"service": {
+			"type": "belongsTo",
+			"model": "Service",
+			"foreignKey": "serviceId"
+		},
+		"vehicle": {
+			"type": "belongsTo",
+			"model": "Vehicle",
+			"foreignKey": "vehicleId"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

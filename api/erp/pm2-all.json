@@ -1,0 +1,13 @@
+{
+    "apps": [
+	{ 
+	    "name": "ats",
+	    "script": "./server/server.js",
+	    "instances": 5,
+	    "exec_mode"  : "cluster",
+	    "env": {
+		"PORT": 20002
+	    }
+	}
+    ]
+}

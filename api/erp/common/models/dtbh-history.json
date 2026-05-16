@@ -1,0 +1,48 @@
+{
+  "name": "DTBHHistory",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "target": {
+      "type": "string",
+      "required": true
+    },
+    "validFrom": {
+      "type": "date",
+      "required": true
+    },
+    "validTo": {
+      "type": "date"
+    },
+    "level": {
+      "type": "string",
+      "required": true
+    },
+    "clinicId": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "createdBy": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "dtbh": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "target"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

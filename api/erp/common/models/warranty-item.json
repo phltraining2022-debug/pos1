@@ -1,0 +1,61 @@
+{
+	"name": "WarrantyItem",
+	"plural": "WarrantyItems",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"scope": {},
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"labor": {
+			"type": "string"
+		},
+		"parts": {
+			"type": "string"
+		},
+		"conditions": {
+			"type": "string"
+		},
+		"transferability": {
+			"type": "string"
+		},
+		"exclusions": {
+			"type": "string"
+		},
+		"startDate": {
+			"type": "date"
+		},
+		"endDate": {
+			"type": "date"
+		},
+		"note": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"vehicle": {
+			"type": "belongsTo",
+			"model": "Vehicle",
+			"foreignKey": "vehicleId"
+		},
+		"warranty": {
+			"type": "belongsTo",
+			"model": "Warranty",
+			"foreignKey": "warrantyId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

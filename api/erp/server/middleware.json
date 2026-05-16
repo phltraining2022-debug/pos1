@@ -1,0 +1,55 @@
+{
+  "initial": {
+    "cors": {
+      "params": {
+        "origin": "*",
+        "credentials": true,
+        "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+        "allowedHeaders": "Content-Type,Authorization,X-Requested-With,X-Total-Count, x-shared-code, X-Shared-Code",
+        "exposedHeaders": "X-Total-Count"
+      }
+    },
+    "./middleware/count-records": {},
+    "compression": { "enabled": false },
+    "loopback-context#per-request": {}
+  },
+  "initial:before": {
+     "loopback#favicon": {},
+    "loopback#token": {
+        "params": {
+          "currentUserLiteral": "me"
+        }
+      }
+  },
+  "initial:after": {
+    "./middleware/switch-datasource": {},
+    "./middleware/advanced-security": {},
+    "./middleware/tracker": {},
+    "./middleware/block-ip": {},
+    "./middleware/auth": {}
+  },
+  "session": {},
+  "parse": {
+    "body-parser#json": { "params": { "limit": "50mb" } },
+    "body-parser#urlencoded": {
+      "params": { "limit": "50mb", "extended": true }
+    }
+  },
+  "routes": {
+    "loopback#rest": {
+      "paths": ["${restApiRoot}"]
+    },
+    "./middleware/auth": {}
+  },
+  "files": {
+    "loopback#static": {
+      "params": "$!../client/app"
+    }
+  },
+  "final": {
+    "loopback#urlNotFound": {}
+  },
+  "final:after": {
+    "loopback#errorHandler": {}
+  }
+}

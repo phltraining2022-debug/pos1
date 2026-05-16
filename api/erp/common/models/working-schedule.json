@@ -1,0 +1,54 @@
+{
+  "name": "workingSchedule",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "shiftId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "locationId": {
+      "type": "string"
+    },
+    "fromDate": {
+      "type": "date",
+      "required": true
+    },
+    "toDate": {
+      "type": "date",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "shift": {
+      "type": "belongsTo",
+      "model": "shift",
+      "foreignKey": "shiftId"
+    },
+    "location": {
+      "type": "belongsTo",
+      "model": "location",
+      "foreignKey": "locationId"
+    },
+    "user": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

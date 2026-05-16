@@ -1,0 +1,56 @@
+{
+	"name": "SupplierInvoice",
+	"base": "AppModel",
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"supplierId": {
+			"type": "number",
+			"required": true
+		},
+		"invoiceNumber": {
+			"type": "string",
+			"required": true
+		},
+		"invoiceDate": {
+			"type": "date",
+			"required": true
+		},
+		"totalAmount": {
+			"type": "number",
+			"required": true
+		},
+		"dueDate": {
+			"type": "date",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"required": true
+		},
+		"paymentTerms": {
+			"type": "string"
+		},
+		"taxAmount": {
+			"type": "number"
+		},
+		"note": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"supplier": {
+			"type": "belongsTo",
+			"model": "Supplier",
+			"foreignKey": "supplierId"
+		},
+		"invoiceItems": {
+			"type": "hasMany",
+			"model": "InvoiceItem",
+			"foreignKey": "invoiceId"
+		}
+	}
+}

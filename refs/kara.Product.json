@@ -1,0 +1,2724 @@
+[{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0d3"
+  },
+  "image": "",
+  "name": "dia oi",
+  "alcoholic": false,
+  "code": "SP000179",
+  "description": "",
+  "price": 20000,
+  "uomId": "",
+  "category": "Trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 100000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.309Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0d4"
+  },
+  "image": "",
+  "name": "THUOC ESSE",
+  "alcoholic": false,
+  "code": "SP000178",
+  "description": "",
+  "price": 40000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 80000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.341Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da606"
+  },
+  "image": "",
+  "name": "trai chanh",
+  "alcoholic": false,
+  "code": "SP000180",
+  "description": "",
+  "price": 2000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 10000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.329Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0d7"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/b5af928c57ae44c7a4f628a96ab5bee9",
+  "name": "Chân gà 1",
+  "alcoholic": false,
+  "code": "SP000176",
+  "description": "",
+  "price": 8000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 20000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.404Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da608"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/be1549dc53134a2f8bd2b1e4869be447",
+  "name": "Cơm cháy",
+  "alcoholic": false,
+  "code": "SP000177",
+  "description": "",
+  "price": 55000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 120000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.409Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0d8"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/463b89dfb3bc4f1eb31a1022f3bee795",
+  "name": "Xí muội chua ngọt",
+  "alcoholic": false,
+  "code": "SP000174",
+  "description": "",
+  "price": 35000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 75000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.432Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da60a"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/ffad43c68f3b4f08b9b170aeb88ac73c",
+  "name": "Chân gà 10",
+  "alcoholic": false,
+  "code": "SP000175",
+  "description": "",
+  "price": 8000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 200000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.447Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0da"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/87552b06651342cb89672f307aac1218",
+  "name": "khô bò miếng",
+  "alcoholic": false,
+  "code": "SP000172",
+  "description": "",
+  "price": 115000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 185000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.456Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da60c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/f2037d92517c43138e711e151d916080",
+  "name": "Dĩa chả lụa",
+  "alcoholic": false,
+  "code": "SP000171",
+  "description": "",
+  "price": 90000,
+  "uomId": "",
+  "category": "Đồ ăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 160000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.483Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da60e"
+  },
+  "image": "",
+  "name": "RUU GAO SHOCHU",
+  "alcoholic": false,
+  "code": "SP000170",
+  "description": "",
+  "price": 205000,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 455000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.512Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da610"
+  },
+  "image": "",
+  "name": "trứng them",
+  "alcoholic": false,
+  "code": "SP000166",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 10000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.665Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0dd"
+  },
+  "image": "",
+  "name": "Dĩa nho",
+  "alcoholic": false,
+  "code": "SP000167",
+  "description": "",
+  "price": 100000,
+  "uomId": "",
+  "category": "Trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 200000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.674Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da611"
+  },
+  "image": "",
+  "name": "Mì xào hải sản",
+  "alcoholic": false,
+  "code": "SP000164",
+  "description": "",
+  "price": 150000,
+  "uomId": "",
+  "category": "Đồ ăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 285000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.683Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0de"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/08/karaluxury/images/e9edea940aca440e8b4e9541f7b749dc",
+  "name": "Hộp quẹt",
+  "alcoholic": false,
+  "code": "SP000160",
+  "description": "",
+  "price": 10000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 15000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.701Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da613"
+  },
+  "image": "",
+  "name": "Khoai tây chiên",
+  "alcoholic": false,
+  "code": "SP000163",
+  "description": "",
+  "price": 80000,
+  "uomId": "",
+  "category": "Đồ ăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 160000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.709Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0df"
+  },
+  "image": "",
+  "name": "7up",
+  "alcoholic": false,
+  "code": "SP000165",
+  "description": "",
+  "price": 8000,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.712Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da616"
+  },
+  "image": "",
+  "name": "soda",
+  "alcoholic": false,
+  "code": "SP000159",
+  "description": "",
+  "price": 10000,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.746Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da617"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/08/karaluxury/images/b6e3a98613654086937102041af31794",
+  "name": "Xí Muội",
+  "alcoholic": false,
+  "code": "SP000154",
+  "description": "",
+  "price": 10000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.772Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0e3"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/08/karaluxury/images/b10dc483bc604aabb6235afd5a78beb2",
+  "name": "Dĩa bưởi",
+  "alcoholic": false,
+  "code": "SP000158",
+  "description": "",
+  "price": 75000,
+  "uomId": "",
+  "category": "Trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 150000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.756Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0e4"
+  },
+  "image": "",
+  "name": "saigon do",
+  "alcoholic": false,
+  "code": "SP000157",
+  "description": "",
+  "price": 12000,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 33000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.795Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d537a5cd8fd0346da61a"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/9bf39175d511481c9a51e7baf5f6a10a",
+  "name": "Giờ phụ thu",
+  "alcoholic": false,
+  "code": "SP000151",
+  "description": "",
+  "price": 100000,
+  "uomId": "",
+  "category": "Giờ",
+  "type": "Dịch vụ",
+  "sellingPrice": 100000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.973Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 1
+},
+{
+  "_id": {
+    "$oid": "6955d5376f3a02d0204ac0e7"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/08/karaluxury/images/e7f1a957ffce434e970b8e56bc4b23d3",
+  "name": "dia Khô bò",
+  "alcoholic": false,
+  "code": "SP000152",
+  "description": "",
+  "price": 50000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 200000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.978Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da61c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/2a3d07d05bd44da49cde4cc3ad2a6387",
+  "name": "Giờ Luxury 500",
+  "alcoholic": false,
+  "code": "SP000150",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Giờ",
+  "type": "Dịch vụ",
+  "sellingPrice": 500000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.006Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 1
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0e8"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/57715d3f5a2441feb62295fa1c46131b",
+  "name": "Singum XYLITOL",
+  "alcoholic": false,
+  "code": "SP000147",
+  "description": "",
+  "price": 25000,
+  "uomId": "",
+  "category": "Đồ khô>>Gói",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 49000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:23.999Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da61e"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/ffcfa20d12084de19cee763e0a261d98",
+  "name": "Đậu phộng da cá Oishi",
+  "alcoholic": false,
+  "code": "SP000149",
+  "description": "",
+  "price": 12000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 25000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.037Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0e9"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/150393d8b35b467d9e2b40aa9b59f727",
+  "name": "Thuốc White Horse",
+  "alcoholic": false,
+  "code": "SP000148",
+  "description": "",
+  "price": 28000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 52000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.061Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da620"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/e79f794fabf349738929aa7d18e26b98",
+  "name": "HENIKEN Bạc Nhỏ",
+  "alcoholic": false,
+  "code": "SP000145",
+  "description": "",
+  "price": 15000,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 35600,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.070Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da622"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/3b6c3e1626854d958f015bde2a11dfb5",
+  "name": "TIGER Bạc Nhỏ",
+  "alcoholic": false,
+  "code": "SP000142",
+  "description": "",
+  "price": 11400,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 31600,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.096Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0ec"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/df5ba6d4a5b345f0b069747226dd60e1",
+  "name": "HENIKEN Bạc Lớn",
+  "alcoholic": false,
+  "code": "SP000144",
+  "description": "",
+  "price": 19000,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 39600,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.103Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0ef"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/4f0c76459f4041dea73439d69c4c3215",
+  "name": "TIGER Bạc Lớn",
+  "alcoholic": false,
+  "code": "SP000143",
+  "description": "",
+  "price": 16400,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 36600,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.152Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da624"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/9c1b2f7619ef443592b59f4e351cff0b",
+  "name": "TIGER Nâu Lớn",
+  "alcoholic": false,
+  "code": "SP000140",
+  "description": "",
+  "price": 14500,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 35700,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.306Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0f1"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/80941e1357904c28a4f6167cab490610",
+  "name": "TIGER Nâu nhỏ",
+  "alcoholic": false,
+  "code": "SP000141",
+  "description": "",
+  "price": 10800,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30800,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.316Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da626"
+  },
+  "image": "",
+  "name": "Táo Mèo",
+  "alcoholic": false,
+  "code": "SP000135",
+  "description": "",
+  "price": 55000,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 135000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.333Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0f2"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/26ad4f3163284600b47f9c3259d8dc14",
+  "name": "HENIKEN Xanh",
+  "alcoholic": false,
+  "code": "SP000139",
+  "description": "",
+  "price": 18000,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 39600,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.340Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da627"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/7f87989a3df34b579cd4c71b5f4884b9",
+  "name": "Giờ Luxury 450",
+  "alcoholic": false,
+  "code": "SP000131",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Giờ",
+  "type": "Dịch vụ",
+  "sellingPrice": 450000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.358Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 1
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0f4"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/e673815d40524e5bb3b2b1f8ef6688fc",
+  "name": "PEPSI",
+  "alcoholic": false,
+  "code": "SP000134",
+  "description": "",
+  "price": 7500,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.364Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0f6"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/84440523d1f447c2bb5863b11b69b99a",
+  "name": "SAIGON Lager",
+  "alcoholic": false,
+  "code": "SP000127",
+  "description": "",
+  "price": 10600,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30600,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.393Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da62a"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/6980e76efd1c4fb3b14d329079d9cb5e",
+  "name": "Thuốc Thăng Long",
+  "alcoholic": false,
+  "code": "SP000129",
+  "description": "",
+  "price": 12700,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 41000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.411Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0f8"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/b9e921a4314a4f6eae51aa9980cda9ae",
+  "name": "Giờ Luxury 350",
+  "alcoholic": false,
+  "code": "SP000120",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Giờ",
+  "type": "Dịch vụ",
+  "sellingPrice": 350000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.421Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 1
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da62c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/6ba2b6ac7007409aa9ef81a106a01d72",
+  "name": "Giờ Luxury 400",
+  "alcoholic": false,
+  "code": "SP000121",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Giờ",
+  "type": "Dịch vụ",
+  "sellingPrice": 400000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.438Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 1
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0fb"
+  },
+  "image": "",
+  "name": "Trái Cây Nhỏ",
+  "alcoholic": false,
+  "code": "SP000115",
+  "description": "",
+  "price": 100000,
+  "uomId": "",
+  "category": "Trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 200000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.584Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da62e"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/c4e50a2f443e4007a9c2fea4f04ade27",
+  "name": "Vodk Men 500ml",
+  "alcoholic": false,
+  "code": "SP000119",
+  "description": "",
+  "price": 100000,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 250000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.600Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0fc"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/94f152e2f644416b870de68f94aa3343",
+  "name": "Dĩa Trái Cây",
+  "alcoholic": false,
+  "code": "SP000114",
+  "description": "",
+  "price": 150000,
+  "uomId": "",
+  "category": "Trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 300000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.605Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da62f"
+  },
+  "image": "",
+  "name": "Trà gừng",
+  "alcoholic": false,
+  "code": "SP000112",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 40000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.616Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac0fe"
+  },
+  "image": "",
+  "name": "Trà gừng mật ong",
+  "alcoholic": false,
+  "code": "SP000111",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 55000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.628Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da632"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/81b6dab975bc465ba280e7c8f3bbfd26",
+  "name": "Thuốc Mèo Đỏ",
+  "alcoholic": false,
+  "code": "SP000107",
+  "description": "",
+  "price": 22700,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 47000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.655Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac100"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/b1eaf6ed354e4cb2b72ec0dc03e986ef",
+  "name": "Chanh dĩa",
+  "alcoholic": false,
+  "code": "SP000110",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 15000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.658Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da634"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/13de4222e86c4cf89ec115e9f0077a3e",
+  "name": "Thuốc Jet",
+  "alcoholic": false,
+  "code": "SP000105",
+  "description": "",
+  "price": 27000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 54000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.692Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac103"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/36b87b6a24814a61a090dc4baa194ff9",
+  "name": "Thuốc 555 Dài",
+  "alcoholic": false,
+  "code": "SP000103",
+  "description": "",
+  "price": 35000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 64000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.696Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da636"
+  },
+  "image": "",
+  "name": "TWISTER CAM",
+  "alcoholic": false,
+  "code": "SP000101",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.723Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac105"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/11/karaluxury/images/8f457231ebff4279966854ce981b265e",
+  "name": "Tuýt atiso",
+  "alcoholic": false,
+  "code": "SP000100",
+  "description": "",
+  "price": 5000,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 15000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.884Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da638"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/87d66904fcc74924a3255c2e7e2decae",
+  "name": "STRONGBOW",
+  "alcoholic": false,
+  "code": "SP000096",
+  "description": "",
+  "price": 18000,
+  "uomId": "",
+  "category": "Bia",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 35000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.889Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da639"
+  },
+  "image": "",
+  "name": "Sprite",
+  "alcoholic": false,
+  "code": "SP000094",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.910Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac107"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/255ee59f251d4804a40fba608dc3645a",
+  "name": "STING",
+  "alcoholic": false,
+  "code": "SP000095",
+  "description": "",
+  "price": 8200,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.922Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac108"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/29fbd1af85574be7aeb14677112c0e51",
+  "name": "Singum Doublemint",
+  "alcoholic": false,
+  "code": "SP000091",
+  "description": "",
+  "price": 2000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 10000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.931Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac10a"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/09/karaluxury/images/c9467010870b413fb9ac860c4529d9c2",
+  "name": "Shochu Hàn Quốc",
+  "alcoholic": false,
+  "code": "SP000089",
+  "description": "",
+  "price": 90000,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 190000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.958Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d538a5cd8fd0346da63c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/77f92fbd6a9c4d5eacbe5beb02a101e1",
+  "name": "Snack",
+  "alcoholic": false,
+  "code": "SP000092",
+  "description": "",
+  "price": 10000,
+  "uomId": "",
+  "category": "Đồ khô>>Gói",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 25000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.977Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5386f3a02d0204ac10c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/f0e6351d4f9c43718b1e7d26d07e07c4",
+  "name": "Thuốc Seven",
+  "alcoholic": false,
+  "code": "SP000086",
+  "description": "",
+  "price": 15000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 42000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:24.988Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da63e"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/c42c80cc76bb4c3ba43bfa8c4cb0b0cb",
+  "name": "Thuốc Sài Gòn Bạc",
+  "alcoholic": false,
+  "code": "SP000084",
+  "description": "",
+  "price": 13400,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 42000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.007Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac10e"
+  },
+  "image": "",
+  "name": "Rượu Vang Đa Lạt",
+  "alcoholic": false,
+  "code": "SP000081",
+  "description": "",
+  "price": 80000,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 260000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.021Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac111"
+  },
+  "image": "",
+  "name": "Phụ Thu Đồ Uống Ngoài",
+  "alcoholic": false,
+  "code": "SP000070",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Phí",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 100000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.178Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da640"
+  },
+  "image": "",
+  "name": "ruou vang phap",
+  "alcoholic": false,
+  "code": "SP000074",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Rượu",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 480000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.188Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da641"
+  },
+  "image": "",
+  "name": "Phụ Thu Đồ Uống Ngoài",
+  "alcoholic": false,
+  "code": "SP000066",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Phí",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 200000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.214Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac113"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/3eb43529ca86494a82a59f49297a4eda",
+  "name": "Phô Mai",
+  "alcoholic": false,
+  "code": "SP000063",
+  "description": "",
+  "price": 34000,
+  "uomId": "",
+  "category": "Đồ khô>>Gói",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 70000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.230Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac114"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/d88ac8a9ddfd4576a83ae8e0b6e3c4c3",
+  "name": "Mực BenTo",
+  "alcoholic": false,
+  "code": "SP000053",
+  "description": "",
+  "price": 15000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 45000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.238Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da643"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/427fcf961d604601a88da2ceaec4fad8",
+  "name": "AWAFINA Nước Suối",
+  "alcoholic": false,
+  "code": "SP000058",
+  "description": "",
+  "price": 4000,
+  "uomId": "",
+  "category": "Nước uống>>Nước suối",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 20000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.244Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac116"
+  },
+  "image": "",
+  "name": "Mì thường",
+  "alcoholic": false,
+  "code": "SP000051",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Đồ ăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 20000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.265Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da646"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/00e683362483450a9643ec7d82f116a8",
+  "name": "Mít Sấy",
+  "alcoholic": false,
+  "code": "SP000052",
+  "description": "",
+  "price": 30000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 70000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.280Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac119"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/2cdffb85f5c349bba8a45343f97828c1",
+  "name": "Mì trứng",
+  "alcoholic": false,
+  "code": "SP000050",
+  "description": "",
+  "price": 10000,
+  "uomId": "",
+  "category": "Đồ ăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 32000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.300Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da648"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/3c717433b9bc4f1a989c513a268716d3",
+  "name": "Thuốc Mèo Bạc",
+  "alcoholic": false,
+  "code": "SP000049",
+  "description": "",
+  "price": 23000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 42000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.314Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da64a"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/abad118f8ac4469b8fa58de49235ea5b",
+  "name": "Khô Mực Nướng",
+  "alcoholic": false,
+  "code": "SP000045",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Đồ ăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 150000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.461Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac11b"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/196085fdbbe94784bdb0b7f48261ff1b",
+  "name": "Khoai Tây Lon",
+  "alcoholic": false,
+  "code": "SP000046",
+  "description": "",
+  "price": 22000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 49000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.470Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac11c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/30015a8026574ccebc47c5d6d5c3e9a4",
+  "name": "Khăn giấy",
+  "alcoholic": false,
+  "code": "SP000043",
+  "description": "",
+  "price": 10000,
+  "uomId": "",
+  "category": "Khăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 10000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.485Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da64c"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/92f52770d58d41d1a2b1b82f48ebf90a",
+  "name": "Khăn Lạnh",
+  "alcoholic": false,
+  "code": "SP000044",
+  "description": "",
+  "price": 1000,
+  "uomId": "",
+  "category": "Khăn",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 5000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.489Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da64e"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/de2c24721d624449ba22393d9e063a30",
+  "name": "Khô Gà",
+  "alcoholic": false,
+  "code": "SP000032",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Đồ khô>>Gói",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 50000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.505Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac11e"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/23624d7b240e4f2e851066d97ead71c2",
+  "name": "Chanh Nóng",
+  "alcoholic": false,
+  "code": "SP000025",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 40000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.506Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da650"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/297eeb3e8019401191d3ef1ea3e16d84",
+  "name": "Chanh Đá",
+  "alcoholic": false,
+  "code": "SP000023",
+  "description": "",
+  "price": 5000,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 40000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.534Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac120"
+  },
+  "image": "",
+  "name": "Chanh Muối",
+  "alcoholic": false,
+  "code": "SP000024",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 40000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.536Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac122"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/c19e42d40eb04ef59525218a417f0be1",
+  "name": "COCA-COLA",
+  "alcoholic": false,
+  "code": "SP000021",
+  "description": "",
+  "price": 7500,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 30000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.557Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da652"
+  },
+  "image": "",
+  "name": "Cam Vắt",
+  "alcoholic": false,
+  "code": "SP000020",
+  "description": "",
+  "price": 0,
+  "uomId": "",
+  "category": "Nước uống>>Nước trái cây",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 60000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.558Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da654"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/9d3f31ca4d4141d384c3c6de79453c85",
+  "name": "RED-BULL Bò Húc",
+  "alcoholic": false,
+  "code": "SP000014",
+  "description": "",
+  "price": 11000,
+  "uomId": "",
+  "category": "Nước ngọt",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 35000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.717Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac125"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/91af28350f5d488c889b07b01b7ddda8",
+  "name": "Khô Bò",
+  "alcoholic": false,
+  "code": "SP000016",
+  "description": "",
+  "price": 35000,
+  "uomId": "",
+  "category": "Đồ khô",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 70000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.721Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da655"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/d20cc0f48aaf4a499ef72b198407b100",
+  "name": "Thuốc 555 Việt",
+  "alcoholic": false,
+  "code": "SP000005",
+  "description": "",
+  "price": 33000,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 58000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.730Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac126"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/40b42eb7baac489682c19189fee8d81b",
+  "name": "Bánh Que Thái",
+  "alcoholic": false,
+  "code": "SP000012",
+  "description": "",
+  "price": 18000,
+  "uomId": "",
+  "category": "Đồ khô>>Gói",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 40000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.731Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d539a5cd8fd0346da658"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/db169478924b49f5a351670ada79e58d",
+  "name": "Thuốc 555 Bạc",
+  "alcoholic": false,
+  "code": "SP000003",
+  "description": "",
+  "price": 23700,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 45000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.756Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955d5396f3a02d0204ac129"
+  },
+  "image": "https://cdn1-fnb-userdata.kiotviet.vn/2025/04/karaluxury/images/4369695444a342f2932536d04be1636a",
+  "name": "Thuốc 555 Dẹp ( inter xanh )",
+  "alcoholic": false,
+  "code": "SP000004",
+  "description": "",
+  "price": 60,
+  "uomId": "",
+  "category": "Thuốc lá",
+  "type": "Hàng hóa thường",
+  "sellingPrice": 110000,
+  "variants": [],
+  "supplierIds": [],
+  "createdAt": {
+    "$date": "2026-01-01T02:00:25.771Z"
+  },
+  "createdById": null,
+  "isActive": true,
+  "relatedProductIds": [],
+  "refBlockIds": [],
+  "isTimeBased": 0
+},
+{
+  "_id": {
+    "$oid": "6955f90657ac757b02a4b16d"
+  },
+  "name": "Snack Cua PoCa",
+  "code": "SP000125{DEL}",
+  "price": 25000,
+  "createdAt": {
+    "$date": "2026-01-01T04:33:10.858Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T04:33:10.858Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69563ffb7e165deefc081198"
+  },
+  "name": "bó hoa hồng",
+  "code": "SP000168{DEL}",
+  "price": 200000,
+  "createdAt": {
+    "$date": "2026-01-01T09:35:55.693Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:35:55.693Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69563ffb7e165deefc081199"
+  },
+  "name": "cây thuốc 555 anh",
+  "code": "SP000169{DEL}",
+  "price": 1000000,
+  "createdAt": {
+    "$date": "2026-01-01T09:35:55.768Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:35:55.768Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6956403f7e165deefc0812da"
+  },
+  "name": "shochu HQ 360ml",
+  "code": "SP000088{DEL}",
+  "price": 140000,
+  "createdAt": {
+    "$date": "2026-01-01T09:37:03.669Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:37:03.669Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695640987e165deefc08147d"
+  },
+  "name": "cái ô",
+  "code": "SP000162{DEL}",
+  "price": 300000,
+  "createdAt": {
+    "$date": "2026-01-01T09:38:32.123Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:38:32.123Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695640a97e165deefc0814d0"
+  },
+  "name": "ken 0 độ",
+  "code": "SP000161{DEL}",
+  "price": 42000,
+  "createdAt": {
+    "$date": "2026-01-01T09:38:49.000Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:38:49.000Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6956422c7e165deefc081b93"
+  },
+  "name": "Đậu Phộng Da Cá PoCa",
+  "code": "SP000031{DEL}",
+  "price": 10000,
+  "createdAt": {
+    "$date": "2026-01-01T09:45:16.286Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:45:16.286Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6956422e7e165deefc081b9e"
+  },
+  "name": "Chanh cắt lát.",
+  "code": "SP000153{DEL}",
+  "price": 20000,
+  "createdAt": {
+    "$date": "2026-01-01T09:45:18.567Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:45:18.567Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642407e165deefc081bfa"
+  },
+  "name": "Phụ Thu Phục Vụ 60p",
+  "code": "SP000068{DEL}",
+  "price": 250000,
+  "createdAt": {
+    "$date": "2026-01-01T09:45:36.921Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:45:36.921Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642417e165deefc081bff"
+  },
+  "name": "Phụ Thu Phục vụ 30p",
+  "code": "SP000069{DEL}",
+  "price": 50000,
+  "createdAt": {
+    "$date": "2026-01-01T09:45:37.732Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:45:37.732Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642667e165deefc081cbd"
+  },
+  "name": "Snack Thái Nhỏ",
+  "code": "SP000146{DEL}",
+  "price": 17000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:14.761Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:14.761Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6956427d7e165deefc081d31"
+  },
+  "name": "Bánh Que",
+  "code": "SP000126{DEL}",
+  "price": 40000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:37.025Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:37.025Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6956427e7e165deefc081d38"
+  },
+  "name": "phu thu",
+  "code": "SP000065{DEL}",
+  "price": 100000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:38.204Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:38.204Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6956427f7e165deefc081d3c"
+  },
+  "name": "tien bo",
+  "code": "SP000097{DEL}",
+  "price": 50000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:39.043Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:39.043Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642827e165deefc081d52"
+  },
+  "name": "sumrum",
+  "code": "SP000124{DEL}",
+  "price": 10000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:42.654Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:42.654Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642837e165deefc081d57"
+  },
+  "name": "phu thu phuc vu",
+  "code": "SP000067{DEL}",
+  "price": 300000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:43.340Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:43.340Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642897e165deefc081d76"
+  },
+  "name": "7UP",
+  "code": "SP000006{DEL}",
+  "price": 30000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:49.702Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:49.702Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642917e165deefc081d8e"
+  },
+  "name": "Tiger bạc",
+  "code": "SP000001{DEL}",
+  "price": 30000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:57.842Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:57.842Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642927e165deefc081d91"
+  },
+  "name": "Heiniken cao (lon)",
+  "code": "SP000036{DEL}",
+  "price": 35000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:58.368Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:58.368Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642937e165deefc081d96"
+  },
+  "name": "tiger bac nho",
+  "code": "SP000132{DEL}",
+  "price": 28000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:59.582Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:59.582Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642937e165deefc081d97"
+  },
+  "name": "heiniken bac nho",
+  "code": "SP000035{DEL}",
+  "price": 32000,
+  "createdAt": {
+    "$date": "2026-01-01T09:46:59.849Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:46:59.849Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642957e165deefc081d9e"
+  },
+  "name": "tiger nau nho",
+  "code": "SP000133{DEL}",
+  "price": 27000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:01.896Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:01.896Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642977e165deefc081da3"
+  },
+  "name": "heniken bac cao",
+  "code": "SP000039{DEL}",
+  "price": 34000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:03.143Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:03.143Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642a07e165deefc081dc2"
+  },
+  "name": "Tiger (lon)",
+  "code": "SP000099{DEL}",
+  "price": 29000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:12.548Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:12.548Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642ac7e165deefc081de4"
+  },
+  "name": "gio karaoke",
+  "code": "SP000130{DEL}",
+  "price": 450000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:24.054Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:24.054Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642bb7e165deefc081e10"
+  },
+  "name": "Khô Mực Nướng Nhỏ",
+  "code": "SP000054{DEL}",
+  "price": 130000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:39.918Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:39.918Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642bc7e165deefc081e13"
+  },
+  "name": "Tiger ( lon)",
+  "code": "SP000098{DEL}",
+  "price": 28000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:40.770Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:40.770Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642bd7e165deefc081e16"
+  },
+  "name": "TRÁI CÂY Xoai",
+  "code": "SP000116{DEL}",
+  "price": 100000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:41.462Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:41.462Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642bd7e165deefc081e17"
+  },
+  "name": "Dưa hấu",
+  "code": "SP000030{DEL}",
+  "price": 45000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:41.516Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:41.516Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642be7e165deefc081e1a"
+  },
+  "name": "dia chom chom",
+  "code": "SP000029{DEL}",
+  "price": 60000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:42.075Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:42.075Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642c37e165deefc081e2b"
+  },
+  "name": "phu thu,",
+  "code": "phu thu.{DEL}",
+  "price": 50000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:47.271Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:47.271Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642c37e165deefc081e2c"
+  },
+  "name": "Bia saigon lon",
+  "code": "SP000013{DEL}",
+  "price": 27000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:47.469Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:47.469Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642ca7e165deefc081e42"
+  },
+  "name": "tao meo",
+  "code": "SP000123{DEL}",
+  "price": 100000,
+  "createdAt": {
+    "$date": "2026-01-01T09:47:54.416Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:54.416Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642d17e165deefc081e5d"
+  },
+  "name": "Rượu shochu gạo",
+  "code": "SP000079{DEL}",
+  "price": 350000,
+  "createdAt": {
+    "$date": "2026-01-01T09:48:01.905Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:48:01.905Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642d27e165deefc081e5e"
+  },
+  "name": "Phí rượu",
+  "code": "SP000061{DEL}",
+  "price": 200000,
+  "createdAt": {
+    "$date": "2026-01-01T09:48:02.188Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:48:02.188Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642d67e165deefc081e71"
+  },
+  "name": "Heiniken bạc lon lùn",
+  "code": "SP000034{DEL}",
+  "price": 31000,
+  "createdAt": {
+    "$date": "2026-01-01T09:48:06.673Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:48:06.673Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642f17e165deefc081ebf"
+  },
+  "name": "phu thu,,,",
+  "code": "phu thu,,{DEL}",
+  "price": 150000,
+  "createdAt": {
+    "$date": "2026-01-01T09:48:33.690Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:48:33.690Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695642fd7e165deefc081edc"
+  },
+  "name": "Phí rượu chai nhỏ",
+  "code": "SP000062{DEL}",
+  "price": 100000,
+  "createdAt": {
+    "$date": "2026-01-01T09:48:45.674Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:48:45.674Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695643077e165deefc081ef2"
+  },
+  "name": "tiger bac",
+  "code": "SP000122{DEL}",
+  "price": 29000,
+  "createdAt": {
+    "$date": "2026-01-01T09:48:55.046Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:48:55.046Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695643267e165deefc081f3b"
+  },
+  "name": "THUOC LA 555",
+  "code": "SP000104{DEL}",
+  "price": 40000,
+  "createdAt": {
+    "$date": "2026-01-01T09:49:26.672Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:49:26.672Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "695643377e165deefc081f6e"
+  },
+  "name": "Thuốc 555 Anh",
+  "code": "SP000002{DEL}",
+  "price": 70000,
+  "createdAt": {
+    "$date": "2026-01-01T09:49:43.035Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:49:43.035Z"
+  }
+}]

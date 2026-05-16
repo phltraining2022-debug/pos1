@@ -1,0 +1,91 @@
+{
+	"name": "notification",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"from": {
+			"type": "date"
+		},
+		"to": {
+			"type": "date"
+		},
+		"title": {
+			"type": "string"
+		},
+		"content": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		},
+		"receiverIds": {
+			"type": [
+				"string"
+			]
+		},
+		"kindOfNoti": {
+			"type": [
+				"number"
+			]
+		},
+		"receiveTarget": {
+			"type": "string"
+		},
+		"time": {
+			"type": "date"
+		},
+		"templateId": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		},
+		"module": {
+			"type": "string",
+			"description": "Module context (e.g., purchasing, inventory, production)"
+		},
+		"referenceId": {
+			"type": "string",
+			"description": "ID of the related record"
+		},
+		"referenceType": {
+			"type": "string",
+			"description": "Type of the related record (e.g., PurchaseOrder, StockMove)"
+		},
+		"metadata": {
+			"type": "object",
+			"description": "Additional contextual data for the notification"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"clinic": {
+			"type": "belongsTo",
+			"model": "clinic",
+			"foreignKey": "clinicId"
+		},
+		"template": {
+			"type": "belongsTo",
+			"model": "template",
+			"foreignKey": "templateId"
+		},
+		"receivers": {
+			"type": "referencesMany",
+			"model": "user",
+			"foreignKey": "receiverIds"
+		},
+		"customers": {
+			"type": "referencesMany",
+			"model": "Customer",
+			"foreignKey": "customerIds"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

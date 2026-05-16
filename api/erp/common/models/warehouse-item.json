@@ -1,0 +1,73 @@
+{
+	"name": "warehouseItem",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"warehouseId": {
+			"type": "string",
+			"required": true
+		},
+		"productId": {
+			"type": "string",
+			"required": true
+		},
+		"importPrice": {
+			"type": "number"
+		},
+		"note": {
+			"type": "string"
+		},
+		"supplierId": {
+			"type": "string"
+		},
+		"unit": {
+			"type": "string"
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"SKU": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "warehouse",
+			"foreignKey": "warehouseId"
+		},
+		"supplier": {
+			"type": "belongsTo",
+			"model": "supplier",
+			"foreignKey": "supplierId"
+		},
+		"import": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"export": {
+			"type": "belongsTo",
+			"model": "export",
+			"foreignKey": "exportId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "product",
+			"foreignKey": "productId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,109 @@
+{
+	"name": "BOM",
+	"base": "AppModel",
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"productId": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"productCode": {
+			"type": "string"
+		},
+		"revisionNumber": {
+			"type": "string"
+		},
+		"effectiveDate": {
+			"type": "date"
+		},
+		"expirationDate": {
+			"type": "date"
+		},
+		"notes": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"Draft",
+				"Approved",
+				"Rejected",
+				"Canceled",
+				"Draft"
+			]
+		},
+		"approvedBy": {
+			"type": "string"
+		},
+		"category": {
+			"type": "string",
+			"required": false,
+			"enumEnabled": false,
+			"enum": [
+				"Công thức món ăn",
+				"Set menu tiệc",
+				"Cấu trúc tiệc cưới"
+			]
+		}
+	},
+	"validations": [],
+	"relations": {
+		"components": {
+			"type": "hasMany",
+			"model": "BOMComponent",
+			"foreignKey": "bomId"
+		},
+		"operations": {
+			"type": "hasMany",
+			"model": "Operation",
+			"foreignKey": "bomId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		}
+	},
+	"acls": [],
+	"methods": {},
+	"scope": {
+		"include": [
+			{
+				"relation": "components",
+				"scope": {
+					"where": {
+						"deletedById": {
+							"exists": false
+						}
+					},
+					"include": [
+						"product"
+					]
+				}
+			},
+			{
+				"relation": "operations",
+				"scope": {
+					"where": {
+						"deletedById": {
+							"exists": false
+						}
+					},
+					"include": [
+						"workStation"
+					]
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,68 @@
+{
+	"name": "StockCount",
+	"plural": "StockCounts",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"warehouseId": {
+			"type": "string",
+			"required": true
+		},
+		"countDate": {
+			"type": "date",
+			"required": true,
+			"defaultFn": "now"
+		},
+		"status": {
+			"type": "string",
+			"default": "pending",
+			"enum": [
+				"pending",
+				"in progress",
+				"completed"
+			]
+		},
+		"executedById": {
+			"type": "string",
+			"required": true
+		},
+		"totalItems": {
+			"type": "number",
+			"default": 0,
+			"description": "Tổng số sản phẩm trong phiếu kiểm kê"
+		},
+		"completedItems": {
+			"type": "number",
+			"default": 0,
+			"description": "Số sản phẩm đã được kiểm đếm (countedQuantity != null)"
+		},
+		"discrepancies": {
+			"type": "number",
+			"default": 0,
+			"description": "Số sản phẩm có chênh lệch (countedQuantity != expectedQuantity)"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		},
+		"countItems": {
+			"type": "hasMany",
+			"model": "StockCountItem",
+			"foreignKey": "stockCountId"
+		},
+		"executedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "executedById"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

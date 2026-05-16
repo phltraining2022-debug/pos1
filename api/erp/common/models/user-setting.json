@@ -1,0 +1,26 @@
+{
+	"name": "UserSetting",
+	"plural": "UserSettings",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"data": {
+			"type": "object"
+		},
+		"createdById": {
+			"type": "string",
+			"required": true,
+			"id": true,
+			"index": {
+				"unique": true
+			}
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

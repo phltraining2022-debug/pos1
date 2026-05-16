@@ -1,0 +1,111 @@
+{
+  "name": "orderItem",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "serviceId": {
+      "type": "string"
+    },
+    "testResult": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "service": {
+      "type": "object"
+    },
+    "testId": {
+      "type": "string"
+    },
+    "test": {
+      "type": "object"
+    },
+    "doctorId": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "type": {
+      "type": "number"
+    },
+    "excuteById": {
+      "type": "string"
+    },
+    "clinicId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderId"
+    },
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    },
+    "service": {
+      "type": "belongsTo",
+      "model": "service",
+      "foreignKey": "serviceId"
+    },
+    "servicePackage": {
+      "type": "belongsTo",
+      "model": "servicePackage",
+      "foreignKey": "serviceId"
+    },
+    "testResult": {
+      "type": "hasOne",
+      "model": "testResult",
+      "foreignKey": ""
+    },
+    "CDKResults": {
+      "type": "hasMany",
+      "model": "testResult",
+      "foreignKey": ""
+    },
+    "test": {
+      "type": "belongsTo",
+      "model": "test",
+      "foreignKey": "testId"
+    },
+    "doctor": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "doctorId"
+    },
+    "excuteBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "excuteById"
+    },
+    "attachments": {
+      "type": "hasMany",
+      "model": "attachment",
+      "foreignKey": "belongToId"
+    },
+    "clinic": {
+      "type": "belongsTo",
+      "model": "clinic",
+      "foreignKey": "clinicId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

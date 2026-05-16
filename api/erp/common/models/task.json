@@ -1,0 +1,122 @@
+{
+	"name": "Task","plural": "Tasks",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"scope": {
+		"include": "children"
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"bug",
+				"feature",
+				"maintenance",
+				"research",
+				"meeting",
+				"follow-up",
+				"documentation",
+				"training",
+				"marketing",
+				"sales",
+				"customer-support",
+				"other"
+			]
+		},
+		"projectId": {
+			"type": "string"
+		},
+		"startDate": {
+			"type": "date"
+		},
+		"dueDate": {
+			"type": "date"
+		},
+		"priority": {
+			"type": "string",
+			"enum": [
+				"low",
+				"medium",
+				"high",
+				"critical"
+			],
+			"default": "medium"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"new",
+				"open",
+				"closed",
+				"in progress",
+				"pending",
+				"completed"
+			],
+			"default": "new"
+		},
+		"files": {
+			"type": "array",
+			"default": [],
+			"inputType": "file"
+		},
+		"parentId": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"project": {
+			"type": "belongsTo",
+			"model": "Project",
+			"foreignKey": "projectId"
+		},
+		"assignedTo": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "assignedToId"
+		},
+		"assignedToDepartment": {
+			"type": "belongsTo",
+			"model": "Department",
+			"foreignKey": "departmentId"
+		},
+		"assignedTos": {
+			"type": "referencesMany",
+			"model": "Employee",
+			"foreignKey": "assignedToIds"
+		},
+		"predecessorTask": {
+			"type": "belongsTo",
+			"model": "Task",
+			"foreignKey": "predecessorTaskId"
+		},
+		"parentTask": {
+			"type": "belongsTo",
+			"model": "Task",
+			"foreignKey": "parentId"
+		},
+		"children": {
+			"type": "hasMany",
+			"model": "Task",
+			"foreignKey": "parentId"
+		},
+		"comments": {
+			"type": "hasMany",
+			"model": "Comment",
+			"foreignKey": "objectId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

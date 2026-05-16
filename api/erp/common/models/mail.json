@@ -1,0 +1,64 @@
+{
+	"name": "Mail",
+	"plural": "Mails",
+	"base": "AppModel",
+	"properties": {
+		"from": {
+			"type": "string"
+		},
+		"to": {
+			"type": [
+				"string"
+			]
+		},
+		"cc": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "email"
+			}
+		},
+		"bcc": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "email"
+			}
+		},
+		"subject": {
+			"type": "string",
+			"required": true
+		},
+		"body": {
+			"type": "string",
+			"required": true
+		},
+		"attachments": {
+			"type": "array"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"inbox",
+				"draft",
+				"sent",
+				"outbox"
+			],
+			"required": true
+		},
+		"read": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"relations": {
+		"template": {
+			"type": "belongsTo",
+			"model": "EmailTemplate",
+			"foreignKey": "templateId"
+		}
+	},
+	"validations": [],
+	"acls": [],
+	"methods": []
+}

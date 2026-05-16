@@ -1,0 +1,60 @@
+{
+	"name": "Media",
+	"plural": "Media",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {
+		"filename": {
+			"type": "string",
+			"required": true
+		},
+		"url": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"uploadDate": {
+			"type": "date"
+		},
+		"mime": {
+			"type": "string"
+		},
+		"extension": {
+			"type": "string"
+		},
+		"path": {
+			"type": "string"
+		},
+		"container": {
+			"type": "string",
+			"enum": [
+				"media",
+				"cdn"
+			]
+		}
+	},
+	"validations": [],
+	"relations": {
+		"medias":{
+			"type": "referencesMany",
+			"model": "Media",
+			"foreignKey": "mediaIds"
+		},
+		"institution":{
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "institutionId"
+		},
+		"office":{
+			"type": "belongsTo",
+			"model": "Branch",
+			"foreignKey": "branchId"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

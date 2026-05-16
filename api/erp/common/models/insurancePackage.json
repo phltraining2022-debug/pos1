@@ -1,0 +1,58 @@
+{
+  "name": "insurancePackage",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "insuranceCompanyId": {
+      "type": "string",
+      "required": true
+    },
+    "validFrom": {
+      "type": "date",
+      "required": true
+    },
+    "validTo": {
+      "type": "date",
+      "required": true
+    },
+    "price": {
+      "type": "number",
+      "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": false
+    },
+    "isPublic": {
+      "type": "boolean",
+      "default": false
+    },
+    "content": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "insuranceCompany": {
+      "type": "belongsTo",
+      "model": "insuranceService",
+      "foreignKey": "insuranceCompanyId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

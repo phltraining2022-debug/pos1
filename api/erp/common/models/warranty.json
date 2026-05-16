@@ -1,0 +1,65 @@
+{
+	"name": "Warranty",
+	"plural": "Warranties",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"scope": {},
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"vin": {
+			"type": "string"
+		},
+		"laborWarranty": {
+			"type": "string"
+		},
+		"partsWarranty": {
+			"type": "string",
+			"required": true
+		},
+		"conditions": {
+			"type": "string"
+		},
+		"transferability": {
+			"type": "string"
+		},
+		"exclusions": {
+			"type": "string"
+		},
+		"startDate": {
+			"type": "date"
+		},
+		"endDate": {
+			"type": "date"
+		},
+		"note": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"vehicle": {
+			"type": "belongsTo",
+			"model": "Vehicle",
+			"foreignKey": "vehicleId"
+		},
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

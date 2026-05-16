@@ -1,0 +1,103 @@
+{
+  "name": "testResult",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "patientId": {
+      "type": "string"
+    },
+    "conclusion": {
+      "type": "string"
+    },
+    "patient": {
+      "type": "object"
+    },
+    "visitId": {
+      "type": "string"
+    },
+    "visit": {
+      "type": "object"
+    },
+    "category": {
+      "type": "number"
+    },
+    "serviceId": {
+      "type": "string"
+    },
+    "orderItemId": {
+      "type": "string"
+    },
+    "orderItem": {
+      "type": "object"
+    },
+    "testId": {
+      "type": "string"
+    },
+    "htmlTpl": {
+      "type": "string"
+    },
+    "displayTpl": {
+      "type": "string"
+    },
+    "test": {
+      "type": "object"
+    },
+    "service": {
+      "type": "object"
+    },
+    "order": {
+      "type": "object"
+    },
+    "result": {
+      "type": "object"
+    },
+    "isUnNormal": {
+      "type": "boolean"
+    },
+    "note": {
+      "type": "string"
+    },
+    "attachments": {
+      "type": [
+        "string"
+      ]
+    }
+  },
+  "validations": [],
+  "relations": {
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderId"
+    },
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    },
+    "visit": {
+      "type": "belongsTo",
+      "model": "visit",
+      "foreignKey": "visitId"
+    },
+    "orderItem": {
+      "type": "belongsTo",
+      "model": "orderItem",
+      "foreignKey": "orderItemId"
+    },
+    "attachments": {
+      "type": "hasMany",
+      "model": "attachment",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

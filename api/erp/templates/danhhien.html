@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+    <meta name="facebook-domain-verification" content="izmh60fw9bt288fw50zr2irufd8q7o" />
+
+     {% block meta %}
+     <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Danh Hiển Jewelers | Timeless Elegance">
+    <meta name="description" content="Discover timeless elegance at Danh Hiển Jewelers. Explore our exquisite collection of fine jewelry, crafted with precision and passion.">
+    <meta name="keywords" content="Danh Hiển Jewelers, fine jewelry, timeless elegance, gold, diamond, precious stones, engagement rings">
+    <meta name="author" content="Danh Hiển Jewelers">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags (for social media sharing) -->
+    <meta property="og:title" content="Danh Hiển Jewelers | Timeless Elegance">
+    <meta property="og:description" content="Explore the exquisite collection of Danh Hiển Jewelers. Timeless designs crafted with passion and precision.">
+    <meta property="og:image" content="https://cdn.live1.vn/dh/public/favicon.png">
+    <meta property="og:url" content="https://danhhien.com/">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Danh Hiển Jewelers | Timeless Elegance">
+    <meta name="twitter:description" content="Discover the timeless elegance of Danh Hiển Jewelers. Fine jewelry crafted for every moment.">
+    <meta name="twitter:image" content="https://cdn.live1.vn/dh/public/favicon.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn.live1.vn/dh/public/favicon.ico" type="image/x-icon">
+
+    <!-- Additional Meta for SEO -->
+    <link rel="canonical" href="https://danhhien.com/">
+     {% endblock %}
+    
+    <meta name="theme-color" content="#ffffff">
+    
+    <!-- Meta Pixel Code -->
+    <script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1157364072852859');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1157364072852859&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+    <!-- Structured Data (JSON-LD for Rich Results) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "JewelryStore",
+        "name": "Danh Hiển Jewelers",
+        "url": "https://danhhien.com/",
+        "logo": "https://cdn.live1.vn/dh/public/favicon.png",
+        "description": "Explore timeless elegance at Danh Hiển Jewelers. Fine jewelry crafted with precision and passion.",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "15 Thu Khoa Huan St., Ben Thanh Ward, Dist.1",
+            "addressLocality": "Ho Chi Minh City",
+            "addressRegion": "HCMC",
+            "postalCode": "700000",
+            "addressCountry": "VN"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "0938950808",
+            "contactType": "Customer Service"
+        },
+        "sameAs": [
+            "https://www.facebook.com/DanhHienJewelers",
+            "https://www.instagram.com/DanhHienJewelers"
+        ]
+    }
+    </script>
+
+  
+  <link rel="icon" type="image/png" href="https://cdn.live1.vn/dh/public/favicon.png">
+   <title>{{site.name}} - {{tpl.subject}}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/global.css?v=5" />
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/index.css?v=7" />
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/effects.css?v=1" />
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/fix.css?v=5" />
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/slider.css?v=7" />
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/menu.css?v=5" />
+  <link rel="stylesheet" href="https://cdn.live1.vn/dh/resources/cart.css?v=5" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Taviraj:wght@400&display=swap"  />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Trirong:wght@400&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap" />
+</head>
+
+<body>
+    <div class="menu-overlay"></div>
+    
+    <div class="panel panel-top">
+        <h3>&nbsp;
+            <svg class="close-panel" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6L18 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>        
+        </h3>
+        <form method="GET" action="/trang-suc-vang">
+            <div class="search-panel panel-body">
+                <input type="text" name="q" placeholder="Bạn đang tìm kiếm...">
+                <button type="submit">
+                    <img class="search-icon" alt="" src="https://cdn.live1.vn/dh/public/search-light.svg" />
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="panel panel-right">
+        <div class="panel-header">
+            <span class="account-white-icon logged-account"></span>
+            <span class="wish-white-icon wish-collection"></span>
+            <span class="bag-white-icon cart-quantity"></span>
+        </div>
+        
+        <div class="cart-panel panel-body panel-body-padding">
+            <h3 class="body-header">Giỏ hàng 
+                <svg class="close-panel" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 6L18 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            
+            </h3>
+            <div class="cart-content cart-items" >
+            </div>
+            <div class="cart-total">
+                Tổng hóa đơn: <span class="cart-total-val">0 VNĐ</span>
+            </div>
+            <div class="cart-actions">
+                <button onclick="checkoutCart()">ĐẶT HÀNG</button>
+            </div>
+        </div>
+        
+        <div class="account-panel panel-body panel-body-padding">
+          <h3>&nbsp;
+            <svg class="close-panel" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6L18 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>        
+          </h3>
+          <div class="panel-content" data-window-show="user.id">
+            <h4 class="content-title">Hi, <span data-window-bind="user.name"></span></h4>
+            <div class="content-description">Với tài khoản, bạn có thể đặt hàng nhanh hơn, xem lịch sử đơn hàng trực tuyến và truy cập giỏ hàng hoặc các sản phẩm đã lưu từ bất kỳ thiết bị nào.</div>
+            <a href="/my-account" class="link-page">Tài khoản của tôi &gt;</a>
+            <a href="/logout" class="link-page">Đăng xuất &gt;</a>
+          </div>
+          
+          <div class="panel-content" data-window-show="!user.id">
+            <h4 class="content-title">Đăng nhập hoặc <br/>Tạo tài khoản mới</h4>
+            <div class="content-description">Với tài khoản, bạn có thể đặt hàng nhanh hơn, xem lịch sử đơn hàng trực tuyến và truy cập giỏ hàng hoặc các sản phẩm đã lưu từ bất kỳ thiết bị nào.</div>
+            <a href="/dang-ky" class="link-page">Tạo tài khoản &gt;</a>
+            <a href="/login" class="link-page">Đăng nhập &gt;</a>
+          </div>
+        </div>
+
+        <div class="collection-panel panel-body panel-body-padding">
+            <h3 class="body-header" data-window-show="user.id" data-style-display="flex">Bộ sưu tập mơ ước
+              <svg class="close-panel" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6 6L18 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>        
+            </h3>
+            <div class="body-content collection-list" data-window-show="user.id"></div>
+            <!--<div class="body-footer" data-window-show="user.id">-->
+            <!--  <a href="/bo-suu-tap-mo-uoc" class="link-page">Xem tất cả sản phẩm đã lưu &gt;</a>-->
+            <!--</div>-->
+            
+            <h3 data-window-show="!user.id" data-style-display="flex">&nbsp;
+                <svg class="close-panel" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 6L18 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>        
+            </h3>
+            <div class="panel-content" data-window-show="!user.id">
+                <h4 class="content-title">Tạo ra Bộ sưu tập mơ ước của bạn</h4>
+                <div class="content-description">Xem các mục yêu thích đã lưu. Để sử dụng chức năng vui lòng Đăng nhập hoặc Tạo tài khoản.</div>
+                <a href="/dang-ky" class="link-page">Tạo tài khoản &gt;</a>
+                <a href="/login" class="link-page">Đăng nhập &gt;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu -->
+    <div class="menu">
+        <div class="menu-header">
+            <img class="frame-item" alt="Logo" src="https://cdn.live1.vn/dh/public/danhhien-logo.svg">
+            <svg class="close-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6L18 18" stroke="#454749" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="menu-item">
+            <a href="/trang-suc-vang" class="trang-sc-cao menu-text-mobile">TRANG SỨC VÀNG</a>
+            <span class="thin-down-arrow"></span>
+        </div>
+        <div class="submenu">
+            <div class="menu-item">
+                <a href="/trang-suc-kim-cuong" class="p-0">TRANG SỨC KIM CƯƠNG</a>
+                <span class="thin-down-arrow"></span>
+            </div>
+            <div class="submenu">
+                <a href="/trang-suc-kim-cuong/trang-suc-nu-kim-cuong" class="p-0"><div class="title1-sub-menu">Trang sức nữ Kim cương</div></a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/nhan">Nhẫn</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/bong-tai">Bông tai </a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/day-chuyen">Dây chuyền</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/mat-day-chuyen">Mặt dây chuyền</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/vong">Vòng</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/lac">Lắc</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam" class="p-0"><div class="title1-sub-menu">Trang sức nam Kim cương</div></a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/nhan">Nhẫn</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/day-chuyen">Dây chuyền</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/vong">Vòng</a>
+                <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/lac">Lắc</a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="/trang-suc-kim-cuong-da-quy" class="p-0">TRANG SỨC KIM CƯƠNG ĐÁ Quý</a>
+                <span class="thin-down-arrow"></span>
+            </div>
+            <div class="submenu">
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu" class="p-0"><div class="title1-sub-menu">Trang sức nữ Kim cương đá quý</div></a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/nhan">Nhẫn</a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/bong-tai">Bông tai </a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/day-chuyen">Dây chuyền</a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/mat-day-chuyen">Mặt dây chuyền</a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/vong">Vòng</a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nam" class="p-0"><div class="title1-sub-menu">Trang sức nam Kim cương đá quý</div></a>
+                <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nam/nhan">Nhẫn</a>
+            </div>
+            <div class="menu-item">
+                <a href="/trang-suc-tron" class="p-0">TRANG SỨC TRƠN</a>
+                <span class="thin-down-arrow"></span>
+            </div>
+            <div class="submenu">
+                <a href="/trang-suc-tron/trang-suc-nu" class="p-0"><div class="title1-sub-menu">Trang sức nữ trơn</div></a>
+                <a href="/trang-suc-tron/trang-suc-nu/bong-tai">Bông tai </a>
+                <a href="/trang-suc-tron/trang-suc-nu/day-chuyen">Dây chuyền</a>
+                <a href="/trang-suc-tron/trang-suc-nu/lac">Lắc</a>
+                
+                <a href="/trang-suc-tron/trang-suc-nam" class="p-0"><div class="title1-sub-menu">Trang sức nam trơn</div></a>
+                <a href="/trang-suc-tron/trang-suc-nam/day-chuyen">Dây chuyền</a>
+            </div>
+            
+        </div>
+    
+        <div class="menu-item">
+            <a href="/trang-suc-ngoc-trai" class="trang-sc-cao menu-text-mobile">TRANG SỨC NGỌC TRAI</a>
+            <span class="thin-down-arrow"></span>
+        </div>
+        <div class="submenu">
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong" class="p-0"><div class="title1-sub-menu">Trang sức ngọc trai Kim cương</div></a>
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/nhan">Nhẫn</a>
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/bong-tai">Bông tai </a>
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/day-chuyen">Dây chuyền</a>
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/mat-day-chuyen">Mặt dây chuyền</a>
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/vong">Vòng</a>
+            <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/chuoi-ngoc-trai" class="p-0"><div class="title1-sub-menu">Chuỗi ngọc trai</div></a>
+        </div>
+    
+        <div class="menu-item">
+            <a href="/trang-suc-cuoi" class="trang-sc-cao menu-text-mobile">TRANG SỨC CƯỚI</a>
+            <span class="thin-down-arrow"></span>
+        </div>
+        <div class="submenu">
+            <a href="/trang-suc-cuoi/nhan-cuoi/nhan">Nhẫn cưới</a>
+        </div>
+    
+        <a href="/kim-cuong-da-quy" class="menu-item menu-text-mobile">
+            KIM CƯƠNG & ĐÁ QUÝ
+        </a>
+    
+       <a href="/ve-chung-toi" class="menu-item menu-text-mobile">
+            VỀ CHÚNG TÔI
+        </a>
+    
+        <a href="/tin-tuc" class="menu-item menu-text-mobile" style="padding-bottom: 32px; border-bottom: 1px solid #ddd;">
+            TIN TỨC
+        </a>
+        
+        <div style="padding-top: 16px" class="user-options-mobile">
+            <div class="option-item" data-event-click-tagets=".user-options .wish-icon, .menu-header .close-menu">
+                <img alt="" src="https://cdn.live1.vn/dh/public/wish-gold-icon.svg" /> 
+                Bộ sưu tập mơ ước    
+            </div>
+            <a href="/dat-lich-hen" class="option-item">
+                <img class="calendar-light-icon-mobile" alt="" src="https://cdn.live1.vn/dh/public/calendar-light.svg" />
+                Đặt lịch hẹn
+            </a>
+            <a href="/lien-he" class="option-item">
+                <img class="locaton-icon" alt="" src="https://cdn.live1.vn/dh/public/pin-light.svg" />
+                Địa chỉ cửa hàng
+            </a>  
+            <div class="option-item" data-event-click-tagets=".user-options .user-icon, .menu-header .close-menu">
+                <img alt="" src="https://cdn.live1.vn/dh/public/user-alt-light.svg" />
+                Tài khoản của tôi
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="homepage" tpl="{{tpl.id}}">
+    <main class="main">
+      <header class="header">
+        <div class="khm-ph-mt-th-gii-v-song-wrapper">
+          <div class="khm-ph-mt-container">
+            <span class="mua-sm-ngay">Vẻ đẹp tinh tế và thanh lịch đến từ bộ sưu tập ngọc trai của chúng tôi. 
+              <a href="/trang-suc-ngoc-trai" class="mua-sm-ngay">Khám phá ngay.</a>
+            </span>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="booking">
+            <!-- Hamburger Menu Toggle -->
+            <div class="menu-toggle open-menu-btn" id="hambeger-menu">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 4H19" stroke="#53575A" stroke-linecap="round"/>
+                <path d="M5 12H19" stroke="#53575A" stroke-linecap="round"/>
+                <path d="M5 20H19" stroke="#53575A" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <img onclick="window.location.href='/lien-he';" class="locaton-icon desktop-only" alt="" src="https://cdn.live1.vn/dh/public/pin-light.svg" />
+            <a class="t-lch-hn" href="/dat-lich-hen" style="white-space: nowrap;">
+                <img class="calendar-light-icon" alt="" src="https://cdn.live1.vn/dh/public/calendar-light.svg" />
+                <span style="vertical-align: middle;">Đặt Lịch Hẹn</span>
+            </a>
+          </div>
+        
+          <div class="actions-inner">
+            <a href="/" class="frame-parent">
+              <img class="frame-item" alt="" src="https://cdn.live1.vn/dh/public/danhhien-logo.svg" />
+            </a>
+          </div>
+          <div class="user-options">
+            <img class="search-icon desktop-only" alt="" src="https://cdn.live1.vn/dh/public/search-light.svg" />
+            <img class="user-icon desktop-only" alt="" src="https://cdn.live1.vn/dh/public/user-alt-light.svg" />
+            <img class="wish-icon desktop-only" alt="" src="https://cdn.live1.vn/dh/public/wish-gold-icon.svg" />
+            <span class="bag-icon cart-quantity"></span>            
+          </div>
+        </div>
+        <div class="logo-parent">
+          <img class="logo-icon" alt="" src="https://cdn.live1.vn/dh/public/logo.svg" />
+          <img class="logo-icon1" alt="" src="https://cdn.live1.vn/dh/public/logo1.svg" />
+          <div class="menu-items">
+            <img class="menu-items-child" alt="" src="https://cdn.live1.vn/dh/public/group-1000008146.svg" />
+
+            <img class="menu-items-item" alt="" src="https://cdn.live1.vn/dh/public/group-543.svg" />
+
+            <img class="menu-left-icon" alt="" src="https://cdn.live1.vn/dh/public/menu-left.svg" />
+          </div>
+        </div>
+        <div class="menu-text" id="menu">
+            {% if company[0].showMenuGift %}
+            <div class="menu-text1">
+                <a href="/qua-tang" class="trang-sc-cao">QUÀ TẶNG</a>
+                <div class="menu-text-inner">
+                    <div class="frame-inner"></div>
+                </div>
+            </div>
+            {% endif %}
+          <div class="menu-text1">
+            <a href="/trang-suc-vang" class="trang-sc-cao">TRANG SỨC VÀNG</a>
+            <div class="menu-text-inner">
+              <div class="frame-inner"></div>
+            </div>
+            <div class="drop-content">
+                <div class = "drop-content-left">
+                    <a href="/trang-suc-kim-cuong"><h4 class="title-dropdown-h4">TRANG SỨC KIM CƯƠNG</h4></a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-nu-kim-cuong"><h4 class="title-dropdown-h4">Trang sức nữ Kim cương</h4></a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/nhan">Nhẫn</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/bong-tai">Bông tai </a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/day-chuyen">Dây chuyền</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/mat-day-chuyen">Mặt dây chuyền</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/vong">Vòng</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nu/lac">Lắc</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam"><h4 class="title-dropdown-h4">Trang sức nam Kim cương</h4></a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/nhan">Nhẫn</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/day-chuyen">Dây chuyền</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/vong">Vòng</a>
+                    <a href="/trang-suc-kim-cuong/trang-suc-kim-cuong-nam/lac">Lắc</a>
+                </div>
+                <div class = "drop-content-left">
+                    <a href="/trang-suc-kim-cuong-da-quy"><h4 class="title-dropdown-h4">TRANG SỨC KIM CƯƠNG ĐÁ QÚY</h4></a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu"><h4 class="title-dropdown-h4">Trang sức nữ Kim cương đá quý</h4></a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/nhan">Nhẫn</a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/bong-tai">Bông tai </a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/day-chuyen">Dây chuyền</a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/mat-day-chuyen">Mặt dây chuyền</a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nu/vong">Vòng</a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nam"><h4 class="title-dropdown-h4">Trang sức nam Kim cương đá quý</h4></a>
+                    <a href="/trang-suc-kim-cuong-da-quy/trang-suc-kim-cuong-da-quy-nam/nhan">Nhẫn</a>
+                </div>
+                <div class = "drop-content-left">
+                    <a href="/trang-suc-tron"><h4 class="title-dropdown-h4">TRANG SỨC TRƠN </h4></a>
+                    <a href="/trang-suc-tron/trang-suc-nu"><h4 class="title-dropdown-h4">Trang sức nữ trơn</h4></a>
+                    <a href="/trang-suc-tron/trang-suc-nu/bong-tai">Bông tai </a>
+                    <a href="/trang-suc-tron/trang-suc-nu/day-chuyen">Dây chuyền</a>
+                    <a href="/trang-suc-tron/trang-suc-nu/lac">Lắc</a>
+                    <a href="/trang-suc-tron/trang-suc-nam"><h4 class="title-dropdown-h4">Trang sức nam</h4></a>
+                    <a href="/trang-suc-tron/trang-suc-nam/day-chuyen">Dây chuyền</a>
+                </div>
+                <div class="drop-content-left">
+                    <img class="img-right" src="https://cdn.live1.vn/dh/public/laytaychemat.png">
+                    <a href="/trang-suc-vang" class="pl-0">Khám phá <span class="font-weight-bold f-svn-gotham ">Sản Phẩm NỔI BẬT</span></a>
+                    <a class="link-page pl-0" href="/trang-suc-vang"><span class="font-weight-bold f-svn-gotham">Mua Ngay ></span></a>
+                </div>
+          </div>
+          </div>
+          <div class="menu-text1">
+            <a href="/trang-suc-ngoc-trai"  class="trang-sc-cao">TRANG SỨC NGỌC TRAI</a>
+            <div class="menu-text-inner">
+              <div class="frame-inner"></div>
+            </div>
+             <div class="drop-content">
+                <div class = "drop-content-left">
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong"><h4 class="title-dropdown-h4">Trang sức ngọc trai Kim cương</h4></a>
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/nhan">Nhẫn</a>
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/bong-tai">Bông tai </a>
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/mat-day-chuyen">Mặt dây chuyền</a>
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/vong">Vòng</a>
+                </div>
+                <div class="drop-content-left">
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong/chuoi-ngoc-trai"><h4 class="title-dropdown-h4">Chuỗi ngọc trai</h4></a>
+                </div>
+                
+                <div class="drop-content-left  flex-2">
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong"><img class="img-right" src="https://cdn.live1.vn/dh/public/BannerHighlightMenuCateNgocTrai.jpg"></a>
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong">Khám phá BỘ SƯU TẬP ÁNH SÁNG VĨNH CỬU</a>
+                    <a href="/trang-suc-ngoc-trai/ngoc-trai-kim-cuong" class="link-page">Xem Ngay ></a>
+                </div>
+                
+            </div>
+          </div>
+          <div class="menu-text1">
+            <a href="/trang-suc-cuoi" class="trang-sc-cao">TRANG SỨC CƯỚI</a>
+            <div class="menu-text-inner">
+              <div class="frame-inner"></div>
+            </div>
+            <div class="drop-content">
+                <div class = "drop-content-left">
+                    <a href="/trang-suc-cuoi/nhan"><h4 class="title-dropdown-h4">Nhẫn cưới</h4></a>
+                </div>
+                <div class="drop-content-left">
+                    <a href="/trang-suc-cuoi"><img class="img-right" src="https://cdn.live1.vn/dh/public/trang-suc-cuoi.jpg"></a>
+                    <a href="/trang-suc-cuoi">Khám phá Nhẫn cưới ẤN TƯỢNG NHẤT năm 2024</a>
+                    <a href="/trang-suc-cuoi" class="link-page">Mua Ngay ></a>
+                </div>
+            </div>
+          </div>
+          <div class="menu-text1">
+            <a href="/kim-cuong-da-quy" class="trang-sc-cao">KIM CƯƠNG & ĐÁ QUÝ</a>
+            <div class="menu-text-inner">
+              <div class="frame-inner"></div>
+            </div>
+          </div>
+          <div class="menu-text1">
+            <a href="/ve-chung-toi" class="trang-sc-cao">VỀ CHÚNG TÔI</a>
+            <div class="menu-text-inner">
+              <div class="frame-inner"></div>
+            </div>
+          </div>
+          <div class="menu-text1">
+             <a href="/tin-tuc" class="trang-sc-cao">TIN TỨC</a>
+            <div class="menu-text-inner">
+              <div class="frame-inner"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {% block body %}
+      {% endblock %}
+
+      <section class="group-section">
+        <div class="feature-icon-child"></div>
+        <div class="tri-nghim-ti-danh-hin-jewe-parent slider">
+          <h3 class="ng-k-nhn">Trải Nghiệm tại Danh Hiển Fine Jewelers</h3>
+          <div class="experience-content1 slides">
+            <div class="features1 slide">
+              <div class="iconhebes-feature-5-wrapper">
+                <div class="iconhebes-feature-5">
+                  <img class="feature-icon" alt="" src="https://cdn.live1.vn/dh/public/van-chuyen-va-hoan-tra.svg" />
+                </div>
+              </div>
+
+              <div class="social-title-container">
+                <div class="feature-name">
+                  <div class="vn-chuyn-v">Vận Chuyển và Hoàn Trả</div>
+                </div>
+                <div class="chng-ti-cung">
+                  Chúng tôi cung cấp miễn phí vận chuyển và hoàn trả cho tất
+                  cả các đơn hàng từ Danh Hiển Fine Jewelers.
+                </div>
+                <div class="see-more-button">
+                  <div class="button6 border-color-hover-center border-color-bottom-hover-orange">
+                    <a href="#" class="xem-thm">Xem thêm</a>
+                    <div class="footer-column"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="features1 slide">
+              <div class="iconhebes-feature-5-wrapper">
+                <div class="iconhebes-feature-5">
+                  <img class="feature-icon" alt="" src="https://cdn.live1.vn/dh/public/feature-icon.svg" />
+                </div>
+              </div>
+              <div class="social-title-container">
+                <div class="lun-sn-sng-phc-v-wrapper">
+                  <div class="vn-chuyn-v">Luôn Sẵn Sàng Phục Vụ</div>
+                </div>
+                <div class="chng-ti-cung">
+                  <p class="s-tinh-xo">
+                    Các chuyên gia chăm sóc khách hàng của chúng tôi luôn sẵn
+                    sàng
+                  </p>
+                  <p class="s-tinh-xo">hỗ trợ bạn.</p>
+                </div>
+                <div class="see-more-button">
+                  <div class="button6 border-color-hover-center border-color-bottom-hover-orange">
+                    <a href="/lien-he" class="xem-thm1">Liên hệ ngay</a>
+                    <div class="button-inner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="features1 slide">
+              <div class="iconhebes-feature-5-wrapper">
+                <div class="iconhebes-feature-2">
+                  <img class="vector-stroke-icon" alt="" src="https://cdn.live1.vn/dh/public/vector-stroke.svg" />
+                </div>
+              </div>
+              <div class="social-title-container">
+                <div class="lun-sn-sng-phc-v-wrapper">
+                  <a class="t-lch-hn1">Đặt Lịch Hẹn</a>
+                </div>
+                <div class="chng-ti-cung">
+                  Chúng tôi sẵn sàng hỗ trợ với các cuộc hẹn trực tiếp hoặc
+                  trực tuyến.
+                </div>
+                <div class="see-more-button">
+                  <div class="button6 border-color-hover-center border-color-bottom-hover-orange">
+                    <a href="/dat-lich-hen" class="xem-thm2">Đặt ngay</a>
+                    <div class="button-inner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="features1 slide">
+              <div class="iconhebes-feature-5-wrapper">
+                <div class="iconhebes-feature-5">
+                  <img class="vector-stroke-icon1" alt="" src="https://cdn.live1.vn/dh/public/vector-stroke-1.svg" />
+                </div>
+              </div>
+              <div class="social-title-container">
+                <div class="lun-sn-sng-phc-v-wrapper">
+                  <div class="vn-chuyn-v">Miễn Phí Gói Quà</div>
+                </div>
+                <div class="chng-ti-cung">
+                  Chúng tôi cung cấp dịch vụ gói quà miễn phí cho khách hàng.
+                </div>
+                <div class="see-more-button">
+                  <div class="button6 border-color-hover-center border-color-bottom-hover-orange">
+                    <a href="#" class="xem-thm">Xem thêm</a>
+                    <div class="button-inner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="separator">
+        <div class="separator-child"></div>
+      </div>
+      <!--<div class="home-link">-->
+      <!--  <div class="trang-ch">Trang chủ - <span data-window-bind="title"></span></div>-->
+      <!--</div>-->
+      <!--<div class="main-child"></div>-->
+      <footer class="flex flex-column flex-lg-row w-100">
+        <div class="d-flex w-100 dh-footer-logo justify-content-center">
+          <img class="logo-container-child" alt="" src="https://cdn.live1.vn/dh/public/group-543-8.svg" />
+        </div>
+        <div class="d-flex w-100"> 
+            <div class="row w-100 px-4 gap-4 gap-lg-0" style="--bs-gutter-x: 0;">
+                <div class="d-flex flex-column col-md-3 col-12">
+                    <h3 class="footer-tlt-section w-100">LIÊN HỆ</h3>
+                    <div class="d-flex flex-column mt-24 gap-2">
+                        <div class="d-flex gap-3">
+                            <img class="phone-light-icon" alt="" src="https://cdn.live1.vn/dh/public/pin-light-1.svg" />
+
+                             <div class="thu-khoa-huan">
+                                15 Thu Khoa Huan St., Ben Thanh Ward, Dist.1, HCMC
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3">
+                          <img class="ic-24" alt="" src="https://cdn.live1.vn/dh/public/Phone_light123.svg" />
+    
+                          <div class="d-flex flex-wrap gap-1">
+                            <p class="footer-lien-he pb-0">
+                                <a class="text-decoration-none" href="tel:+849 3895 0808" style="color: #071622;">
+                                   0938950808
+                                </a>
+                            </p>
+                            <p class="footer-lien-he pb-0">&nbsp;</p>
+                            <p class="footer-lien-he pt-0">
+                                <a class="text-decoration-none" href="tel:+8428 3824 8095" style="color: #071622;">
+                                   02838248095
+                                </a>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="email-info">
+                           <img  class="ic-24" alt="" src="https://cdn.live1.vn/dh/public/Message_light123.svg" />
+                           <div class="footer-lien-he">info@danhhien.com</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-24 mt-28">
+                        <div class="theo-di-chng">THEO DÕI CHÚNG TÔI</div>
+                        <div class="follow-us-icons">
+                          <img class="ecommerce-shopping-bag" alt="" src="https://cdn.live1.vn/dh/public/rifacebookfill.svg" />
+                          <img class="ecommerce-shopping-bag" alt="" src="https://cdn.live1.vn/dh/public/iconoirinstagram.svg" />
+                          <img class="ecommerce-shopping-bag" alt="" src="https://cdn.live1.vn/dh/public/jampinterest.svg" />
+                        </div>
+                    </div>
+                </div>    
+                <div class="d-flex d-md-flex flex-column col-md-3 col-12 accordition">
+                    
+                    <div class="d-flex justify-content-between accordition-summary">
+                        <h3 class="footer-tlt-section">CHĂM SÓC KHÁCH HÀNG</h3>
+                        <img class="d-block d-md-none arrow-btn ic-24" src="https://cdn.live1.vn/dh/public/mobile-arrow-down.svg" />
+                    </div>
+                    <ul class="d-none d-md-block footer-ul-section accordition-body">
+                        <li><a href="/lien-he#content">Liên hệ</a></li>
+                        <li><a href="/huong-dan-bao-quan-san-pham">Hướng dẫn bảo quản sản phẩm</a></li>
+                        <li><a href="/dat-lich-hen">Đặt lịch hẹn</a></li>
+                        <li><a href="/cau-hoi-thuong-gap">Câu hỏi thường gặp</a></li>
+                        <li><a href="/huong-dan-do-size-trang-suc">Hướng dẫn đo size trang sức</a></li>
+                        <li><a href="/chinh-sach-bao-hanh">Chính sách bảo hành</a></li>
+                     
+                    </ul>
+                </div>  
+                <div class="d-flex flex-column col-md-3 col-12 accordition">
+                    <div class="d-flex justify-content-between accordition-summary">
+                        <h3 class="footer-tlt-section">VỀ CÔNG TY</h3>
+                        <img class="d-block d-md-none arrow-btn ic-24" src="https://cdn.live1.vn/dh/public/mobile-arrow-down.svg" />
+                    </div>
+                    <ul class="d-none d-md-block footer-ul-section accordition-body">
+                        <li><a href="/dieu-khoan-su-dung">Điều khoản sử dụng</a></li>
+                        <li><a href="/chinh-sach-doi-tra">Chính sách đổi trả</a></li>
+                        <li><a href="/chinh-sach-bao-mat">Chính sách bảo mật</a></li>
+                        <li><a href="/ve-chung-toi">Công ty của chúng tôi</a></li>
+                        <li><a>Di sản vượt thời gian</a></li>
+                        <li><a>Phát triển bền vững</a></li>
+                        <li><a>Cơ hội việc làm</a></li>
+                     
+                    </ul>
+                </div>  
+                <div class="d-flex flex-column col-md-3 col-12 justify-content-between">
+                    <div class="flex flex-column">
+                        <h3 class="footer-tlt-section">CHẤP NHẬN THANH TOÁN</h3>
+                        <div class="payment-icons mt-24">
+                            <img class="the-mastercard-icon" alt="" src="https://cdn.live1.vn/dh/public/the-mastercard@2x.png" />
+                            <img class="the-mastercard-icon" alt="" src="https://cdn.live1.vn/dh/public/the-visa@2x.png" />
+                            <img class="the-mastercard-icon" alt="" src="https://cdn.live1.vn/dh/public/the-jcb@2x.png" />
+                            <img class="the-mastercard-icon" alt="" src="https://cdn.live1.vn/dh/public/the-napas@2x.png" />
+                        </div>
+                    </div>
+                    <div class="newsletter-signup-container">
+                        <div class="dang-ky-nhan-tin">ĐĂNG KÝ NHẬN BẢNG TIN</div>
+                        <div class="newsletter-content1 w-100 w-lg-60">
+                        <div class="dang-ky-nhan-tin-desc">
+                          Khám phá những bộ sưu tập mới nhất, tin tức và các sản phẩm
+                          ra mắt độc quyền từ Danh Hiển Fine Jewelers.
+                         </div>
+                        <div class="d-flex flex-row flex-lg-column w-100 gap-12 newsletter-form-func">
+                            <div class="email-input-container">
+                                <input class="nhp-email-ca" placeholder="Nhập email của bạn" type="text" style="width: 100%;"/>
+                            </div>
+                            <button class="submit-button-container register-btn">
+                                <a class="ng-k1">Đăng kí</a>
+                            </button>
+                        </div>
+                    </div>
+                </div> 
+                </div> 
+            </div>
+        </div>
+        <div class="d-flex w-100 py-4 justify-content-center">
+            <div class="copyright-2024-container1 text-center">
+                Copyright 2024 © Danh Hiển Jewelers. All right reserved.
+            </div>
+        </div>
+      </footer>
+    </main>
+    
+    <div class="qmenu-container">
+        <!-- Main button -->
+        <button class="qmenu-main-button" id="qmenuMainButton"></button>
+
+        <!-- Icons -->
+        <div class="qmenu-icons" id="qmenuIconsContainer">
+            <a href="https://zalo.me/4311637310106811741" class="qmenu-icon" target="_blank" title="Zalo">
+                <img src="https://cdn.live1.vn/dh/public/zalo.svg" alt="Zalo">
+            </a>
+            <a href="https://m.me/danhhienjewelers" class="qmenu-icon" target="_blank" title="Messenger">
+                <img src="https://cdn.live1.vn/dh/public/messenger.svg" alt="Messenger">
+            </a>
+            <a href="tel:0938950808" class="qmenu-icon" title="Call Us">
+                <img src="https://cdn.live1.vn/dh/public/phone.svg" alt="Phone">
+            </a>
+        </div>
+    </div>
+  </div>
+  
+    
+    <script src="https://cdn.live1.vn/dh/resources/footer-accordition.js?v=1"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-touch.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.6/jscolor.min.js"></script>
+    <script src="https://cdn.live1.vn/dh/resources/slider.js?v=2"></script>
+    <script src="https://cdn.live1.vn/dh/resources/menu.js?v=2"></script>
+    <script src="https://cdn.live1.vn/dh/resources/editPanel.js?v=1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.live1.vn/dh/resources/common.js?v=1"></script>
+    <script src="https://cdn.live1.vn/common/vb-slider/vb-slider.js"></script>
+    <script src="https://cdn.live1.vn/dh/resources/dh.js?v=1"></script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2ENT1NR8TP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-2ENT1NR8TP');
+</script>
+{% block script %}
+{% endblock %}
+</body>
+</html>

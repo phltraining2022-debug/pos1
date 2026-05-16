@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset Demo Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .button {
+            background: #dc2626;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        .button:hover {
+            background: #b91c1c;
+        }
+        .success {
+            background: #16a34a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        .info {
+            background: #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Reset Demo Data</h1>
+    
+    <div class="info">
+        <strong>Lưu ý:</strong> Chức năng này sẽ xóa toàn bộ dữ liệu hiện tại và tải lại demo data mới bao gồm:
+        <ul>
+            <li>5 hóa đơn mẫu (đã thanh toán)</li>
+            <li>Có hóa đơn với phụ thu giờ khuya</li>
+            <li>Có hóa đơn với phụ thu cuối tuần</li>
+            <li>Có hóa đơn combo</li>
+            <li>6 audit logs mẫu</li>
+        </ul>
+    </div>
+    
+    <button class="button" onclick="resetData()">Xóa & Tải Demo Data Mới</button>
+    
+    <div id="success" class="success">
+        ✅ Đã reset thành công! Vui lòng reload trang hoặc <a href="index.html" style="color: white; font-weight: bold;">Click vào đây</a>
+    </div>
+    
+    <script>
+        function resetData() {
+            if (confirm('Bạn có chắc muốn xóa toàn bộ dữ liệu và tải demo data mới?')) {
+                // Clear all localStorage
+                localStorage.clear();
+                
+                // Show success message
+                document.getElementById('success').style.display = 'block';
+                
+                console.log('Demo data reset complete. Reload the app to see new data.');
+            }
+        }
+    </script>
+</body>
+</html>

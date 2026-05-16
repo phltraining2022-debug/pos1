@@ -1,0 +1,40 @@
+{
+    "name": "Like",
+    "plural": "Likes",
+    "base": "AppModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true
+    },
+    "properties": {
+        "count": {
+            "type": "number"
+        }
+    },
+    "validations": [],
+    "relations": {
+      "users": {
+        "type": "referencesMany",
+        "model": "user",
+        "foreignKey": "userIds"
+      },
+      "post": {
+        "type": "belongsTo",
+        "model": "Post",
+        "foreignKey": "postId"
+      },
+      "comment": {
+        "type": "belongsTo",
+        "model": "Comment",
+        "foreignKey": "commentId"
+      },
+      "customer": {
+      "type": "belongsTo",
+      "model": "Customer",
+      "foreignKey": "customerId"
+      }
+    },
+    "acls": [],
+    "methods": {}
+  }
+  

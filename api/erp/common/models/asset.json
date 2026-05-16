@@ -1,0 +1,70 @@
+{
+  "name": "Asset",
+  "plural": "Assets",
+  "base": "AppModel", 
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "code": {
+      "type": "string",
+      "required": true,
+      "description": "Mã tài sản duy nhất (Ví dụ: MT-001)"
+    },
+    "name": {
+      "type": "string",
+      "required": true,
+      "description": "Tên tài sản (Ví dụ: Máy Tính Văn Phòng)"
+    },
+    "category": {
+      "type": "string",
+      "required": true,
+      "description": "Loại tài sản (Ví dụ: Vehicle, IT, Building, Furniture)"
+    },
+    "purchaseDate": {
+      "type": "date",
+      "required": true,
+      "description": "Ngày mua"
+    },
+    "cost": {
+      "type": "number",
+      "required": true,
+      "description": "Nguyên giá (Giá mua ban đầu)"
+    },
+    "depreciationMethod": {
+      "type": "string",
+      "required": true,
+      "description": "Phương pháp khấu hao"
+    },
+    "usefulLife": {
+      "type": "number",
+      "required": true,
+      "description": "Thời gian sử dụng hữu ích (bằng năm)"
+    },
+    "currentValue": {
+      "type": "number",
+      "description": "Giá trị còn lại (Book Value)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Vị trí hiện tại"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "In Use",
+      "description": "Trạng thái (In Use, Retired, Maintenance)"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "custodian": {
+      "type": "belongsTo",
+      "model": "Employee",
+      "foreignKey": "custodianId",
+      "description": "Người chịu trách nhiệm quản lý"
+    }
+  },
+  "methods": {}
+}

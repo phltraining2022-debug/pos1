@@ -1,0 +1,31 @@
+{
+    "name": "LeadCampaign", "plural": "LeadCampaigns",
+    "idInjection": true,
+    "properties": {
+        "leadId": {
+            "type": "string",
+            "required": true
+        },
+        "campaignId": {
+            "type": "string"
+        },
+        "sourceOfLead": {
+            "type": "string"
+        },
+        "joinDate": {
+            "type": "date"
+        }
+    },
+    "relations": {
+        "lead": {
+            "type": "belongsTo",
+            "model": "Lead",
+            "foreignKey": "leadId"
+        },
+        "campaign": {
+            "type": "belongsTo",
+            "model": "Event",
+            "foreignKey": "campaignId"
+        }
+    }
+}

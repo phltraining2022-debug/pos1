@@ -1,0 +1,54 @@
+{
+  "name": "insuranceCompany",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "shortName": {
+      "type": "string"
+    },
+    "lat": {
+      "type": "string"
+    },
+    "long": {
+      "type": "string"
+    },
+    "phoneNumber": {
+      "type": "string"
+    },
+    "license": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "address": {
+      "type": "object"
+    },
+    "taxNumber": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "bankInfo": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "insuranceServices": {
+      "type": "hasMany",
+      "model": "insuranceService",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

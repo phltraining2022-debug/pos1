@@ -1,0 +1,49 @@
+{
+	"name": "export",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"fromWarehouseId": {
+			"type": "string",
+			"required": true
+		},
+		"toWareshouseId": {
+			"type": "string"
+		},
+		"isInternal": {
+			"type": "boolean"
+		},
+		"status": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		},
+		"totalPrice": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"items": {
+			"type": "hasMany",
+			"model": "warehouseItem",
+			"foreignKey": "exportId"
+		},
+		"fromWarehouse": {
+			"type": "belongsTo",
+			"model": "warehouse",
+			"foreignKey": "fromWarehouseId"
+		},
+		"toWarehouse": {
+			"type": "belongsTo",
+			"model": "warehouse",
+			"foreignKey": "toWarehouseId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

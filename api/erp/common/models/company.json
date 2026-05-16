@@ -1,0 +1,51 @@
+{
+  "name": "company",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "searchName": {
+      "type": "string"
+    },
+    "searchAddress": {
+      "type": "string"
+    },
+    "taxId": {
+      "type": "string"
+    },
+    "contactInfo": {
+      "type": [
+        "object"
+      ]
+    },
+    "address": {
+      "type": "object"
+    },
+    "employees": {
+      "type": [
+        "string"
+      ]
+    }
+  },
+  "validations": [],
+  "relations": {
+    "contracts": {
+      "type": "hasMany",
+      "model": "contract",
+      "foreignKey": ""
+    },
+    "employees": {
+      "type": "hasMany",
+      "model": "patient",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

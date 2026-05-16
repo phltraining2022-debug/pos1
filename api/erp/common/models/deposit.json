@@ -1,0 +1,54 @@
+{
+	"name": "Deposit",
+	"plural": "Deposits",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"accountId": {
+			"type": "string"
+		},
+		"saleOrderId": {
+			"type": "string"
+		},
+		"amount": {
+			"type": "number",
+			"required": true
+		},
+		"receiverId": {
+			"type": "string"
+		},
+		"date": {
+			"type": "date"
+		},
+		"method": {
+			"type": "string",
+			"enum": [
+				"CK",
+				"TM"
+			]
+		},
+		"description": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"account": {
+			"type": "belongsTo",
+			"model": "Account",
+			"foreignKey": "accountId"
+		},
+		"receiver": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "receiverId"
+		}
+	},
+	"scope": {
+		"include": [
+			"receiver"
+		]
+	}
+}

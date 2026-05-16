@@ -1,0 +1,75 @@
+{
+	"name": "NCfg",
+	"plural": "NCfgs",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"required": true
+		},
+		"models": {
+			"type": [
+				"string"
+			],
+			"required": false
+		},
+		"field": {
+			"type": "string"
+		},
+		"color": {
+			"type": "string"
+		},
+		"short": {
+			"type": "string"
+		},
+		"nameVi": {
+			"type": "string"
+		},
+		"value": {
+			"type": "string",
+			"required": true
+		},
+		"isActive": {
+			"type": "boolean",
+			"default": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"isLocked": {
+			"type": "boolean"
+		},
+		"order": {
+			"type": "number"
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"state",
+				"category",
+				"type",
+				"primary"
+			]
+		}
+	},
+	"validations": [],
+	"relations": {
+		"parent": {
+			"type": "belongsTo",
+			"model": "NCfg",
+			"foreignKey": "parentId"
+		},
+		"children": {
+			"type": "hasMany",
+			"model": "NCfg",
+			"foreignKey": "parentId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

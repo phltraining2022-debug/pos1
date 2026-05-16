@@ -1,0 +1,167 @@
+{
+	"name": "WarehouseLocation",
+	"plural": "warehouseLocations",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"name": {
+			"type": "string",
+			"required": true,
+			"description": "Location name (e.g., 'Zone A - Aisle 1 - Rack 1')"
+		},
+		"code": {
+			"type": "string",
+			"required": true,
+			"index": true,
+			"description": "Unique location code (e.g., 'A-01-R1-S3-B02')"
+		},
+		"description": {
+			"type": "string"
+		},
+		"warehouseId": {
+			"type": "string",
+			"required": true,
+			"index": true
+		},
+		"zoneCode": {
+			"type": "string",
+			"description": "Zone identifier (e.g., 'A', 'B', 'COLD-1')"
+		},
+		"aisle": {
+			"type": "string",
+			"description": "Aisle number or code (e.g., '01', '02')"
+		},
+		"rack": {
+			"type": "string",
+			"description": "Rack identifier (e.g., 'R1', 'R2')"
+		},
+		"shelf": {
+			"type": "string",
+			"description": "Shelf level (e.g., 'S1', 'S2', 'S3')"
+		},
+		"bin": {
+			"type": "string",
+			"description": "Bin or compartment (e.g., 'B01', 'B02')"
+		},
+		"locationType": {
+			"type": "string",
+			"required": true,
+			"default": "SHELF",
+			"enum": ["SHELF", "PALLET", "FLOOR", "COLD_STORAGE", "FREEZER", "HAZMAT", "QUARANTINE", "STAGING"],
+			"description": "Type of storage location"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "active",
+			"enum": ["active", "inactive", "maintenance", "full"],
+			"description": "Location operational status"
+		},
+		"capacity": {
+			"type": "number",
+			"required": true,
+			"default": 0,
+			"description": "Maximum capacity (generic unit or volume)"
+		},
+		"volumeCapacity": {
+			"type": "number",
+			"description": "Volume capacity in cubic meters (m³)"
+		},
+		"weightCapacity": {
+			"type": "number",
+			"description": "Maximum weight capacity in kilograms (kg)"
+		},
+		"width": {
+			"type": "number",
+			"description": "Width in meters"
+		},
+		"height": {
+			"type": "number",
+			"description": "Height in meters"
+		},
+		"depth": {
+			"type": "number",
+			"description": "Depth in meters"
+		},
+		"currentOccupancy": {
+			"type": "number",
+			"required": true,
+			"default": 0,
+			"description": "Current occupied capacity"
+		},
+		"isPickable": {
+			"type": "boolean",
+			"required": true,
+			"default": true,
+			"description": "Can items be picked from this location?"
+		},
+		"isPutawayAllowed": {
+			"type": "boolean",
+			"required": true,
+			"default": true,
+			"description": "Can items be stored in this location?"
+		},
+		"isReserved": {
+			"type": "boolean",
+			"required": true,
+			"default": false,
+			"description": "Is location blocked/reserved?"
+		},
+		"reservedFor": {
+			"type": "string",
+			"description": "If reserved, what is it reserved for? (e.g., productId, orderId)"
+		},
+		"temperatureMin": {
+			"type": "number",
+			"description": "Minimum temperature requirement (°C) for cold storage"
+		},
+		"temperatureMax": {
+			"type": "number",
+			"description": "Maximum temperature requirement (°C) for cold storage"
+		},
+		"allowedProductTypes": {
+			"type": "array",
+			"default": [],
+			"description": "Array of allowed product types (e.g., ['RAW_MATERIAL', 'FINISHED_GOODS'])"
+		},
+		"restrictedProducts": {
+			"type": "array",
+			"default": [],
+			"description": "Array of product IDs that cannot be stored here"
+		},
+		"lastStockTakeDate": {
+			"type": "date",
+			"description": "Date of last inventory count at this location"
+		},
+		"priority": {
+			"type": "number",
+			"default": 0,
+			"description": "Picking priority (higher number = pick first)"
+		},
+		"notes": {
+			"type": "string",
+			"description": "Additional notes or instructions for this location"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		},
+		"stockItems": {
+			"type": "hasMany",
+			"model": "StockItem",
+			"foreignKey": "locationId",
+			"description": "Stock items stored at this location"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

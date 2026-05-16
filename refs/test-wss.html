@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="posApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Socket POS - Kara Live</title>
+    
+    <!-- 1. Import Bootstrap để có giao diện dễ nhìn -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body { padding: 20px; background-color: #f4f6f9; }
+        .log-box {
+            height: 300px;
+            overflow-y: scroll;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: monospace;
+            border-radius: 5px;
+        }
+        .status-dot {
+            height: 12px; width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .bg-success { background-color: #28a745 !important; }
+        .bg-danger { background-color: #dc3545 !important; }
+        .bg-warning { background-color: #ffc107 !important; }
+        .msg-sent { color: #007bff; }
+        .msg-received { color: #28a745; font-weight: bold; }
+        .msg-sys { color: #6c757d; font-style: italic; }
+    </style>
+
+    <!-- 2. Import AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    
+    <!-- 3. Import Socket.io Client -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body ng-controller="MainController">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🔌 POS Socket Test</h5>
+                        <div>
+                            <span class="status-dot" ng-class="{'bg-success': isConnected, 'bg-danger': !isConnected}"></span>
+                            <span ng-bind="connectionStatus"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Cấu hình kết nối -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Server URL:</label>
+                                <input type="text" class="form-control" ng-model="config.url">
+                                <small class="text-muted">Base URL của server</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Socket Path:</label>
+                                <select class="form-select" ng-model="config.socketPath">
+                                    <option value="/">Root (/)</option>
+                                    <option value="/socket.io/">Socket.IO default (/socket.io/)</option>
+                                    <option value="/ws">Custom (/ws)</option>
+                                    <option value="/wss">Custom (/wss)</option>
+                                    <option value="/websocket">Custom (/websocket)</option>
+                                </select>
+                                <small class="text-muted">Path mà Socket.IO server lắng nghe</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">App Name (Room):</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" ng-model="config.appName">
+                                    <button class="btn btn-outline-primary" ng-click="joinApp()" ng-disabled="!isConnected">
+                                        Join App
+                                    </button>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-warning" ng-click="reconnect()">
+                                        🔄 Reconnect
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Khu vực gửi tin -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <h6>Gửi dữ liệu giả lập (Màn hình A)</h6>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <select class="form-select" ng-model="message.channel">
+                                            <option value="customer_view">Màn hình khách</option>
+                                            <option value="kitchen">Nhà bếp</option>
+                                            <option value="cashier">Thu ngân</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <select class="form-select" ng-model="message.action">
+                                            <option value="UPDATE_CART">Update Cart</option>
+                                            <option value="PAYMENT_SUCCESS">Thanh toán OK</option>
+                                            <option value="NEW_ORDER">Đơn mới</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <button class="btn btn-primary w-100" ng-click="sendData()" ng-disabled="!isConnected">
+                                            Gửi Update
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Debug Info -->
+                                <div class="mt-3 p-2 bg-dark text-light rounded small">
+                                    <strong>🔍 Debug Info:</strong><br>
+                                    Config URL: {{config.url}}<br>
+                                    Socket Path: {{config.socketPath}}<br>
+                                    Full URL: {{config.url}}{{config.socketPath}}<br>
+                                    Socket ID: {{socketId || 'Chưa kết nối'}}<br>
+                                    Transport: {{transport || 'N/A'}}<br>
+                                    Ready State: {{readyState || 'N/A'}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Khu vực Log (Nhật ký) -->
+                        <h6>📜 Nhật ký kết nối (Real-time Logs)</h6>
+                        <div class="log-box" id="logBox">
+                            <div ng-repeat="log in logs track by $index">
+                                <span class="text-muted small">[{{log.time}}]</span>
+                                <span ng-class="{'msg-sent': log.type=='sent', 'msg-received': log.type=='received', 'msg-sys': log.type=='system'}">
+                                    {{log.content}}
+                                </span>
+                                <div ng-if="log.data" class="ms-3 text-secondary small">
+                                    <pre class="mb-0">{{log.data | json}}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-secondary mt-2" ng-click="clearLogs()">Xóa log</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module('posApp', []);
+
+        // --- 1. FACTORY QUẢN LÝ SOCKET ---
+        app.factory('SocketService', function ($rootScope) {
+            var socket = null;
+
+            return {
+                connect: function (url, socketPath) {
+                    console.log('🔌 Đang kết nối tới:', url);
+                    console.log('🔌 Socket.IO path:', socketPath);
+                    
+                    socket = io(url, {
+                        path: socketPath, // Custom path thay vì mặc định /socket.io/
+                        transports: ['websocket', 'polling'], // Thử websocket trước, fail thì polling
+                        secure: true, // Bắt buộc cho wss
+                        reconnection: true
+                    });
+
+                    // Lắng nghe sự kiện connect chuẩn của socket.io
+                    socket.on('connect', function () {
+                        console.log('✅ Socket.IO connected! Socket ID:', socket.id);
+                        $rootScope.$apply(function () {
+                            $rootScope.$broadcast('socket:connected', socket.id);
+                        });
+                    });
+
+                    socket.on('disconnect', function () {
+                        console.log('❌ Socket.IO disconnected');
+                        $rootScope.$apply(function () {
+                            $rootScope.$broadcast('socket:disconnected');
+                        });
+                    });
+                    
+                    socket.on('connect_error', function (err) {
+                        console.error('🔴 Socket.IO connection error:', err);
+                        $rootScope.$apply(function () {
+                            $rootScope.$broadcast('socket:error', err);
+                        });
+                    });
+
+                    // Lắng nghe sự kiện nhận data từ server (app_sync_data)
+                    socket.on('app_sync_data', function (data) {
+                        $rootScope.$apply(function () {
+                            $rootScope.$broadcast('socket:received', data);
+                        });
+                    });
+                },
+
+                emit: function (eventName, data) {
+                    if (socket) {
+                        socket.emit(eventName, data);
+                    }
+                },
+                
+                getId: function() {
+                    return socket ? socket.id : null;
+                }
+            };
+        });
+
+        // --- 2. CONTROLLER CHÍNH ---
+        app.controller('MainController', function ($scope, SocketService, $timeout) {
+            
+            // Cấu hình mặc định
+            $scope.config = {
+                url: 'https://kara.test.live1.vn', // Server của bạn
+                socketPath: '/socket.io/', // Socket.IO default path
+                appName: 'karaoke_pos_cdn.live1.vn' // Giả lập tên app/phòng
+            };
+
+            $scope.connectionStatus = 'Đang kết nối...';
+            $scope.isConnected = false;
+            $scope.logs = [];
+            $scope.socketId = null;
+            $scope.transport = null;
+            $scope.readyState = null;
+
+            // Dữ liệu mẫu để gửi đi
+            $scope.message = {
+                channel: 'customer_view',
+                action: 'UPDATE_CART'
+            };
+
+            // Hàm ghi log ra màn hình
+            function addLog(type, content, data = null) {
+                var now = new Date();
+                var timeString = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+                $scope.logs.unshift({ // Thêm vào đầu danh sách
+                    time: timeString,
+                    type: type,
+                    content: content,
+                    data: data
+                });
+            }
+
+            // --- BẮT ĐẦU KẾT NỐI ---
+            SocketService.connect($scope.config.url, $scope.config.socketPath);
+
+            // Xử lý sự kiện socket
+            $scope.$on('socket:connected', function (ev, socketId) {
+                $scope.isConnected = true;
+                $scope.socketId = socketId;
+                $scope.connectionStatus = 'Đã kết nối (ID: ' + socketId + ')';
+                $scope.transport = 'WebSocket'; // Socket.IO đã upgrade thành công
+                $scope.readyState = 'OPEN';
+                addLog('system', '✅ Kết nối thành công tới Server.');
+                
+                // Tự động join app sau khi connect
+                $scope.joinApp();
+            });
+
+            $scope.$on('socket:disconnected', function () {
+                $scope.isConnected = false;
+                $scope.connectionStatus = 'Mất kết nối!';
+                $scope.readyState = 'CLOSED';
+                addLog('system', '❌ Đã ngắt kết nối với Server.');
+            });
+            
+            $scope.$on('socket:error', function (ev, err) {
+                $scope.connectionStatus = 'Lỗi kết nối';
+                $scope.readyState = 'ERROR';
+                addLog('system', '⚠️ Lỗi: ' + err.message);
+            });
+
+            // Xử lý khi NHẬN được dữ liệu từ máy khác
+            $scope.$on('socket:received', function (ev, data) {
+                addLog('received', '📩 Nhận từ [' + (data.channel || 'All') + ']: ' + data.action, data);
+            });
+
+            // --- HÀM TƯƠNG TÁC NGƯỜI DÙNG ---
+
+            $scope.joinApp = function() {
+                addLog('system', 'Đang tham gia vào App group: ' + $scope.config.appName);
+                SocketService.emit('join_app', $scope.config.appName);
+            };
+
+            $scope.sendData = function() {
+                var payload = {
+                    app: $scope.config.appName,
+                    channel: $scope.message.channel,
+                    action: $scope.message.action,
+                    payload: {
+                        timestamp: Date.now(),
+                        items: ['Bia Tiger', 'Trái cây'],
+                        total: 500000
+                    }
+                };
+
+                SocketService.emit('app_update', payload);
+                addLog('sent', '📤 Đã gửi lệnh: ' + payload.action, payload);
+            };
+
+            $scope.reconnect = function() {
+                addLog('system', '🔄 Đang reconnect với config mới...');
+                SocketService.connect($scope.config.url, $scope.config.socketPath);
+            };
+        });
+    </script>
+</body>
+</html>

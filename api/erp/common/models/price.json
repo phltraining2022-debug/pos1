@@ -1,0 +1,62 @@
+{
+  "name": "price",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "isActive": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    },
+    "targetId": {
+      "type": "string",
+      "required": true
+    },
+    "validFrom": {
+      "type": "date",
+      "required": true
+    },
+    "validTo": {
+      "type": "date"
+    },
+    "clinicId": {
+      "type": "string"
+    },
+    "createdBy": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "createdByUser": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "createdBy"
+    },
+    "service": {
+      "type": "belongsTo",
+      "model": "service",
+      "foreignKey": "targetId"
+    },
+    "servicePackage": {
+      "type": "belongsTo",
+      "model": "servicePackage",
+      "foreignKey": "targetId"
+    },
+    "medicine": {
+      "type": "belongsTo",
+      "model": "medicine",
+      "foreignKey": "targetId"
+    },
+    "whItem": {
+      "type": "belongsTo",
+      "model": "warehouseItem",
+      "foreignKey": "targetId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,75 @@
+{
+  "name": "location","plural": "location",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "isPublished": {
+			"type": "boolean"
+		},
+    "id": {
+      "type": "number",
+      "id": true
+    },
+    "codeId": {
+      "type": "string"
+    },
+    "rankingCountry": {
+      "type": "string"
+    },
+    "rankedUniversities": {
+      "type": "string"
+    },
+    "international": {
+      "type": "string"
+    },
+    "vietnameseStudent": {
+      "type": "string"
+    },
+    "isSearchable": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "string"
+    },
+    "showAsScholarship": {
+      "type": "string"
+    },
+    "orderLocation": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "logo": {
+      "type": "string"
+    },
+    "whyChoose": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "users": {
+      "type": "hasMany",
+      "model": "user",
+      "foreignKey": "locationId"
+    },
+    "shifts": {
+      "type": "hasMany",
+      "model": "shift",
+      "foreignKey": "locationId",
+      "through": "shiftLocation"
+    }
+  },
+  "acls": [],
+  "methods": {},
+  "path": "location",
+  "url": "`/locations/${slug}`"
+}

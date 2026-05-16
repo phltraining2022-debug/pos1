@@ -1,0 +1,41 @@
+{
+  "name": "patientGroup",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "code": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "discount": {
+      "type": "number"
+    },
+    "isPercent": {
+      "type": "boolean",
+      "default": false
+    },
+    "isAmount": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

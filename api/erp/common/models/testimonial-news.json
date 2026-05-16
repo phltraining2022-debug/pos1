@@ -1,0 +1,50 @@
+{
+	"name": "TestimonialNews",
+	"plural": "TestimonialNews",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"isActive": {
+			"type": "boolean",
+			"default": true
+		},
+		"scholarshipAchieved": {
+			"type": "string"
+		},
+		"address": {
+			"type": "string"
+		},
+		"image": {
+			"type": "string"
+		},
+		"shortdesc": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"majorIds": {
+			"type": "array",
+			"model": "majors"
+		},
+		"schoolIds": {
+			"type": "array",
+			"model": "schools"
+		},
+		"locationIds": {
+			"type": "array",
+			"model": "location"
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods~sample": []
+}

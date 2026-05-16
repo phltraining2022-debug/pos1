@@ -1,0 +1,34 @@
+{
+    "name": "LeadPromotion", "plural": "LeadPromotions",
+    "properties": {
+        "leadId": {
+            "type": "string",
+            "required": true
+        },
+        "promotionId": {
+            "type": "string",
+            "required": true
+        },
+        "status": {
+			"type": "string",
+			"enum":  [
+                "Requested",
+                "Approved",
+                "Rejected",
+                "Paid"
+            ]
+		}
+    },
+    "relations": {
+        "lead": {
+            "type": "belongsTo",
+            "model": "Lead",
+            "foreignKey": "leadId"
+        },
+        "promotion": {
+            "type": "belongsTo",
+            "model": "Promotion",
+            "foreignKey": "promotionId"
+        }
+    }
+}

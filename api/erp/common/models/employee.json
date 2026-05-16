@@ -1,0 +1,326 @@
+{
+	"name": "Employee",
+	"plural": "Employees",
+	"base": "AppModel",
+	"properties": {
+		"avatar": {
+			"type": "string",
+			"icon": "ph-user-circle"
+		},
+		"name": {
+			"type": "string",
+			"required": true,
+			"icon": "ph-tag"
+		},
+		"dob": {
+			"type": "date",
+			"required": false,
+			"icon": "ph-calendar"
+		},
+		"gender": {
+			"type": "string",
+			"enum": [
+				"Male",
+				"Female",
+				"Other"
+			],
+			"icon": "ph-gender-male"
+		},
+		"maritalStatus": {
+			"type": "string",
+			"required": false,
+			"enum": [
+				"single",
+				"married",
+				"divorced"
+			],
+			"icon": "ph-heart"
+		},
+		"socialSecurityNumber": {
+			"type": "string",
+			"icon": "ph-id-card"
+		},
+		"address": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-map-pin"
+		},
+		"phone": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-phone"
+		},
+		"email": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-envelope"
+		},
+		"employeeID": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-identification-badge"
+		},
+		"employeeCode": {
+			"type": "string",
+			"index": true,
+			"description": "Mã nhân viên dùng trong phiếu lương",
+			"icon": "ph-identification-badge"
+		},
+		"selectedFilterId": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-funnel"
+		},
+		"departmentId": {
+			"type": "string",
+			"icon": "ph-building"
+		},
+		"jobTitle": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-briefcase"
+		},
+		"employmentType": {
+			"type": "string",
+			"enum": [
+				"Full-time",
+				"Part-time",
+				"Contract",
+				"Freelance"
+			],
+			"icon": "ph-clock"
+		},
+		"joiningDate": {
+			"type": "date",
+			"required": false,
+			"icon": "ph-calendar-plus"
+		},
+		"salary": {
+			"type": "number",
+			"required": false,
+			"icon": "ph-currency-dollar"
+		},
+		"payGrade": {
+			"type": "string",
+			"icon": "ph-chart-line"
+		},
+		"allowances": {
+			"type": "object",
+			"properties": {
+				"housing": {
+					"type": "number",
+					"icon": "ph-house"
+				},
+				"transportation": {
+					"type": "number",
+					"icon": "ph-car"
+				},
+				"meal": {
+					"type": "number",
+					"icon": "ph-fork-knife"
+				},
+				"medical": {
+					"type": "number",
+					"icon": "ph-heart"
+				},
+				"other": {
+					"type": "number",
+					"icon": "ph-plus"
+				}
+			},
+			"icon": "ph-money"
+		},
+		"bonus": {
+			"type": "number",
+			"icon": "ph-gift"
+		},
+		"healthInsurance": {
+			"type": "boolean",
+			"icon": "ph-heart"
+		},
+		"retirementPlans": {
+			"type": "boolean",
+			"icon": "ph-bank"
+		},
+		"highestQualification": {
+			"type": "string",
+			"required": false,
+			"icon": "ph-graduation-cap"
+		},
+		"educationalInstitutions": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"institutionName": {
+						"type": "string",
+						"icon": "ph-building"
+					},
+					"degree": {
+						"type": "string",
+						"icon": "ph-certificate"
+					},
+					"major": {
+						"type": "string",
+						"icon": "ph-book"
+					},
+					"startDate": {
+						"type": "date",
+						"icon": "ph-calendar"
+					},
+					"endDate": {
+						"type": "date",
+						"icon": "ph-calendar-check"
+					},
+					"location": {
+						"type": "string",
+						"icon": "ph-map-pin"
+					}
+				}
+			}
+		},
+		"certifications": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"icon": "ph-certificate"
+					},
+					"year": {
+						"type": "number",
+						"icon": "ph-calendar"
+					}
+				}
+			}
+		},
+		"previousEmployers": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"companyName": {
+						"type": "string",
+						"icon": "ph-building"
+					},
+					"designation": {
+						"type": "string",
+						"icon": "ph-briefcase"
+					},
+					"startDate": {
+						"type": "date",
+						"icon": "ph-calendar"
+					},
+					"endDate": {
+						"type": "date",
+						"icon": "ph-calendar-check"
+					},
+					"responsibilities": {
+						"type": "string",
+						"icon": "ph-list"
+					}
+				}
+			}
+		},
+		"performanceRatings": {
+			"type": "object",
+			"properties": {
+				"year": {
+					"type": "number",
+					"icon": "ph-calendar"
+				},
+				"rating": {
+					"type": "number",
+					"icon": "ph-star"
+				}
+			}
+		},
+		"leaveBalances": {
+			"type": "object",
+			"properties": {
+				"annual": {
+					"type": "number",
+					"icon": "ph-calendar"
+				},
+				"sick": {
+					"type": "number",
+					"icon": "ph-heart"
+				},
+				"personal": {
+					"type": "number",
+					"icon": "ph-user"
+				}
+			}
+		},
+		"emergencyContacts": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"icon": "ph-user"
+					},
+					"relationship": {
+						"type": "string",
+						"icon": "ph-users"
+					},
+					"phone": {
+						"type": "string",
+						"icon": "ph-phone"
+					}
+				}
+			}
+		},
+		"documents": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"icon": "ph-file"
+					},
+					"type": {
+						"type": "string",
+						"icon": "ph-file-text"
+					},
+					"url": {
+						"type": "string",
+						"icon": "ph-link"
+					},
+					"uploadedAt": {
+						"type": "date",
+						"icon": "ph-upload"
+					}
+				}
+			}
+		}
+	},
+	"validations": [],
+	"relations": {
+		"nationality": {
+			"type": "belongsTo",
+			"model": "SysCfg",
+			"foreignKey": "nationalityId"
+		},
+		"department": {
+			"type": "belongsTo",
+			"model": "Department",
+			"foreignKey": "departmentId"
+		},
+		"positionRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "position"
+		},
+		"user": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "userId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

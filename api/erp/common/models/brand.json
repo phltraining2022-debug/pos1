@@ -1,0 +1,20 @@
+{
+	"name": "Brand",
+	"plural": "Brands",
+	"base": "AppModel",
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"country": {
+			"type": "string"
+		},
+		"foundedYear": {
+			"type": "number"
+		}
+	}
+}

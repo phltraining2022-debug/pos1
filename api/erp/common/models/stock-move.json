@@ -1,0 +1,141 @@
+{
+	"name": "StockMove",
+	"plural": "StockMoves",
+	"base": "AppModel",
+	"properties": {
+		"type": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"adding",
+				"transfer",
+				"online-sale",
+				"offline-sale",
+				"return",
+				"damaged",
+				"expired",
+				"adjustment",
+				"production"
+			]
+		},
+		"reason": {
+			"type": "string"
+		},
+		"initiatedById": {
+			"type": "string"
+		},
+		"productCategoryId": {
+			"type": "string"
+		},
+		"completedAt": {
+			"type": "date"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"requested",
+				"cancelled",
+				"rejected",
+				"pending",
+				"completed"
+			],
+			"default": "pending"
+		},
+		"totalAmount": {
+			"type": "number"
+		},
+		"totalReduction": {
+			"type": "number"
+		},
+		"taxAmount": {
+			"type": "number"
+		},
+		"amountToRefund": {
+			"type": "number"
+		},
+		"refundedAmount": {
+			"type": "number"
+		},
+		"debtAmount": {
+			"type": "number"
+		},
+		"note": {
+			"type": "string"
+		},
+		"code": {
+			"type": "string",
+			"index": true,
+			"description": "Unique stock move code/identifier"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"fromWarehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "fromWarehouseId"
+		},
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		},
+		"items": {
+			"type": "hasMany",
+			"model": "StockMoveItem",
+			"foreignKey": "stockMoveId"
+		},
+		"initiatedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "createdById"
+		},
+		"productCategory": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "productCategoryId"
+		},
+		"purchaseOrder": {
+			"type": "belongsTo",
+			"model": "PurchaseOrder",
+			"foreignKey": "purchaseOrderId"
+		},
+		"supplier": {
+			"type": "belongsTo",
+			"model": "Supplier",
+			"foreignKey": "supplierId"
+		},
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"contract": {
+			"type": "belongsTo",
+			"model": "contract",
+			"foreignKey": "contractId"
+		},
+		"materialRequest": {
+			"type": "belongsTo",
+			"model": "MaterialRequest",
+			"foreignKey": "materialRequestId"
+		},
+		"customer": {
+			"type": "belongsTo", 
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"receivedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "receivedById" 
+		},
+		"pickedBy": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "pickedById" 
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

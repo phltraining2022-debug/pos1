@@ -1,0 +1,67 @@
+{
+	"name": "StudentApplication",
+	"plural": "StudentApplications",
+	"base": "AppModel",
+	"properties": {
+		"codeId": {
+			"type": "string"
+		},
+		"rejectedReason": {
+			"type": "string"
+		},
+		"messageFromATS": {
+			"type": "string"
+		},
+		"intake": {
+			"type": "date"
+		},
+		"acceptanceDeadline": {
+			"type": "date"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"Lead",
+				"Preparation",
+				"App Submitted",
+				"Conditional Offer",
+				"Full Offer",
+				"Payment",
+				"Visa App",
+				"Visa Grant",
+				"Withdrawn",
+				"Visa Rejected",
+				"App Rejected"
+			]
+		}
+	},
+	"relations": {
+		"desiredPrograms": {
+			"type": "referencesMany",
+			"model": "Course",
+			"foreignKey": "desiredProgramIds"
+		},
+		"scholarships": {
+			"type": "referencesMany",
+			"model": "ScholarshipNews",
+			"foreignKey": "scholarshipIds"
+		},
+		"institution": {
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "schoolId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"todos": {
+			"type": "hasMany",
+			"model": "Todo",
+			"foreignKey": "applicationId" 
+		} 
+	},
+	"acls": [],
+	"methods": {} 
+}

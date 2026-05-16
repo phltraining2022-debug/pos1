@@ -1,0 +1,152 @@
+{
+	"name": "clinic",
+	"plural": "clinics",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"domain": {
+			"type": [
+				"string"
+			],
+			"required": true
+		},
+		"address": {
+			"type": "object",
+			"properties": {
+				"number": {
+					"type": "number"
+				},
+				"street": {
+					"type": "string"
+				},
+				"ward": {
+					"type": "string"
+				},
+				"district": {
+					"type": "string"
+				},
+				"city": {
+					"type": "string"
+				},
+				"country": {
+					"type": "string"
+				},
+				"lat": {
+					"type": "string"
+				},
+				"long": {
+					"type": "string"
+				}
+			}
+		},
+		"isInitialized": {
+			"type": "boolean",
+			"default": true
+		},
+		"shortName": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"restaurant",
+				"factory",
+				"clinic",
+				"company"
+			]
+		},
+		"phoneNumber": {
+			"type": "string"
+		},
+		"bankAccounts": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"account": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"MST": {
+			"type": "string"
+		},
+		"website": {
+			"type": "string"
+		},
+		"license": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		},
+		"logo": {
+			"type": "string"
+		},
+		"module": {
+			"type": "object",
+			"properties": {
+				"Billing": {
+					"type": "boolean"
+				},
+				"Pharmacy": {
+					"type": "boolean"
+				},
+				"Warehouse": {
+					"type": "boolean"
+				},
+				"Medicine": {
+					"type": "boolean"
+				},
+				"Insurance": {
+					"type": "boolean"
+				},
+				"Labtest": {
+					"type": "boolean"
+				},
+				"Medical": {
+					"type": "boolean"
+				},
+				"Report": {
+					"type": "boolean"
+				},
+				"Company": {
+					"type": "boolean"
+				},
+				"Station": {
+					"type": "boolean"
+				},
+				"Test": {
+					"type": "boolean"
+				},
+				"Black List": {
+					"type": "boolean"
+				},
+				"Template": {
+					"type": "boolean"
+				}
+			}
+		}
+	},
+	"scope": {
+		"deletedById": {
+			"exists": false
+		},
+		"isActive": true
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

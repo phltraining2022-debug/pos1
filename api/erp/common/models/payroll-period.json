@@ -1,0 +1,30 @@
+{
+	"name": "PayrollPeriod",
+	"base": "AppModel",
+	"plural": "PayrollPeriods",
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"startDate": {
+			"type": "date",
+			"required": true
+		},
+		"endDate": {
+			"type": "date",
+			"required": true
+		},
+		"isClosed": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"relations": {
+		"payslips": {
+			"type": "hasMany",
+			"model": "Payslip",
+			"foreignKey": "payrollPeriodId"
+		}
+	}
+}

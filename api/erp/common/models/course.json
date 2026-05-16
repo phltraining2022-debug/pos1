@@ -1,0 +1,98 @@
+{
+	"name": "Course",
+	"plural": "Courses",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"nameVi": {
+			"type": "string"
+		},
+		"codeId": {
+			"type": "string"
+		},
+		"cricos": {
+			"type": "string"
+		},
+		"isActive": {
+			"type": "boolean"
+		},
+		"duration": {
+			"type": "number"
+		},
+		"tuition": {
+			"type": "number"
+		},
+		"categories": {
+			"type": "array"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"metaTitle": {
+			"type": "string"
+		},
+		"level": {
+			"type": "number"
+		},
+		"intakes": {
+			"type": "array"
+		},
+		"schoolPrimaryId": {
+			"type": "string"
+		},
+		"schools": {
+			"type": "array"
+		},
+		"locationId": {
+			"type": "string"
+		},
+		"stateId": {
+			"type": "string"
+		},
+		"cityId": {
+			"type": "string"
+		},
+		"admissionFormality": {
+			"type": "array"
+		},
+		"currencyId": {
+			"type": "string"
+		},
+		"requestAdmission": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		}
+	},
+	"scope": {
+		"include": "school"
+	},
+	"validations": [],
+	"relations": {
+		"location": {
+			"type": "belongsTo",
+			"model": "location",
+			"foreignKey": "locationId",
+			"optional": true
+		},
+		"city": {
+			"type": "belongsTo",
+			"model": "City",
+			"foreignKey": "cityId",
+			"optional": true
+		},
+		"school": {
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "schoolId",
+			"optional": true
+		}
+	},
+	"acls": [],
+	"methods": []
+}

@@ -1,0 +1,67 @@
+{
+  "name": "importItem",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "importId": {
+      "type": "string",
+      "required": true
+    },
+    "itemId": {
+      "type": "string",
+      "required": true
+    },
+    "supplierId": {
+      "type": "string"
+    },
+    "expiredDate": {
+      "type": "date"
+    },
+    "quantity": {
+      "type": "number",
+      "required": true
+    },
+    "unit": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "unitPrice": {
+      "type": "number",
+      "required": true
+    },
+    "totalPrice": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "supplier": {
+      "type": "belongsTo",
+      "model": "supplier",
+      "foreignKey": "supplierId"
+    },
+    "import": {
+      "type": "belongsTo",
+      "model": "import",
+      "foreignKey": "importId"
+    },
+    "medicine": {
+      "type": "belongsTo",
+      "model": "medicine",
+      "foreignKey": "itemId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,28 @@
+{
+	"name": "Prompt",
+	"plural": "Prompts",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"answer": {
+			"type": "string",
+			"required": false
+		},
+		"objLastUpdated": {
+			"type": "date"
+		},
+		"objectId": {
+			"type": "string"
+		},
+		"prompt": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"object": {
+			"type": "belongsTo",
+			"model": "AppModel",
+			"foreignKey": "objectId"
+		}
+	}
+}

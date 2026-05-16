@@ -1,0 +1,59 @@
+{
+  "name": "package",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "clinicId": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "companyId": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "isActive": {
+      "type": "boolean"
+    },
+    "tests": {
+      "type": [
+        "string"
+      ]
+    },
+    "price": {
+      "type": "number"
+    },
+    "validFrom":{
+      "type": "date"
+    },
+    "validTo": {
+      "type": "date"
+    },
+    "checkUpDates": {
+      "type": [
+        "date"
+      ]
+    }
+  },
+  "validations": [],
+  "relations": {
+    "company": {
+      "type": "belongsTo",
+      "model": "company",
+      "foreignKey": "companyId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

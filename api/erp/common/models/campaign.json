@@ -1,0 +1,57 @@
+{
+	"name": "Campaign",
+	"plural": "Campaigns",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"startDate": {
+			"type": "date",
+			"required": true
+		},
+		"endDate": {
+			"type": "date",
+			"required": true
+		},
+		"budget": {
+			"type": "number",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"active",
+				"paused",
+				"completed"
+			]
+		},
+		"platform": {
+			"type": "string",
+			"required": true
+		},
+		"goals": {
+			"type": "array",
+			"itemType": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"leadCampaigns": {
+			"type": "hasMany",
+			"model": "LeadCampaign",
+			"foreignKey": "campaignId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

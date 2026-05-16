@@ -1,0 +1,174 @@
+{
+	"name": "user",
+	"plural": "users",
+	"base": "User",
+	"properties": {
+		"firstName": {
+			"type": "string"
+		},
+		"lastName": {
+			"type": "string"
+		},
+		"fullName": {
+			"type": "string"
+		},
+		"DOB": {
+			"type": "date"
+		},
+		"address": {
+			"type": "object"
+		},
+		"email": {
+			"type": "email"
+		},
+		"gender": {
+			"type": "string"
+		},
+		"phoneNumber": {
+			"type": "string"
+		},
+		"username": {
+			"type": "string"
+		},
+		"passport": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		},
+		"bankAccounts": {
+			"type": [
+				"object"
+			]
+		},
+		"barcode": {
+			"type": "string",
+			"required": true
+		},
+		"rank": {
+			"type": "number",
+			"default": 0
+		},
+		"avatarUrl": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"academicRankIds": {
+			"type": [
+				"string"
+			]
+		},
+		"academicDegreeIds": {
+			"type": [
+				"string"
+			]
+		},
+		"expertise": {
+			"type": "string"
+		},
+		"isActive": {
+			"type": "boolean",
+			"required": true,
+			"default": false
+		}
+	},
+	"validations": [],
+	"relations": {
+		"identities": {
+			"type": "hasMany",
+			"model": "userIdentity",
+			"foreignKey": "userId"
+		},
+		"credentials": {
+			"type": "hasMany",
+			"model": "userCredential",
+			"foreignKey": "userId"
+		},
+		"roles": {
+			"type": "hasMany",
+			"model": "Role",
+			"foreignKey": "principalId",
+			"through": "RoleMapping"
+		},
+		"location": {
+			"type": "belongsTo",
+			"model": "location",
+			"foreignKey": "locationId"
+		},
+		"clinic": {
+			"type": "belongsTo",
+			"model": "clinic",
+			"foreignKey": ""
+		},
+		"transactions": {
+			"type": "hasMany",
+			"model": "transaction",
+			"foreignKey": ""
+		},
+		"bankAccounts": {
+			"type": "hasMany",
+			"model": "bankAccount",
+			"foreignKey": ""
+		},
+		"monthShifts": {
+			"type": "hasMany",
+			"model": "dateShift",
+			"foreignKey": ""
+		},
+		"orderItems": {
+			"type": "hasMany",
+			"model": "orderItem",
+			"foreignKey": ""
+		},
+		"employees": {
+			"type": "hasMany",
+			"model": "Employee",
+			"foreignKey": "userId"
+		},
+		"subAgent": {
+			"type": "belongsTo",
+			"model": "SubAgent",
+			"foreignKey": "subAgentId"
+		},
+		"school": {
+			"type": "belongsTo",
+			"model": "School",
+			"foreignKey": "schoolId"
+		}
+	},
+	"acls": [
+		{
+			"accessType": "*",
+			"principalType": "ROLE",
+			"principalId": "admin",
+			"permission": "ALLOW"
+		},
+		{
+			"accessType": "READ",
+			"principalType": "ROLE",
+			"principalId": "$unauthenticated",
+			"permission": "DENY"
+		},
+		{
+			"accessType": "READ",
+			"principalType": "ROLE",
+			"principalId": "$authenticated",
+			"permission": "ALLOW"
+		},
+		{
+			"accessType": "*",
+			"principalType": "ROLE",
+			"principalId": "$owner",
+			"permission": "ALLOW"
+		}
+	],
+	"methods": {},
+	"scope": {
+		"deletedBy": {
+			"exists": false
+		},
+		"isActive": true
+	}
+}

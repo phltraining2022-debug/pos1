@@ -1,0 +1,33 @@
+{
+    "name": "VehicleProduct",
+    "plural": "VehicleProducts",
+    "base": "AppModel",
+    "idInjection": true,
+    "properties": {
+      "quantity": {
+        "type": "number",
+        "description": "The quantity of the product associated with the vehicle model.",
+        "required": false
+      },
+      "notes": {
+        "type": "string",
+        "description": "Any additional notes about this product-vehicle association.",
+        "required": false
+      }
+    },
+    "relations": {
+      "vehicleModel": {
+        "type": "belongsTo",
+        "model": "VehicleModel",
+        "foreignKey": "vehicleModelId"
+      },
+      "product": {
+        "type": "belongsTo",
+        "model": "Product",
+        "foreignKey": "productId"
+      }
+    },
+    "acls": [],
+    "methods": {}
+  }
+  

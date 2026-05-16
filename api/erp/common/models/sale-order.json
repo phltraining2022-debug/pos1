@@ -1,0 +1,162 @@
+{
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"name": "SaleOrder",
+	"plural": "SaleOrders",
+	"scope": {
+		"include": [
+			"room",
+			"salePerson"
+		]
+	},
+	"properties": {
+		"deliveryDate": {
+			"type": "date"
+		},
+		"code": {
+			"type": "string",
+			"fmt": "BB-DDMMYY-RRR-T",
+			"fmtProperties": {
+				"T": "obj.type",
+				"BB": "moment(obj.deliveryDate).hour() <= 12 ? 'TR' : 'CH'",
+				"RRR": "obj.room.code",
+				"DDMMYY": "moment(obj.deliveryDate).format('DDMMYY')"
+			}
+		},
+		"customerId": {
+			"type": "string"
+		},
+		"leadId": {
+			"type": "string"
+		},
+		"salePersonId": {
+			"type": "string"
+		},
+		"orderDate": {
+			"type": "date",
+			"default": "$now"
+		},
+		"roomId": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"W",
+				"E",
+				"B",
+				"C",
+				"T",
+				"O"
+			]
+		},
+		"deposit": {
+			"type": "number"
+		},
+		"paidAmount": {
+			"type": "number"
+		},
+		"commissionAmount": {
+			"type": "number"
+		},
+		"discount": {
+			"type": "number"
+		},
+		"total": {
+			"type": "number"
+		},
+		"groomName": {
+			"type": "string"
+		},
+		"brideName": {
+			"type": "string"
+		},
+		"totalPreventiveBanquet": {
+			"type": "number"
+		},
+		"totalAwardedBanquet": {
+			"type": "number"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "pending",
+			"enum": [
+				"pending",
+				"processing",
+				"shipped",
+				"selivered",
+				"canceled",
+				"completed"
+			]
+		},
+		"note": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"room": {
+			"type": "belongsTo",
+			"model": "Room",
+			"foreignKey": "roomId"
+		},
+		"typeRef": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "type"
+		},
+		"salePerson": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "salePersonId"
+		},
+		"items": {
+			"type": "hasMany",
+			"model": "SaleOrderItem",
+			"foreignKey": "saleOrderId"
+		},
+		"transactions": {
+			"type": "hasMany",
+			"model": "transaction",
+			"foreignKey": "saleOrderId"
+		},
+		"subOrders": {
+			"type": "hasMany",
+			"model": "SaleOrder",
+			"foreignKey": "parentId"
+		},
+		"executedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "executedById"
+		},
+		"vehicle": {
+			"type": "belongsTo",
+			"model": "Vehicle",
+			"foreignKey": "vehicleId"
+		},
+		"rescueTruck": {
+			"type": "belongsTo",
+			"model": "RescueTruck",
+			"foreignKey": "rescueTruckId"
+		},
+		"quotations": {
+			"type": "hasMany",
+			"model": "SaleOrder",
+			"foreignKey": "quoteForSaleOrderId"
+		}
+	}
+}

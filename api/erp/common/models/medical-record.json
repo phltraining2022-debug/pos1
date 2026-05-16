@@ -1,0 +1,94 @@
+{
+  "name": "medicalRecord",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "patientId": {
+      "type": "string"
+    },
+    "doctorId": {
+      "type": "string"
+    },
+    "specializationId": {
+      "type": "string"
+    },
+    "conclusion": {
+      "type": "string"
+    },
+    "record": {
+      "type": "string"
+    },
+    "solution": {
+      "type": "string"
+    },
+    "decided": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "visitId": {
+      "type": "string"
+    },
+    "visit": {
+      "type": "object"
+    },
+    "reVisitDate": {
+      "type": "date"
+    },
+    "diagnosis": {
+      "type": "string"
+    },
+    "prescriptionId": {
+      "type": "string"
+    },
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderId"
+    },
+    "doctor": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "doctorId"
+    },
+    "specialization": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "specializationId"
+    },
+    "prescriptions": {
+      "type": "hasMany",
+      "model": "prescription",
+      "foreignKey": ""
+    },
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    },
+    "visit": {
+      "type": "belongsTo",
+      "model": "visit",
+      "foreignKey": "visitId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

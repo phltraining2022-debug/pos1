@@ -1,0 +1,77 @@
+{
+	"name": "insuranceService",
+	"plural": "insuranceServices",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"companyId": {
+			"type": "string",
+			"required": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"price": {
+			"type": "number",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"insuranceNumber": {
+			"type": "string"
+		},
+		"taxCode": {
+			"type": "string"
+		},
+		"phoneNumber": {
+			"type": "string"
+		},
+		"email": {
+			"type": "string"
+		},
+		"address": {
+			"type": "string"
+		},
+		"district": {
+			"type": "string"
+		},
+		"city": {
+			"type": "string"
+		},
+		"currentDebt": {
+			"type": "number"
+		},
+		"totalInsuranceCost": {
+			"type": "number"
+		},
+		"note": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"insuranceBookings": {
+			"type": "hasMany",
+			"model": "insuranceBooking",
+			"foreignKey": ""
+		},
+		"insuranceCompany": {
+			"type": "belongsTo",
+			"model": "insuranceCompany",
+			"foreignKey": "companyId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,24 @@
+{
+	"name": "Setting",
+	"plural": "settings",
+	"base": "PersistedModel",
+	"properties": {
+		"key": {
+			"type": "string",
+			"required": true
+		},
+		"value": {
+			"type": "object"
+		}
+	},
+	"relations": {
+		"clinic": {
+			"type": "belongsTo",
+			"model": "clinic",
+			"foreignKey": "clinicId"
+		}
+	},
+	"validations": [],
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,44 @@
+var moment = require('moment');
+var app = require('../../server/server');
+var LoopBackContext = require('loopback-context');
+
+module.exports = function (AppModel) {
+    AppModel.observe('before save', function updateCreatedBy(ctx, next) {
+        var ctx_ = LoopBackContext.getCurrentContext();
+	var token = ctx_ && ctx_.get('accessToken');
+        var userId = token && token.userId;
+        var instance = ctx.instance || ctx.data;
+	instance.updatedById = userId;
+        console.log("before save", userId, ctx_);
+	console.log(ctx.Model.modelName);
+        if (ctx.isNewInstance) {
+            instance.createdAt = moment.utc();
+        }	
+        next();
+        
+    });
+
+    AppModel.observe('after save', function updateCreatedBy(ctx, next) {
+        var ctx_ = LoopBackContext.getCurrentContext();
+        var token = ctx_ && ctx_.get('accessToken');
+        var userId = token && token.userId;
+        console.log("after save" , token);
+	next();
+
+    });
+
+    AppModel.observe('access', function logQuery(ctx, next) {
+        var ctx_ = LoopBackContext.getCurrentContext();
+        console.log(ctx_ && ctx_.get('accessToken'));
+        var token = ctx_ && ctx_.get('accessToken');
+        var userId = token && token.userId;
+        const user = userId ? 'user#' + userId : '<anonymous>'
+
+        const modelName = ctx.Model.modelName;
+        const scope = ctx.query.where ? JSON.stringify(ctx.query.where) : '<all records>';
+        console.log('user ', user, modelName);
+        // console.log('%s: %s accessed %s:%s', JSON.stringify(ctx_), new Date(), user, modelName, JSON.stringify(ctx.query) ); 
+        next();
+    });
+
+};

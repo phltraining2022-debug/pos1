@@ -1,0 +1,49 @@
+{
+  "apps": [
+    {
+      "name": "gemini-worker",
+      "script": "./gemini-worker.cjs",
+      "cwd": "/home/ubuntu/staging/erp/ai",
+      "interpreter": "/home/ubuntu/.nvm/versions/node/v18.20.8/bin/node",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": 6379,
+        "GEMINI_API_KEY": ""
+      },
+      "env_production": {
+        "NODE_ENV": "production",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": 6379,
+        "GEMINI_API_KEY": ""
+      },
+      "merge_logs": true,
+      "output": "/home/ubuntu/staging/erp/logs/gemini-worker-out.log",
+      "error": "/home/ubuntu/staging/erp/logs/gemini-worker-err.log",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss Z",
+      "max_memory_restart": "500M",
+      "autorestart": true,
+      "max_restarts": 10,
+      "min_uptime": "10s",
+      "watch": false,
+      "ignore_watch": ["node_modules", "logs"],
+      "max_old_space_size": 512,
+      "node_args": [
+        "--max-old-space-size=512",
+        "--enable-source-maps"
+      ]
+    }
+  ],
+  "deploy": {
+    "production": {
+      "user": "ubuntu",
+      "host": "your_server_ip",
+      "ref": "origin/main",
+      "repo": "git@github.com:your_repo.git",
+      "path": "/home/ubuntu/staging/erp",
+      "post-deploy": "npm install && pm2 reload pm2.json --env production"
+    }
+  }
+}

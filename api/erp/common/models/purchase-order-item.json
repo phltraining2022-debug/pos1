@@ -1,0 +1,44 @@
+{
+	"name": "PurchaseOrderItem",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"purchaseOrderId": {
+			"type": "number",
+			"required": true
+		},
+		"productId": {
+			"type": "number",
+			"required": true
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"price": {
+			"type": "number",
+			"required": true
+		},
+		"subTotal": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"purchaseOrder": {
+			"type": "belongsTo",
+			"model": "PurchaseOrder",
+			"foreignKey": "purchaseOrderId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

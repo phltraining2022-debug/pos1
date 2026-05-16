@@ -1,0 +1,80 @@
+{
+	"name": "MaterialRequestItem",
+	"plural": "MaterialRequestItems",
+	"base": "AppModel",
+	"description": "Individual material item in a material request",
+	"properties": {
+		"materialRequestId": {
+			"type": "string",
+			"required": true,
+			"index": true
+		},
+		"productId": {
+			"type": "string",
+			"required": true,
+			"description": "Material/product ID"
+		},
+		"productName": {
+			"type": "string",
+			"description": "Denormalized product name"
+		},
+		"productCode": {
+			"type": "string",
+			"description": "Denormalized product code"
+		},
+		"requiredQuantity": {
+			"type": "number",
+			"required": true,
+			"default": 0,
+			"description": "Total quantity required"
+		},
+		"availableQuantity": {
+			"type": "number",
+			"default": 0,
+			"description": "Available in stock"
+		},
+		"toPurchase": {
+			"type": "number",
+			"default": 0,
+			"description": "Quantity to purchase"
+		},
+		"uom": {
+			"type": "string",
+			"default": "unit",
+			"description": "Unit of measurement"
+		},
+		"estimatedPrice": {
+			"type": "number",
+			"default": 0,
+			"description": "Estimated unit price"
+		},
+		"subTotal": {
+			"type": "number",
+			"default": 0,
+			"description": "Estimated subtotal (toPurchase * estimatedPrice)"
+		},
+		"suppliers": {
+			"type": "array",
+			"default": [],
+			"description": "Potential suppliers for this material"
+		},
+		"notes": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"materialRequest": {
+			"type": "belongsTo",
+			"model": "MaterialRequest",
+			"foreignKey": "materialRequestId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

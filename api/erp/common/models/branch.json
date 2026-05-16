@@ -1,0 +1,45 @@
+{
+	"name": "Branch",
+	"plural": "Branches",
+	"base": "AppModel",
+	"idInjection": false,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"unique": true
+		},
+		"shortDescription": {
+			"type": "string"
+		},
+		"shortName": {
+			"type": "string"
+		},
+		"code": {
+			"type": "string",
+			"unique": true,
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"abbreviation": {
+			"type": "string"
+		},
+		"state": {
+			"type": "string"
+		},
+		"city": {
+			"type": "string"
+		},
+		"country": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

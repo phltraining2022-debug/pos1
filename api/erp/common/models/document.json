@@ -1,0 +1,39 @@
+{
+	"name": "Document",
+	"plural": "Documents",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"url": {
+			"type": "string"
+		},
+		"path": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string",
+			"enum": ["specifications", "wiringDiagram", "timingBeltChain", "serviceTransmission"] 
+		},
+		"category": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"brand": {
+			"type": "belongsTo",
+			"model": "Brand",
+			"foreignKey": "brandId"
+		},
+		"model": {
+			"type": "belongsTo",
+			"model": "VehicleModel",
+			"foreignKey": "modelId"
+		}
+	}
+}

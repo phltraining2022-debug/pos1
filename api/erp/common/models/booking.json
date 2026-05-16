@@ -1,0 +1,88 @@
+{
+	"name": "Booking",
+	"plural": "bookings",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"roomId": {
+			"type": "string"
+		},
+		"customerId": {
+			"type": "string"
+		},
+		"salePersonId": {
+			"type": "string"
+		},
+		"date": {
+			"type": "date",
+			"required": true
+		},
+		"startTime": {
+			"type": "string",
+			"required": true
+		},
+		"endTime": {
+			"type": "string",
+			"required": true
+		},
+		"note": {
+			"type": "string"
+		},
+		"checkInTime": {
+			"type": "string"
+		},
+		"salespersonId": {
+			"type": "string"
+		},
+		"checkOutTime": {
+			"type": "string"
+		},
+		"total": {
+			"type": "number"
+		},
+		"status": {
+			"type": "string",
+			"default": "pending",
+			"enum": [
+				"Pending",
+				"Confirmed",
+				"Cancelled"
+			]
+		}
+	},
+	"validations": [],
+	"relations": {
+		"room": {
+			"type": "belongsTo",
+			"model": "Room",
+			"foreignKey": "roomId"
+		},
+		"salesperson": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "salespersonId"
+		},
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"deposits": {
+			"type": "hasMany",
+			"model": "transaction",
+			"foreignKey": "bookingId"
+		}, 
+		"saleOrders": {
+			"type": "hasMany",
+			"model": "SaleOrder",
+			"foreignKey": "bookingId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

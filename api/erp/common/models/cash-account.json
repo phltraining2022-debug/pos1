@@ -1,0 +1,27 @@
+{
+	"name": "CashAccount",
+	"plural": "CashAccounts",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"balance": {
+			"type": "number",
+			"required": true,
+			"default": 0
+		}
+	},
+	"validations": [],
+	"relations": {
+		"transactions": {
+			"type": "hasMany",
+			"model": "Transaction",
+			"foreignKey": "accountId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

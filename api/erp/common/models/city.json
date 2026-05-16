@@ -1,0 +1,12 @@
+{
+	"name": "City",
+	"plural": "Cities",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		}
+	}
+}

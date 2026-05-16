@@ -1,0 +1,49 @@
+{
+	"name": "Inventory",
+	"plural": "Inventories",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"name": {
+			"type": "string"
+		},
+		"unit": {
+			"type": "string"
+		},
+		"productId": {
+			"type": "string",
+			"required": true
+		},
+		"warehouseId": {
+			"type": "string"
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"updatedAt": {
+			"type": "date",
+			"defaultFn": "now"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

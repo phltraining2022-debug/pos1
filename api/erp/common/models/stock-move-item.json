@@ -1,0 +1,53 @@
+{
+	"name": "StockMoveItem",
+	"plural": "StockMoveItems",
+	"base": "AppModel",
+	"properties": {
+		"stockMoveId": {
+			"type": "string",
+			"required": true
+		},
+		"productId": {
+			"type": "string",
+			"required": true,
+			"index": true
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"price": {
+			"type": "number"
+		},
+		"buyingPrice": {
+			"type": "number"
+		},
+		"subTotal": {
+			"type": "number"
+		},
+		"warehouseId": {
+			"type": "string",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"stockMove": {
+			"type": "belongsTo",
+			"model": "StockMove",
+			"foreignKey": "stockMoveId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

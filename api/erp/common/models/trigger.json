@@ -1,0 +1,31 @@
+{
+	"name": "Trigger","plural": "Triggers",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"filter": {
+			"type": "object"
+		},
+		"code": {
+			"type": "string"
+		},
+		"targets": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"template": {
+			"type": "belongsTo",
+			"model": "Template",
+			"foreignKey": "templateId"
+		},
+		"cfg": {
+			"type": "belongsTo",
+			"model": "Cfg",
+			"foreignKey": "cfgId"
+		}
+	}
+}

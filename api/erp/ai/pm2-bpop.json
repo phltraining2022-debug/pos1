@@ -1,0 +1,29 @@
+{
+  "apps": [
+    {
+      "name": "gemini-worker-brpop",
+      "script": "./worker-brpop.cjs",
+      "cwd": "/home/ubuntu/staging/erp/ai",
+      "interpreter": "/home/ubuntu/.nvm/versions/node/v18.20.8/bin/node",
+      "exec_mode": "fork",
+      "instances": 1,
+      "autorestart": true,
+      "watch": false,
+      "max_memory_restart": "512M",
+      "env": {
+        "NODE_ENV": "production",
+        "MOCK_GENAI": "0",
+        "REDIS_HOST": "127.0.0.1",
+        "REDIS_PORT": "6379",
+        "GOOGLE_CLOUD_LOCATION": "us-central1"
+      },
+      "env_development": {
+        "NODE_ENV": "development",
+        "MOCK_GENAI": "1",
+        "REDIS_HOST": "127.0.0.1",
+        "REDIS_PORT": "6379",
+        "GOOGLE_CLOUD_LOCATION": "us-central1"
+      }
+    }
+  ]
+}

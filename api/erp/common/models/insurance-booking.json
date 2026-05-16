@@ -1,0 +1,46 @@
+{
+  "name": "insuranceBooking",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "bookedDate": {
+      "type": "date",
+      "required": true
+    },
+    "serviceId": {
+      "type": "string",
+      "required": true
+    },
+    "note": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "userId"
+    },
+    "insuranceService": {
+      "type": "belongsTo",
+      "model": "insuranceService",
+      "foreignKey": "serviceId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

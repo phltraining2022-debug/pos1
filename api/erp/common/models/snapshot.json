@@ -1,0 +1,34 @@
+{
+	"name": "Snapshot",
+	"plural": "Snapshots",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"recordDate": {
+			"type": "date",
+			"required": true
+		},
+		"mode": {
+			"type": "string",
+			"required": false
+		},
+		"partIndex": {
+			"type": "number",
+			"required": false
+		},
+		"data": {
+			"type": "object",
+			"required": true
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

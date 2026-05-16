@@ -1,0 +1,59 @@
+{
+	"name": "LeaveRequest",
+	"base": "AppModel",
+	"plural": "LeaveRequests",
+	"properties": {
+		"leaveType": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"Annual Leave",
+				"Sick Leave",
+				"Maternity Leave",
+				"Paternity Leave",
+				"Parental Leave",
+				"Bereavement Leave",
+				"Personal Leave",
+				"Unpaid Leave",
+				"Study Leave",
+				"Public Holiday",
+				"Other"
+			]
+		},
+		"startDate": {
+			"type": "date",
+			"required": true
+		},
+		"endDate": {
+			"type": "date",
+			"required": true
+		},
+		"reason": {
+			"type": "string",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"Pending",
+				"Approved",
+				"Rejected",
+				"Canceled"
+			],
+			"default": "pending"
+		}
+	},
+	"relations": {
+		"user": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "userId"
+		},
+		"employee": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "employeeId"
+		}
+	}
+}

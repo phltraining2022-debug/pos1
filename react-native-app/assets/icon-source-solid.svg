@@ -1,0 +1,71 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Solid white background (no alpha) -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+  
+  <!-- Blue gradient background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E3A8A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0F172A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="1024" height="1024" fill="url(#bgGradient)"/>
+  
+  <!-- POS Machine body (light gray) -->
+  <rect x="200" y="180" width="624" height="520" rx="20" fill="#E5E7EB"/>
+  
+  <!-- Screen area (dark background) -->
+  <rect x="240" y="220" width="544" height="280" rx="12" fill="#1F2937"/>
+  
+  <!-- Screen with green success indicator -->
+  <defs>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.9" />
+    </linearGradient>
+  </defs>
+  <rect x="250" y="230" width="524" height="260" rx="8" fill="url(#screenGrad)"/>
+  
+  <!-- Checkmark on screen -->
+  <g transform="translate(512, 360)">
+    <circle cx="0" cy="0" r="45" fill="white" opacity="0.2"/>
+    <path d="M -25 0 L -5 20 L 25 -15" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Keypad area -->
+  <rect x="240" y="520" width="544" height="140" rx="12" fill="#D1D5DB"/>
+  
+  <!-- Keypad buttons (4x3 grid) -->
+  <g id="keypad">
+    <!-- Row 1 -->
+    <rect x="280" y="540" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    <rect x="350" y="540" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    <rect x="420" y="540" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    <rect x="490" y="540" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    
+    <!-- Row 2 -->
+    <rect x="280" y="590" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    <rect x="350" y="590" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    <rect x="420" y="590" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    <rect x="490" y="590" width="45" height="35" rx="4" fill="#9CA3AF"/>
+    
+    <!-- Row 3 -->
+    <rect x="280" y="640" width="45" height="35" rx="4" fill="#10B981"/>
+    <rect x="350" y="640" width="45" height="35" rx="4" fill="#10B981"/>
+    <rect x="420" y="640" width="45" height="35" rx="4" fill="#10B981"/>
+    <rect x="490" y="640" width="45" height="35" rx="4" fill="#10B981"/>
+  </g>
+  
+  <!-- Receipt paper coming out -->
+  <rect x="580" y="600" width="80" height="120" rx="4" fill="#F3F4F6"/>
+  <line x1="590" y1="620" x2="650" y2="620" stroke="#9CA3AF" stroke-width="2"/>
+  <line x1="590" y1="640" x2="650" y2="640" stroke="#9CA3AF" stroke-width="2"/>
+  <line x1="590" y1="660" x2="650" y2="660" stroke="#9CA3AF" stroke-width="2"/>
+  <line x1="590" y1="680" x2="650" y2="680" stroke="#9CA3AF" stroke-width="2"/>
+  
+  <!-- Top branding area -->
+  <text x="512" y="110" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="white">KARA</text>
+  <text x="512" y="150" font-family="Arial, sans-serif" font-size="32" text-anchor="middle" fill="#10B981">POS</text>
+</svg>

@@ -1,0 +1,35 @@
+{
+    "name": "ComponentIngredient",
+    "plural": "ComponentIngredients",
+    "base": "AppModel",
+    "idInjection": true,
+    "properties": {
+      "quantity": {
+        "type": "number"
+      },
+      "unit": {
+        "type": "string"
+      }
+    },
+    "validations": [],
+    "relations": {
+      "dish": {
+        "type": "belongsTo",
+        "model": "Dish",
+        "foreignKey": "dishId"
+      },
+      "parentIngredient": {
+        "type": "belongsTo",
+        "model": "Ingredient",
+        "foreignKey": "parentIngredientId"
+      },
+      "ingredient": {
+        "type": "belongsTo",
+        "model": "Ingredient",
+        "foreignKey": "ingredientId"
+      }
+    },
+    "acls": [],
+    "methods": {}
+  }
+  

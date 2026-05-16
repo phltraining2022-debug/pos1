@@ -1,0 +1,57 @@
+{
+  "name": "servicePackage",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "fromDate": {
+      "type": "date"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "price": {
+      "type": "number",
+      "required": true
+    },
+    "content": {
+      "type": "string"
+    },
+    "services": {
+      "type": [
+        "string"
+      ],
+      "required": true
+    },
+    "clinicId": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "clinic": {
+      "type": "belongsTo",
+      "model": "clinic",
+      "foreignKey": "clinicId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

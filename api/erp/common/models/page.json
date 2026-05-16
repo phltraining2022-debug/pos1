@@ -1,0 +1,66 @@
+{
+	"name": "Page",
+	"plural": "Pages",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"content": {
+			"type": "string"
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"header": {
+			"type": "string"
+		},
+		"footer": {
+			"type": "string"
+		},
+		"subject": {
+			"type": "string"
+		},
+		"category": {
+			"type": "string"
+		},
+		"css": {
+			"type": "string"
+		},
+		"dataBlocks": {
+			"type": "array"
+		},
+		"printOptions": {
+			"type": "object"
+		},
+		"slug": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"refBlocks": {
+			"type": "referencesMany",
+			"model": "Block",
+			"foreignKey": "refBlockIds"
+		},
+		"template": {
+			"type": "belongsTo",
+			"model": "Template",
+			"foreignKey": "templateId"
+		},
+		"base": {
+			"type": "belongsTo",
+			"model": "Page",
+			"foreignKey": "baseId"
+		}
+	},
+	"url": "`/${slug}`",
+	"acls": [],
+	"methods": {}
+}

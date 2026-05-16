@@ -1,0 +1,84 @@
+{
+  "name": "ProductionItem",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "productionOrderId": {
+      "type": "string",
+      "required": true,
+      "index": true,
+      "description": "Reference to ProductionOrder"
+    },
+    "productId": {
+      "type": "string",
+      "required": true,
+      "description": "Product/dish to produce"
+    },
+    "productName": {
+      "type": "string",
+      "description": "Denormalized product name for display"
+    },
+    "quantity": {
+      "type": "number",
+      "required": true,
+      "default": 0,
+      "description": "Quantity to produce"
+    },
+    "producedQuantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantity already produced"
+    },
+    "unit": {
+      "type": "string",
+      "default": "portion",
+      "description": "Unit of measurement (portion, kg, etc.)"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "pending",
+      "enum": ["pending", "in_progress", "completed", "cancelled"],
+      "description": "Item production status"
+    },
+    "startedAt": {
+      "type": "date",
+      "description": "When production started"
+    },
+    "completedAt": {
+      "type": "date",
+      "description": "When production completed"
+    },
+    "assignedTo": {
+      "type": "string",
+      "description": "Chef/station assigned to this item"
+    },
+    "priority": {
+      "type": "number",
+      "default": 0,
+      "description": "Production priority (higher = produce first)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Special instructions or notes"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "productionOrder": {
+      "type": "belongsTo",
+      "model": "ProductionOrder",
+      "foreignKey": "productionOrderId"
+    },
+    "product": {
+      "type": "belongsTo",
+      "model": "Product",
+      "foreignKey": "productId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

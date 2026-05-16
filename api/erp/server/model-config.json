@@ -1,0 +1,869 @@
+{
+	"_meta": {
+		"sources": [
+			"loopback/common/models",
+			"loopback/server/models",
+			"../common/models",
+			"./models",
+			"../node_modules/loopback-component-passport/lib/models"
+		],
+		"mixins": [
+			"loopback/common/mixins",
+			"loopback/server/mixins",
+			"../common/mixins",
+			"./mixins"
+		]
+	},
+	"Sample": {
+		"dataSource": "db",
+		"public": true
+	},
+	"AccessToken": {
+		"dataSource": "db",
+		"public": true
+	},
+	"userCredential": {
+		"dataSource": "db",
+		"public": true
+	},
+	"userIdentity": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ACL": {
+		"dataSource": "db",
+		"public": false
+	},
+	"PersistedModel": {
+		"dataSource": "db",
+		"public": false
+	},
+	"RoleMapping": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Role": {
+		"dataSource": "db",
+		"public": true
+	},
+	"AppModel": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Setting": {
+		"dataSource": "db",
+		"public": true
+	},
+	"AuthProvider": {
+		"dataSource": "db",
+		"public": true
+	},
+	"user": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Meta": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Level": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Email": {
+		"dataSource": "mailgun",
+		"public": false
+	},
+	"clinic": {
+		"dataSource": "db",
+		"public": true
+	},
+	"container": {
+		"dataSource": "storage",
+		"public": true
+	},
+	"labConfiguration": {
+		"dataSource": "db",
+		"public": true
+	},
+	"company": {
+		"dataSource": "db",
+		"public": true
+	},
+	"testSet": {
+		"dataSource": "db",
+		"public": true
+	},
+	"test": {
+		"dataSource": "db",
+		"public": true
+	},
+	"patient": {
+		"dataSource": "db",
+		"public": true
+	},
+	"healthCheckUp": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Appointment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Vehicle": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SysCfg": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Cfg": {
+		"dataSource": "db",
+		"public": true
+	},
+	"NumericCfg": {
+		"dataSource": "db",
+		"public": true
+	},
+	"insuranceCompany": {
+		"dataSource": "db",
+		"public": true
+	},
+	"medicine": {
+		"dataSource": "db",
+		"public": true
+	},
+	"prescription": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Service": {
+		"dataSource": "db",
+		"public": true
+	},
+	"servicePackage": {
+		"dataSource": "db",
+		"public": true
+	},
+	"notification": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Promotion": {
+		"dataSource": "db",
+		"public": true
+	},
+	"order": {
+		"dataSource": "db",
+		"public": true
+	},
+	"medicalRecord": {
+		"dataSource": "db",
+		"public": true
+	},
+	"testResult": {
+		"dataSource": "db",
+		"public": true
+	},
+	"workingSchedule": {
+		"dataSource": "db",
+		"public": true
+	},
+	"userOffTime": {
+		"dataSource": "db",
+		"public": true
+	},
+	"location": {
+		"dataSource": "db",
+		"public": true
+	},
+	"cooperation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"insuranceService": {
+		"dataSource": "db",
+		"public": true
+	},
+	"insuranceBooking": {
+		"dataSource": "db",
+		"public": true
+	},
+	"insuranceCard": {
+		"dataSource": "db",
+		"public": true
+	},
+	"family": {
+		"dataSource": "db",
+		"public": true
+	},
+	"card": {
+		"dataSource": "db",
+		"public": true
+	},
+	"patientCard": {
+		"dataSource": "db",
+		"public": true
+	},
+	"patientGroup": {
+		"dataSource": "db",
+		"public": true
+	},
+	"price": {
+		"dataSource": "db",
+		"public": true
+	},
+	"transaction": {
+		"dataSource": "db",
+		"public": true
+	},
+	"orderItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"bank": {
+		"dataSource": "db",
+		"public": true
+	},
+	"bankAccount": {
+		"dataSource": "db",
+		"public": true
+	},
+	"visit": {
+		"dataSource": "db",
+		"public": true
+	},
+	"shift": {
+		"dataSource": "db",
+		"public": true
+	},
+	"warehouseItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Supplier": {
+		"dataSource": "db",
+		"public": true
+	},
+	"import": {
+		"dataSource": "db",
+		"public": true
+	},
+	"importItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"export": {
+		"dataSource": "db",
+		"public": true
+	},
+	"exportItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"DTBHHistory": {
+		"dataSource": "db",
+		"public": true
+	},
+	"shiftLocation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"paymentRequest": {
+		"dataSource": "db",
+		"public": true
+	},
+	"dateShift": {
+		"dataSource": "db",
+		"public": true
+	},
+	"monthShift": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Template": {
+		"dataSource": "db",
+		"public": true
+	},
+	"transferHistory": {
+		"dataSource": "db",
+		"public": true
+	},
+	"article": {
+		"dataSource": "db",
+		"public": true
+	},
+	"station": {
+		"dataSource": "db",
+		"public": true
+	},
+	"message": {
+		"dataSource": "db",
+		"public": true
+	},
+	"contract": {
+		"dataSource": "db",
+		"public": true
+	},
+	"installation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"package": {
+		"dataSource": "db",
+		"public": true
+	},
+	"medicalQuestion": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Ticket": {
+		"dataSource": "db",
+		"public": true
+	},
+	"log": {
+		"dataSource": "db",
+		"public": true
+	},
+	"attachment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"insurancePackage": {
+		"dataSource": "db",
+		"public": true
+	},
+	"questionAnswer": {
+		"dataSource": "db",
+		"public": true
+	},
+	"employment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"orderArticle": {
+		"dataSource": "db",
+		"public": true
+	},
+	"blackList": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ipNotification": {
+		"dataSource": "db",
+		"public": true
+	},
+	"queueCard": {
+		"dataSource": "db",
+		"public": true
+	},
+	"contractSideApp": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Customer": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Room": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Booking": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Employee": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ProductCategory": {
+		"dataSource": "db",
+		"public": true
+	},
+	"PurchaseOrder": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Brand": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SaleOrder": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Deposit": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Payment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Product": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SupplierInvoice": {
+		"dataSource": "db",
+		"public": true
+	},
+	"PurchaseRequest": {
+		"dataSource": "db",
+		"public": true
+	},
+	"PurchaseRequestItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"UOM": {
+		"dataSource": "db",
+		"public": true
+	},
+	"WarehouseLocation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Inventory": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Department": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ProductionPlan": {
+		"dataSource": "db",
+		"public": true
+	},
+	"LeaveRequest": {
+		"dataSource": "db",
+		"public": true
+	},
+	"BOMComponent": {
+		"dataSource": "db",
+		"public": true
+	},
+	"BOM": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SaleOrderItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"WorkOrder": {
+		"dataSource": "db",
+		"public": true
+	},
+	"JobCard": {
+		"dataSource": "db",
+		"public": true
+	},
+	"WorkStation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Operation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockEntry": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockMove": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockMoveItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Routing": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Project": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Task": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Comment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockCountItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockCount": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StockAdjustment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Warehouse": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SaleOrderServiceItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Lead": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ServiceCategory": {
+		"dataSource": "db",
+		"public": true
+	},
+	"MedicalHistoryAnswer": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Mail": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Account": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Invoice": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Expense": {
+		"dataSource": "db",
+		"public": true
+	},
+	"School": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Course": {
+		"dataSource": "db",
+		"public": true
+	},
+	"State": {
+		"dataSource": "db",
+		"public": true
+	},
+	"News": {
+		"dataSource": "db",
+		"public": true
+	},
+	"City": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Media": {
+		"dataSource": "db",
+		"public": true
+	},
+	"EventNews": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Branch": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Reminder": {
+		"dataSource": "db",
+		"public": true
+	},
+	"CallLog": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Campaign": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ScholarshipNews": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StudentApplication": {
+		"dataSource": "db",
+		"public": true
+	},
+	"EmailTemplate": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SMSTemplate": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Event": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Content": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Block": {
+		"dataSource": "db",
+		"public": true
+	},
+	"TemplateBlock": {
+		"dataSource": "db",
+		"public": true
+	},
+	"UserSetting": {
+		"dataSource": "db",
+		"public": true
+	},
+	"TestimonialNews": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Todo": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Filter": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Major": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ArchivedObj": {
+		"dataSource": "db",
+		"public": true
+	},
+	"DeletedObj": {
+		"dataSource": "db",
+		"public": true
+	},
+	"BackgroundJob": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Material": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Quotation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Dish": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Ingredient": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ComponentIngredient": {
+		"dataSource": "db",
+		"public": true
+	},
+	"SubAgent": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Subscriber": {
+		"dataSource": "db",
+		"public": true
+	},
+	"LocationLog": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Disease": {
+		"dataSource": "db",
+		"public": true
+	},
+	"VehicleModel": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Trigger": {
+		"dataSource": "db",
+		"public": true
+	},
+	"VehicleProduct": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Post": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Like": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Document": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Question": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Rate": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Video": {
+		"dataSource": "db",
+		"public": true
+	},
+	"LeadPromotion": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Payroll": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Quote": {
+		"dataSource": "db",
+		"public": true
+	},
+	"PrintJob": {
+		"dataSource": "db",
+		"public": true
+	},
+	"CashAccount": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Prompt": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Warranty": {
+		"dataSource": "db",
+		"public": true
+	},
+	"WarrantyItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"NCfg": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Tracking": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Collection": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Note": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Config": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Page": {
+		"dataSource": "db",
+		"public": true
+	},
+	"PayrollPeriod": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Payslip": {
+		"dataSource": "db",
+		"public": true
+	},
+	"PayslipItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ProductionBatch": {
+		"dataSource": "db",
+		"public": true
+	},
+	"MembershipTier": {
+		"dataSource": "db",
+		"public": true
+	},
+	"RedemptionCode": {
+		"dataSource": "db",
+		"public": true
+	},
+	"LeadCampaign": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Asset": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ProductionOrder": {
+		"dataSource": "db",
+		"public": true
+	},
+	"ProductionItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"EventStaff": {
+		"dataSource": "db",
+		"public": true
+	},
+	"StaffAssignment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"EventShift": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Snapshot": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Translation": {
+		"dataSource": "db",
+		"public": true
+	},
+	"MaterialRequest": {
+		"dataSource": "db",
+		"public": true
+	},
+	"MaterialRequestItem": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Report": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Equipment": {
+		"dataSource": "db",
+		"public": true
+	},
+	"Attendance": {
+		"dataSource": "db",
+		"public": true
+	}
+}

@@ -1,0 +1,47 @@
+{
+  "name": "queueCard",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "checkedInAt": {
+      "type": "date"
+    },
+    "proposedTime": {
+      "type": "date"
+    },
+    "stationId": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "patientId": {
+      "type": "string",
+      "required": true
+    },
+    "appointmentId": {
+      "type": "string",
+      "required": true
+    },
+    "visitId": {
+      "type": "string",
+      "required": true
+    },
+    "number": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,140 @@
+[{
+  "_id": "03 luxury",
+  "name": "03 LUXURY",
+  "code": "03_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:57:53.461Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:57:53.461Z"
+  }
+},
+{
+  "_id": "05 luxury",
+  "name": "05 LUXURY",
+  "code": "05_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:59:10.515Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:59:10.515Z"
+  }
+},
+{
+  "_id": "04 luxury",
+  "name": "04 LUXURY",
+  "code": "04_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:59:11.672Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:59:11.672Z"
+  }
+},
+{
+  "_id": "06 luxury",
+  "name": "06 LUXURY",
+  "code": "06_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:59:12.376Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:59:12.376Z"
+  }
+},
+{
+  "_id": "02 luxury",
+  "name": "02 LUXURY",
+  "code": "02_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:59:13.569Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:59:13.569Z"
+  }
+},
+{
+  "_id": "01 luxury",
+  "name": "01 LUXURY",
+  "code": "01_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:59:16.674Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:59:16.674Z"
+  }
+},
+{
+  "_id": "07 luxury",
+  "name": "07 LUXURY",
+  "code": "07_luxury",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T05:59:18.905Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T05:59:18.905Z"
+  }
+},
+{
+  "_id": "phòng vip 1",
+  "name": "Phòng VIP 1",
+  "code": "ph_ng_vip_1",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T09:47:03.947Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:03.947Z"
+  }
+},
+{
+  "_id": "phòng vip 7",
+  "name": "Phòng VIP 7",
+  "code": "ph_ng_vip_7",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T09:47:05.564Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:05.564Z"
+  }
+},
+{
+  "_id": "luxury vip 008",
+  "name": "LUXURY Vip 008",
+  "code": "luxury_vip_008",
+  "type": "room",
+  "status": "available",
+  "images": [],
+  "createdAt": {
+    "$date": "2026-01-01T09:47:43.016Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:47:43.016Z"
+  }
+}]

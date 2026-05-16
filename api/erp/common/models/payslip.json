@@ -1,0 +1,46 @@
+{
+  "name": "Payslip",
+  "base": "AppModel",
+  "plural": "Payslips",
+  "properties": {
+    "employeeId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "payrollId": {
+      "type": "string"
+    },
+    "totalEarnings": {
+      "type": "number",
+      "default": 0
+    },
+    "totalDeductions": {
+      "type": "number",
+      "default": 0
+    },
+    "netPay": {
+      "type": "number",
+      "default": 0
+    },
+    "payslipItems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "relations": {
+    "payroll": {
+      "type": "belongsTo",
+      "model": "Payroll",
+      "foreignKey": "payrollId"
+    },
+    "user": {
+      "type": "belongsTo",
+      "model": "User",
+      "foreignKey": "userId"
+    }
+  }
+}

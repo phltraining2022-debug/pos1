@@ -1,0 +1,75 @@
+{
+	"name": "VehicleModel",
+	"plural": "VehicleModels",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true, 
+			"description": "Tên của mẫu xe"
+		},
+		"year": {
+			"type": "string",
+			"description": "Năm sản xuất của mẫu xe",
+			"required": true 
+		},
+		"engineType": {
+			"type": "string",
+			"description": "Loại động cơ (ví dụ: diesel, xăng, điện)"
+		},
+		"transmission": {
+			"type": "string",
+			"description": "Loại hộp số (ví dụ: tự động, sàn)"
+		},
+		"fuelType": {
+			"type": "string",
+			"description": "Loại nhiên liệu",
+			"enum": [
+				"xăng",
+				"diesel",
+				"điện",
+				"lai",
+				"hydro"
+			]
+		},
+		"seatingCapacity": {
+			"type": "number",
+			"description": "Số lượng chỗ ngồi trong xe"
+		},
+		"horsepower": {
+			"type": "number",
+			"description": "Công suất động cơ tính bằng mã lực (HP)"
+		},
+		"torque": {
+			"type": "string",
+			"description": "Mô-men xoắn của động cơ tính bằng Nm"
+		},
+		"capacity": {
+			"type": "string",
+			"description": "Dung tích động cơ tính bằng lít"
+		},
+		"wiredPdf": {
+			"type": "string",
+			"description": "URL hoặc đường dẫn tệp PDF cho tài liệu hệ thống điện"
+		},
+		"mechanicPdf": {
+			"type": "string",
+			"description": "URL hoặc đường dẫn tệp PDF cho tài liệu cơ khí"
+		}
+	},
+	"relations": {
+		"brand": {
+			"type": "belongsTo",
+			"model": "Brand",
+			"foreignKey": "brandId"
+		},
+		"products": {
+			"type": "hasMany",
+			"model": "Product",
+			"through": "VehicleProduct",
+			"foreignKey": "vehicleModelId",
+			"keyThrough": "productId"
+		}
+	}
+}

@@ -1,0 +1,34 @@
+{
+	"name": "Content",
+	"base": "AppModel",
+	"properties": {
+		"title": {
+			"type": "string",
+			"required": true
+		},
+		"content": {
+			"type": "string",
+			"required": true
+		},
+		"files": {
+			"type": "array"
+		},
+		"author": {
+			"type": "string"
+		},
+		"isPublished": {
+			"type": "boolean",
+			"default": false
+		},
+		"publishedFrom": {
+			"type": "date"
+		},
+		"publishedTo": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

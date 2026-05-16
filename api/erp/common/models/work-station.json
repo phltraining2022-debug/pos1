@@ -1,0 +1,53 @@
+{
+	"name": "WorkStation",
+	"plural": "WorkStations",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string",
+			"format": "textarea"
+		},
+		"type": {
+			"type": "string",
+			"required": true,
+			"enum": [
+				"Gas Stove",
+				"Oven",
+				"Mixing Station",
+				"Packaging Station",
+				"Quality Control"
+			]
+		},
+		"capacity": {
+			"type": "number",
+			"default": 1
+		},
+		"electricityCost": {
+			"type": "number"
+		},
+		"rentCost": {
+			"type": "number"
+		},
+		"consumableCost": {
+			"type": "number"
+		},
+		"wages": {
+			"type": "number"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"routings": {
+			"type": "hasMany",
+			"model": "Routing",
+			"foreignKey": "workStationId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,48 @@
+{
+	"name": "AppModel",
+	"base": "PersistedModel",
+	"properties": {
+		"createdAt": {
+			"type": "date",
+			 "defaultFn": "now"
+		},
+		"updatedAt": {
+			"type": "date"
+		},
+		"createdById": {
+			"type": "string"
+		},
+		"isActive": {
+			"type": "boolean",
+			"default": true
+		},
+		"clinicId": {
+			"type": "string"
+        }
+	},
+	"validations": [],
+	"relations": {
+		"deletedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "deletedById"
+		},
+		"createdBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "createdById"
+		},
+		"updatedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "updatedById"
+		}
+	},
+	"acls": [],
+	"methods": {},
+	"scope": {
+		"deletedById": {
+			"exists": false
+		}
+	}
+}

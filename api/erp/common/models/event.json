@@ -1,0 +1,70 @@
+{
+	"name": "Event",
+	"plural": "Events",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"isFeatured": {
+			"type": "boolean"
+		},
+		"isHot": {
+			"type": "boolean"
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"dateStart": {
+			"type": "date"
+		},
+		"dateEnd": {
+			"type": "date"
+		},
+		"image": {
+			"type": "string"
+		},
+		"slug": {
+			"type": "string",
+			"unique": true
+		},
+		"cities": {
+			"type": "array"
+		},
+		"description": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"online",
+				"offline"
+			]
+		}
+	},
+	"scope": {
+		"include": [
+			"refBlocks"
+		]
+	},
+	"relations": {
+		"location": {
+			"type": "referencesMany",
+			"model": "location",
+			"foreignKey": "locationIds"
+		},
+		"institutions": {
+			"type": "referencesMany",
+			"model": "School",
+			"foreignKey": "institutionIds"
+		},
+		"refBlocks": {
+			"type": "referencesMany",
+			"model": "Block",
+			"foreignKey": "refBlockIds"
+		}
+	},
+	"url": "`/events/${slug}`"
+}

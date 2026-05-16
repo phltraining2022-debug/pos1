@@ -1,0 +1,58 @@
+{
+  "name": "installation",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "deviceToken": {
+      "type": "string",
+      "required": true
+    },
+    "appId": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string"
+    },
+    "tokenType": {
+      "type": "string"
+    },
+    "deviceName": {
+      "type": "string"
+    },
+    "osVersion": {
+      "type": "string",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "lastLog": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "userId"
+    },
+    "staff": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

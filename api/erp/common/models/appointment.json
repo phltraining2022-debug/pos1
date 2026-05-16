@@ -1,0 +1,112 @@
+{
+	"name": "Appointment",
+	"plural": "Appointments",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"startTime": {
+			"type": "date",
+			"required": true
+		},
+		"endTime": {
+			"type": "date"
+		},
+		"checkInTime": {
+			"type": "date",
+			"description": "Time when the customer checks in for the appointment"
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "scheduled",
+			"description": "e.g., scheduled, in-progress, completed, cancelled",
+			"enum": [
+				"scheduled",
+				"in-progress",
+				"completed",
+				"cancelled"
+			]
+		},
+		"appointmentType": {
+			"type": "string",
+			"required": true,
+			"description": "Type of appointment (e.g., regular service, repair, inspection)"
+		},
+		"serviceItems": {
+			"type": [
+				{
+					"serviceId": "string",
+					"quantity": "number",
+					"price": "number",
+					"discount": "number",
+					"subTotal": "number"
+				}
+			],
+			"default": []
+		},
+		"productItems": {
+			"type": [
+				{
+					"itemId": "string",
+					"quantity": "number",
+					"price": "number",
+					"discount": "number",
+					"subTotal": "number"
+				}
+			],
+			"default": []
+		},
+		"totalAmount": {
+			"type": "number",
+			"required": true,
+			"description": "Total cost of the appointment, including services and products"
+		},
+		"notes": {
+			"type": "string",
+			"description": "Additional notes about the appointment"
+		},
+		"customerNotified": {
+			"type": "boolean",
+			"default": false,
+			"description": "Indicates if the customer has been notified about the appointment"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"vehicle": {
+			"type": "belongsTo",
+			"model": "Vehicle",
+			"foreignKey": "vehicleId"
+		},
+		"mechanic": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "mechanicId"
+		},
+		"user": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "userId"
+		},
+		"services": {
+			"type": "referencesMany",
+			"model": "Service"
+		},
+		"items": {
+			"type": "referencesMany",
+			"model": "Product"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

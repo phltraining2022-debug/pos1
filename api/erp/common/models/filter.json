@@ -1,0 +1,25 @@
+{
+	"name": "Filter",
+	"plural": "Filters",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"model": {
+			"type": "object"
+		},
+		"ownerEmployeeId": {
+			"type": "string"
+		},
+		"queryOptions": {
+			"type": "object"
+		},
+		"moreFilterInitialValue": {
+			"type": "object"
+		}
+	},
+	"relations": {}
+}

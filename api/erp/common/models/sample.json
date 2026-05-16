@@ -1,0 +1,101 @@
+{
+  "name": "Sample",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "orderIds": {
+      "type": "string",
+      "required": true
+    },
+    "refOrderId": {
+      "type": "string",
+      "required": true
+    },
+    "orderItemIds": {
+      "type": []
+    },
+    "collectedAt": {
+      "type": "date"
+    },
+    "collectLaterAt": {
+      "type": "date"
+    },
+    "cancelledAt": {
+      "type": "date"
+    },
+    "collectedBy": {
+      "type": "string"
+    },
+    "receivedAt": {
+      "type": "date"
+    },
+    "receivedBy": {
+      "type": "string"
+    },
+    "refusedAt": {
+      "type": "date"
+    },
+    "refusedBy": {
+      "type": "string"
+    },
+    "searchPatientDOB": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "collectedBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "collectedBy"
+    },
+    "refusedBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "refusedBy"
+    },
+    "receivedBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "receivedBy"
+    },
+    "orderItems": {
+      "type": "hasOne",
+      "model": "orderItem",
+      "foreignKey": "orderItemIds"
+    },
+    "visit":{
+       "type": "belongsTo",
+      "model": "visit",
+      "foreignKey": "visitId"
+    },
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderIds"
+    },
+    "refOrder": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "refOrderId"
+    },
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,27 @@
+{
+	"name": "EmailTemplate",
+	"plural": "EmailTemplates",
+	"base": "AppModel",
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"subject": {
+			"type": "string",
+			"required": true
+		},
+		"body": {
+			"type": "string",
+			"required": true
+		},
+		"variables": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

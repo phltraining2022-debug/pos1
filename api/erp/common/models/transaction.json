@@ -1,0 +1,128 @@
+{
+	"name": "transaction",
+	"plural": "transactions",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"orderId": {
+			"type": "string"
+		},
+		"clinicId": {
+			"type": "string"
+		},
+		"leadId": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"createdById": {
+			"type": "string"
+		},
+		"requestedAmount": {
+			"type": "number"
+		},
+		"amount": {
+			"type": "number"
+		},
+		"amountPoint": {
+			"type": "number"
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"pay",
+				"deposit",
+				"refund",
+				"redemption",
+				"withdrawal",
+				"referral"
+			]
+		},
+		"method": {
+			"type": "string",
+			"enum": [
+				"bank-transfer",
+				"cash"
+			]
+		},
+		"saleOrderId": {
+			"type": "string"
+		},
+		"customerId": {
+			"type": "string"
+		},
+		"transactionDate": {
+			"type": "date",
+			"default": "$now"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"pending",
+				"completed",
+				"cancelled",
+				"failed"
+			],
+			"default": "pending"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"order": {
+			"type": "belongsTo",
+			"model": "order",
+			"foreignKey": "orderId"
+		},
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"clinic": {
+			"type": "belongsTo",
+			"model": "clinic",
+			"foreignKey": "clinicId"
+		},
+		"createdBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "createdById"
+		},
+		"staff": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "employeeId"
+		},
+		"lead": {
+			"type": "belongsTo",
+			"model": "Lead",
+			"foreignKey": "leadId"
+		},
+		"booking": {
+			"type": "belongsTo",
+			"model": "Booking",
+			"foreignKey": "bookingId"
+		},
+		"contract": {
+			"type": "belongsTo",
+			"model": "Contract",
+			"foreignKey": "contractId"
+		},
+		"supplier": {
+			"type": "belongsTo",
+			"model": "Supplier",
+			"foreignKey": "supplierId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

@@ -1,0 +1,61 @@
+{
+  "name": "insuranceCard",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "companyId": {
+      "type": "string",
+      "required": true
+    },
+    "fromDate": {
+      "type": "date",
+      "required": true
+    },
+    "toDate": {
+      "type": "date",
+      "required": true
+    },
+    "cardId": {
+      "type": "string",
+      "required": true
+    },
+    "placeCheck": {
+      "type": "string"
+    },
+    "typeId": {
+      "type": "string"
+    },
+    "companyName": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "createdBy"
+    },
+    "insuranceCompany": {
+      "type": "belongsTo",
+      "model": "insuranceCompany",
+      "foreignKey": "companyId"
+    },
+    "type": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "typeId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

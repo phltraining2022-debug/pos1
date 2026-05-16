@@ -1,0 +1,44 @@
+{
+  "name": "Question",
+  "plural": "Questions",
+  "base": "AppModel",
+  "properties": {
+    "dueDate": {
+      "type": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "done",
+        "discarded"
+      ],
+      "default": "pending"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "answer": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "createdBy": {
+      "type": "belongsTo",
+      "model": "Customer",
+      "foreignKey": "customerId",
+      "optional": true
+    },
+    "answeredBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "userId",
+      "optional": true
+    }
+  },
+  "path": "question"
+}

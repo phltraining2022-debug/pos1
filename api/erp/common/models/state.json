@@ -1,0 +1,21 @@
+{
+	"name": "State",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"abbreviation": {
+			"type": "string"
+		},
+		"code": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": []
+}

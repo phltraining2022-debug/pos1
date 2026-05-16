@@ -1,0 +1,125 @@
+{
+  "_id": {
+    "$oid": "69563dda6876d315239877ba"
+  },
+  "invoiceNumber": "HD002520",
+  "invoiceDate": {
+    "$date": "2025-12-31T19:44:00.000Z"
+  },
+  "customerId": {
+    "$oid": "69560638fb714a3aabb94714"
+  },
+  "roomId": "03 LUXURY",
+  "createdById": {
+    "$oid": "6956040388ee257723a88235"
+  },
+  "processedById": {
+    "$oid": "6956040388ee257723a88236"
+  },
+  "totalAmount": 1715700,
+  "status": "paid",
+  "paidAmount": 1715700,
+  "remainingAmount": 0,
+  "items": [
+    {
+      "productId": {
+        "$oid": "6955d538a5cd8fd0346da62c"
+      },
+      "name": "Giờ Luxury 400",
+      "quantity": 1.833,
+      "price": 400000,
+      "total": 733200,
+      "note": "Từ 01/01/2026 02:44 đến 01/01/2026 04:31 (1 giờ 48 phút)"
+    },
+    {
+      "productId": {
+        "$oid": "6955d537a5cd8fd0346da61a"
+      },
+      "name": "Giờ phụ thu",
+      "quantity": 1.833,
+      "price": 100000,
+      "total": 183300,
+      "note": "Từ 01/01/2026 02:44 đến 01/01/2026 04:31 (1 giờ 48 phút)"
+    },
+    {
+      "productId": {
+        "$oid": "6955d539a5cd8fd0346da63e"
+      },
+      "name": "Thuốc Sài Gòn Bạc",
+      "quantity": 1,
+      "price": 42000,
+      "total": 42000,
+      "note": ""
+    },
+    {
+      "productId": {
+        "$oid": "6955d5386f3a02d0204ac0fc"
+      },
+      "name": "Dĩa Trái Cây",
+      "quantity": 1,
+      "price": 300000,
+      "total": 300000,
+      "note": ""
+    },
+    {
+      "productId": {
+        "$oid": "6955d5386f3a02d0204ac0f6"
+      },
+      "name": "SAIGON Lager",
+      "quantity": 12,
+      "price": 30600,
+      "total": 367200,
+      "note": ""
+    },
+    {
+      "productId": {
+        "$oid": "6955d539a5cd8fd0346da643"
+      },
+      "name": "AWAFINA Nước Suối",
+      "quantity": 3,
+      "price": 20000,
+      "total": 60000,
+      "note": ""
+    },
+    {
+      "productId": {
+        "$oid": "6955d5386f3a02d0204ac107"
+      },
+      "name": "STING",
+      "quantity": 1,
+      "price": 30000,
+      "total": 30000,
+      "note": ""
+    }
+  ],
+  "relatedProductIds": [
+    {
+      "$oid": "6955d538a5cd8fd0346da62c"
+    },
+    {
+      "$oid": "6955d537a5cd8fd0346da61a"
+    },
+    {
+      "$oid": "6955d539a5cd8fd0346da63e"
+    },
+    {
+      "$oid": "6955d5386f3a02d0204ac0fc"
+    },
+    {
+      "$oid": "6955d5386f3a02d0204ac0f6"
+    },
+    {
+      "$oid": "6955d539a5cd8fd0346da643"
+    },
+    {
+      "$oid": "6955d5386f3a02d0204ac107"
+    }
+  ],
+  "note": "",
+  "createdAt": {
+    "$date": "2026-01-01T09:26:50.586Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-01T09:26:50.586Z"
+  }
+}

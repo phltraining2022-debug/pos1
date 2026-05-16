@@ -1,0 +1,50 @@
+[
+  {
+    "id": "prod-timebased-001",
+    "name": "Giờ Standard",
+    "category": "time-based",
+    "type": "service",
+    "price": 300000,
+    "sellingPrice": 300000,
+    "isTimeBased": true,
+    "timeBasedPricing": {
+      "pricePerHour": 300000,
+      "minimumHours": 1,
+      "pricePerMinute": 5000,
+      "blockMinutes": 10
+    },
+    "description": "Giá phòng Standard - Tính theo block 10 phút (0.167 giờ)"
+  },
+  {
+    "id": "prod-timebased-002",
+    "name": "Giờ Deluxe",
+    "category": "time-based",
+    "type": "service",
+    "price": 400000,
+    "sellingPrice": 400000,
+    "isTimeBased": true,
+    "timeBasedPricing": {
+      "pricePerHour": 400000,
+      "minimumHours": 1,
+      "pricePerMinute": 6667,
+      "blockMinutes": 10
+    },
+    "description": "Giá phòng Deluxe - Tính theo block 10 phút (0.167 giờ)"
+  },
+  {
+    "id": "prod-timebased-003",
+    "name": "Giờ Luxury",
+    "category": "time-based",
+    "type": "service",
+    "price": 500000,
+    "sellingPrice": 500000,
+    "isTimeBased": true,
+    "timeBasedPricing": {
+      "pricePerHour": 500000,
+      "minimumHours": 1,
+      "pricePerMinute": 8334,
+      "blockMinutes": 10
+    },
+    "description": "Giá phòng Luxury - Tính theo block 10 phút (0.167 giờ)"
+  }
+]

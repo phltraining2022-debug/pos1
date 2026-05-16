@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html ng-app="karaApp">
+<head>
+    <title>Debug Kitchen</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body>
+    <div ng-controller="DebugKitchenController">
+        <h1>Debug Kitchen Controller</h1>
+        <p>Current User: {{currentUser.username}}</p>
+        <p>View: {{view}}</p>
+        <p>Rooms: {{rooms.length}}</p>
+        <p>Selected Room: {{selectedRoom.name}}</p>
+        <p>Sent Items: {{sentItems.length}}</p>
+
+        <button ng-click="testLoadRooms()">Load Rooms</button>
+        <button ng-click="testSelectRoom()">Select Test Room</button>
+        <button ng-click="testLoadItems()">Load Items</button>
+
+        <div id="debug-output"></div>
+    </div>
+
+    <script>
+        // Mock services
+        angular.module('karaApp', []).service('StorageService', function() {
+            this.get = function(key) {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            };
+            this.set = function(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            };
+        }).service('ApiService', function() {
+            this.getCurrentUser = function() {
+                return JSON.parse(localStorage.getItem('userProfile') || 'null');
+            };
+        }).service('RoomService', ['StorageService', function(StorageService) {
+            this.getRooms = function() {
+                return StorageService.get('rooms');
+            };
+        }).controller('DebugKitchenController', ['$scope', 'StorageService', 'ApiService', 'RoomService',
+            function($scope, StorageService, ApiService, RoomService) {
+                console.log('DebugKitchenController initialized');
+
+                $scope.currentUser = ApiService.getCurrentUser();
+                $scope.view = 'rooms';
+                $scope.selectedRoom = null;
+                $scope.sentItems = [];
+
+                // Display items function
+                function displayItems(items) {
+                    console.log('displayItems called with', items.length, 'items');
+
+                    // Group items by productId and note
+                    var groupedItems = {};
+                    items.forEach(function(item) {
+                        var key = item.productId + '|' + (item.note || '');
+                        if (!groupedItems[key]) {
+                            groupedItems[key] = {
+                                id: item.id,
+                                productId: item.productId,
+                                name: item.name,
+                                quantity: 0,
+                                unit: item.uomId || 'phần',
+                                price: item.unitPrice || item.price || 0,
+                                note: item.note || '',
+                                status: item.status || 'pending',
+                                addedAt: item.createdAt || item.updatedAt || new Date(),
+                                createdAt: item.createdAt || item.updatedAt || new Date(),
+                                updatedAt: item.updatedAt || new Date(),
+                                isTimeBased: item.isTimeBased || false,
+                                timeBasedConfig: item.timeBasedConfig || null,
+                                startTime: item.createdAt || item.updatedAt || new Date()
+                            };
+                        }
+                        groupedItems[key].quantity += item.quantity;
+                    });
+
+                    // Convert to array
+                    $scope.sentItems = Object.values(groupedItems).map(function(item) {
+                        var itemSubtotal = item.quantity * item.price;
+                        return {
+                            id: item.id,
+                            name: item.name,
+                            quantity: item.quantity,
+                            unit: item.unit,
+                            price: item.price,
+                            unitPrice: item.price,
+                            subtotal: itemSubtotal,
+                            note: item.note,
+                            status: item.status,
+                            addedAt: item.addedAt,
+                            createdAt: item.createdAt,
+                            updatedAt: item.updatedAt,
+                            isTimeBased: item.isTimeBased,
+                            timeBasedConfig: item.timeBasedConfig,
+                            startTime: item.startTime
+                        };
+                    });
+
+                    $scope.orderTotal = $scope.sentItems.reduce(function(total, item) {
+                        return total + item.subtotal;
+                    }, 0);
+
+                    console.log('📊 Displayed', $scope.sentItems.length, 'grouped items, Total:', $scope.orderTotal);
+                }
+
+                $scope.testLoadRooms = function() {
+                    $scope.rooms = RoomService.getRooms();
+                    console.log('Loaded rooms:', $scope.rooms);
+                    document.getElementById('debug-output').innerHTML = 'Rooms: ' + JSON.stringify($scope.rooms, null, 2);
+                };
+
+                $scope.testSelectRoom = function() {
+                    if (!$scope.rooms) {
+                        alert('Load rooms first!');
+                        return;
+                    }
+                    const occupiedRooms = $scope.rooms.filter(r => r.status === 'occupied');
+                    if (occupiedRooms.length === 0) {
+                        alert('No occupied rooms!');
+                        return;
+                    }
+                    $scope.selectedRoom = occupiedRooms[0];
+                    $scope.view = 'room-items';
+                    console.log('Selected room:', $scope.selectedRoom);
+                    document.getElementById('debug-output').innerHTML = 'Selected: ' + JSON.stringify($scope.selectedRoom, null, 2);
+                };
+
+                $scope.testLoadItems = function() {
+                    if (!$scope.selectedRoom) {
+                        alert('Select room first!');
+                        return;
+                    }
+
+                    const saleOrderId = $scope.selectedRoom.saleOrderId;
+                    console.log('Loading items for:', saleOrderId);
+
+                    // Load from localStorage
+                    const allItems = StorageService.get('saleorderitems');
+                    const localOrderItems = allItems.filter(item => item.saleOrderId === saleOrderId);
+
+                    console.log('Found local items:', localOrderItems);
+                    displayItems(localOrderItems);
+
+                    document.getElementById('debug-output').innerHTML =
+                        'Items loaded: ' + localOrderItems.length + '<br>' +
+                        'Sent items: ' + $scope.sentItems.length + '<br>' +
+                        JSON.stringify($scope.sentItems, null, 2);
+                };
+            }
+        ]);
+    </script>
+</body>
+</html>

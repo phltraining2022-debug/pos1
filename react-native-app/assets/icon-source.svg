@@ -1,0 +1,49 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="machineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="shadowLg" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+    <filter id="shadowSm" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+  <rect x="18" y="36" width="64" height="52" rx="10" fill="black" opacity="0.15" filter="url(#shadowLg)"/>
+
+  <path d="M28 14 L72 14 L72 35 L28 35 Z" fill="#F8FAFC" filter="url(#shadowSm)"/>
+  <path d="M 28 35 L 30 38 L 32 35 L 36 38 L 40 35 L 44 38 L 48 35 L 52 38 L 56 35 L 60 38 L 64 35 L 68 38 L 72 35 L 72 14 L 28 14 Z" fill="#F8FAFC"/>
+  <rect x="36" y="20" width="28" height="2" rx="1" fill="#CBD5E1"/>
+  <rect x="36" y="26" width="16" height="2" rx="1" fill="#CBD5E1"/>
+  <rect x="36" y="32" width="22" height="2" rx="1" fill="#CBD5E1"/>
+
+  <rect x="20" y="35" width="60" height="50" rx="8" fill="url(#machineGrad)"/>
+  <rect x="35" y="36.5" width="30" height="1.5" rx="0.5" fill="#020617" opacity="0.5"/>
+  <path d="M20 77 Q20 85 28 85 L72 85 Q80 85 80 77 L80 75 L20 75 Z" fill="#020617"/>
+
+  <rect x="26" y="42" width="48" height="22" rx="4" fill="#064E3B"/>
+  <rect x="28" y="44" width="44" height="18" rx="2.5" fill="url(#screenGrad)"/>
+  <path d="M44 54 L48 58 L57 49" stroke="#ECFDF5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polygon points="28,44 72,44 72,50 28,62" fill="white" opacity="0.1"/>
+
+  <circle cx="35" cy="70" r="2.5" fill="#64748B"/>
+  <circle cx="45" cy="70" r="2.5" fill="#64748B"/>
+  <circle cx="55" cy="70" r="2.5" fill="#64748B"/>
+  <circle cx="65" cy="70" r="2.5" fill="#F59E0B"/>
+  <circle cx="35" cy="78" r="2.5" fill="#64748B"/>
+  <circle cx="45" cy="78" r="2.5" fill="#64748B"/>
+  <circle cx="55" cy="78" r="2.5" fill="#64748B"/>
+  <circle cx="65" cy="78" r="2.5" fill="#10B981"/>
+</svg>

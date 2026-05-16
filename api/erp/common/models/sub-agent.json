@@ -1,0 +1,33 @@
+{
+	"name": "SubAgent",
+	"plural": "SubAgents",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"phone": {
+			"type": "string"
+		},
+		"email": {
+			"type": "string"
+		},
+		"avatar": {
+			"type": "string"
+		}
+	},
+	"relations": {
+		"agentCSL": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "agentCSLId",
+			"optional": true
+		}
+	},
+	"path": "subagent"
+}

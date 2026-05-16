@@ -1,0 +1,65 @@
+{
+	"name": "Vehicle",
+	"plural": "Vehicles",
+	"base": "AppModel",
+	"idInjection": true,
+	"scope": {
+		"include": [
+			"brand"
+		]
+	},
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"licensePlate": {
+			"type": "string",
+			"required": true
+		},
+		"model": {
+			"type": "string",
+			"required": true
+		},
+		"year": {
+			"type": "number"
+		},
+		"vin": {
+			"type": "string"
+		},
+		"note": {
+			"type": "string"
+		},
+		"manufacturer": {
+			"type": "string"
+		},
+		"engineDisplacement": {
+			"type": "string"
+		},
+		"enginePower": {
+			"type": "string"
+		},
+		"fuelType": {
+			"type": "string"
+		},
+		"transmission": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"owner": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"brand": {
+			"type": "belongsTo",
+			"model": "Brand",
+			"foreignKey": "brandId"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

@@ -1,0 +1,68 @@
+{
+	"name": "Quotation",
+	"plural": "Quotations",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"totalEstimate": {
+			"type": "number",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"required": true,
+			"default": "pending"
+		},
+		"validUntil": {
+			"type": "date",
+			"required": true
+		},
+		"serviceItems": {
+			"type": [
+				{
+					"serviceId": "string",
+					"quantity": "number",
+					"price": "number",
+					"discount": "number",
+					"subTotal": "number"
+				}
+			],
+			"default": []
+		},
+		"productItems": {
+			"type": [
+				{
+					"itemId": "string",
+					"quantity": "number",
+					"price": "number",
+					"discount": "number",
+					"subTotal": "number"
+				}
+			],
+			"default": []
+		}
+	},
+	"validations": [],
+	"relations": {
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"vehicle": {
+			"type": "belongsTo",
+			"model": "Vehicle",
+			"foreignKey": "vehicleId"
+		},
+		"services": {
+			"type": "referencesMany",
+			"model": "Service"
+		},
+		"items": {
+			"type": "referencesMany",
+			"model": "Product"
+		}
+	},
+	"acls": [],
+	"methods": []
+}

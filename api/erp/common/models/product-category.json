@@ -1,0 +1,33 @@
+{
+	"name": "ProductCategory",
+	"plural": "ProductCategories",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"parentId": {
+			"type": "string"
+		}
+	},
+	"scope": {
+		"include": "subCategories"
+	},
+	"validations": [],
+	"relations": {
+		"parent": {
+			"type": "belongsTo",
+			"model": "ProductCategory",
+			"foreignKey": "parentId"
+		},
+		"subCategories": {
+			"type": "hasMany",
+			"model": "ProductCategory",
+			"foreignKey": "parentId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

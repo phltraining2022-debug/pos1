@@ -1,0 +1,46 @@
+{
+    "name": "BackgroundJob", "plural": "BackgroundJobs",
+    "base": "AppModel",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "required": true,
+        "default": "pending"
+      },
+      "priority": {
+        "type": "number",
+        "default": 0
+      },
+      "payload": {
+        "type": "object"
+      },
+      "result": {
+        "type": "object"
+      },
+      "createdAt": {
+        "type": "date",
+        "defaultFn": "now"
+      },
+      "completedAt": {
+        "type": "date"
+      },
+      "scheduledAt": {
+        "type": "date"
+      },
+      "codeToRun": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "validations": [],
+    "relations": {},
+    "acls": [],
+    "methods": {}
+  }
+  

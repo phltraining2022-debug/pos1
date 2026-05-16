@@ -1,0 +1,57 @@
+{
+  "name": "bankAccount",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "bankId": {
+      "type": "string",
+      "required": true
+    },
+    "ownerId": {
+      "type": "string",
+      "required": true
+    },
+    "bank": {
+      "type": "object"
+    },
+    "owner": {
+      "type": "object"
+    },
+    "accountNo": {
+      "type": "string",
+      "required": true
+    },
+    "validFrom": {
+      "type": "date",
+      "required": true
+    },
+    "validTo": {
+      "type": "date",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "bank": {
+      "type": "belongsTo",
+      "model": "bank",
+      "foreignKey": "bankId"
+    },
+    "owner": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "ownerId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

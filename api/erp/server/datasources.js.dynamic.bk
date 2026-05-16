@@ -1,0 +1,8 @@
+module.exports = {
+  db: {
+    name: 'db',
+    connector: 'loopback-connector-mongodb',
+    host: '127.0.0.1',
+    database: process.env.DB_NAME || 'amor'
+  }
+};

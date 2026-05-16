@@ -1,0 +1,53 @@
+{
+  "name": "shiftLocation",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "shiftId": {
+      "type": "string",
+      "required": true
+    },
+    "locationId": {
+      "type": "string",
+      "required": true
+    },
+    "startTime": {
+      "type": "date",
+      "required": true
+    },
+    "endTime": {
+      "type": "date",
+      "required": true
+    },
+    "offTimes": {
+      "type": "object"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "clinicId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "shift": {
+      "type": "belongsTo",
+      "model": "shift",
+      "foreignKey": "shiftId"
+    },
+    "location": {
+      "type": "belongsTo",
+      "model": "location",
+      "foreignKey": "locationId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

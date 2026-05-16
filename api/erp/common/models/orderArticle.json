@@ -1,0 +1,42 @@
+{
+  "name": "orderArticle",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "articleId": {
+      "type": "string",
+      "required": true
+    },
+    "articleIndex": {
+      "type": "number"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "order": {
+      "type": "belongsTo",
+      "model": "order",
+      "foreignKey": "orderId"
+    },
+    "article": {
+      "type": "belongsTo",
+      "model": "article",
+      "foreignKey": "articleId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

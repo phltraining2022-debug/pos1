@@ -1,0 +1,60 @@
+{
+	"name": "Comment",
+	"plural": "Comments",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+	  "validateUpsert": true
+	},
+	"properties": {
+	  "content": {
+		"type": "string",
+		"required": true
+	  },
+	  "timestamp": {
+		"type": "date",
+		"defaultFn": "now"
+	  }
+	},
+	"validations": [],
+	"relations": {
+	  "author": {
+		"type": "belongsTo",
+		"model": "user",
+		"foreignKey": "authorId"
+	  },
+	  "post": {
+		"type": "belongsTo",
+		"model": "Post",
+		"foreignKey": "postId"
+	  },
+	  "comment": {
+		"type": "belongsTo",
+		"model": "Comment",
+		"foreignKey": "commentId"
+	  },
+	  "like": {
+		"type": "belongsTo",
+		"model": "Like",
+		"foreignKey": "likeId"
+	  },
+	  "customer": {
+		"type": "belongsTo",
+		"model": "Customer",
+		"foreignKey": "customerId"
+	  },
+	  "replyTo": {
+		"type": "belongsTo",
+		"model": "Comment",
+		"foreignKey": "commentId"
+	  },
+	  "event": {
+		"type": "belongsTo",
+		"model": "Event",
+		"foreignKey": "eventId"
+	  }
+	},
+	"acls": [],
+	"methods": {}
+  }
+  

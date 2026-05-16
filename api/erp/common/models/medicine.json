@@ -1,0 +1,95 @@
+{
+  "name": "medicine",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "unitId": {
+      "type": "string"
+    },
+    "tuongTacThuoc": {
+      "type": [
+        "string"
+      ]
+    },
+    "insuranceMedId": {
+      "type": "string"
+    },
+    "giaThau": {
+      "type": "number"
+    },
+    "giaCSKCB": {
+      "type": "number"
+    },
+    "group": {
+      "type": "number"
+    },
+    "registerNo": {
+      "type": "string"
+    },
+    "dangBaoChe": {
+      "type": "string"
+    },
+    "nongDo": {
+      "type": "string"
+    },
+    "quyCach": {
+      "type": "string"
+    },
+    "tieuChuan": {
+      "type": "string"
+    },
+    "maNhaThau": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "isDieuTriK": {
+      "type": "boolean"
+    },
+    "ingredient": {
+      "type": "string"
+    },
+    "cat": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number"
+    },
+    "isInsurance": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "clinicId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "unit": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "unitId"
+    },
+    "ingredientObj": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "ingredient"
+    },
+    "prices": {
+      "type": "hasMany",
+      "model": "price",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

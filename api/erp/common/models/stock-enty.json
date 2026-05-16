@@ -1,0 +1,38 @@
+{
+	"name": "StockEntry",
+	"plural": "stockEntries",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": {
+			"type": "number",
+			"id": true,
+			"generated": true
+		},
+		"workOrderId": {
+			"type": "number",
+			"required": true
+		},
+		"quantity": {
+			"type": "number",
+			"required": true
+		},
+		"entryDate": {
+			"type": "date",
+			"required": true
+		}
+	},
+	"validations": [],
+	"relations": {
+		"workOrder": {
+			"type": "belongsTo",
+			"model": "WorkOrder",
+			"foreignKey": "workOrderId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

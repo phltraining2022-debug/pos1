@@ -1,0 +1,43 @@
+{
+    "name": "Ingredient",
+    "plural": "Ingredients",
+    "base": "AppModel",
+    "idInjection": true,
+    "properties": {
+      "name": {
+        "type": "string",
+        "required": true,
+        "unique": true
+      },
+      "category": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string"
+      },
+      "unit": {
+        "type": "string"
+      },
+      "notes": {
+        "type": "string"
+      }
+    },
+    "validations": [],
+    "relations": {
+      "dishes": {
+        "type": "hasMany",
+        "model": "Dish",
+        "through": "ComponentIngredient",
+        "foreignKey": "ingredientId"
+      },
+      "ingredients": {
+        "type": "hasMany",
+        "model": "Ingredient",
+        "through": "ComponentIngredient",
+        "foreignKey": "subIngredientId"
+      }
+    },
+    "acls": [],
+    "methods": {}
+  }
+  

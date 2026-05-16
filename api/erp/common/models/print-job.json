@@ -1,0 +1,21 @@
+{
+	"name": "PrintJob",
+	"plural": "PrintJobs",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string" 
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

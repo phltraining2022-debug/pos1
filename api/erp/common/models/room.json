@@ -1,0 +1,56 @@
+{
+	"name": "Room",
+	"plural": "rooms",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"code": {
+			"type": "string"
+		},
+		"branchId": {
+			"type": "number"
+		},
+		"capacity": {
+			"type": "number"
+		},
+		"floor": {
+			"type": "number"
+		},
+		"images": {
+			"type": "array",
+			"default": []
+		}
+	},
+	"validations": [],
+	"relations": {
+		"branch": {
+			"type": "belongsTo",
+			"model": "Branch",
+			"foreignKey": "branchId"
+		},
+		"saleOrders": {
+			"type": "hasMany",
+			"model": "SaleOrder",
+			"foreignKey": "roomId"
+		},
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		}
+	},
+	"acls": [],
+	"methods": {},
+	"scope": {
+		"deletedById": {
+			"exists": false
+		}
+	}
+}

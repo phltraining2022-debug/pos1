@@ -1,0 +1,62 @@
+{
+  "name": "test",
+  "base": "AppModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "searchName": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "stationId": {
+      "type": "string"
+    },
+    "referenceRange": {
+      "type": "object"
+    },
+    "normalRange": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "category": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "categoryId"
+    },
+    "group": {
+      "type": "belongsTo",
+      "model": "SysCfg",
+      "foreignKey": "groupId"
+    },
+    "station": {
+      "type": "belongsTo",
+      "model": "station",
+      "foreignKey": "stationId"
+    },
+    "subTests":{
+      "type":"hasMany",
+      "model": "test",
+      "foreignKey": "referenceTest"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

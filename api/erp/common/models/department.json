@@ -1,0 +1,56 @@
+{
+	"name": "Department",
+	"plural": "Departments",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"managerId": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"manager": {
+			"type": "belongsTo",
+			"model": "Employee",
+			"foreignKey": "managerId"
+		},
+		"employees": {
+			"type": "hasMany",
+			"model": "Employee",
+			"foreignKey": "departmentId"
+		},
+		"children": {
+			"type": "hasMany",
+			"model": "Department",
+			"foreignKey": "parentId"
+		},
+		"parent": {
+			"type": "belongsTo",
+			"model": "Department",
+			"foreignKey": "parentId"
+		},
+		"projects": {
+			"type": "hasMany",
+			"model": "Project",
+			"foreignKey": "departmentId"
+		},
+		"tasks": {
+			"type": "hasMany",
+			"model": "Task",
+			"foreignKey": "departmentId"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

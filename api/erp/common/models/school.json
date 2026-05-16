@@ -1,0 +1,147 @@
+{
+	"name": "School",
+	"plural": "Schools",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"isPublished": {
+			"type": "boolean"
+		},
+		"nameVi": {
+			"type": "string"
+		},
+		"codeId": {
+			"type": "string"
+		},
+		"cricos": {
+			"type": "string"
+		},
+		"logo": {
+			"type": "string"
+		},
+		"ranking": {
+			"type": "string"
+		},
+		"isHot": {
+			"type": "boolean"
+		},
+		"duration": {
+			"type": "number"
+		},
+		"tuition": {
+			"type": "number"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"metaTitle": {
+			"type": "string"
+		},
+		"level": {
+			"type": "number"
+		},
+		"intakes": {
+			"type": "array"
+		},
+		"schoolPrimaryId": {
+			"type": "string"
+		},
+		"locationId": {
+			"type": "string"
+		},
+		"stateId": {
+			"type": "string"
+		},
+		"cityId": {
+			"type": "string"
+		},
+		"majorIds": {
+			"type": "array"
+		},
+		"admissionFormality": {
+			"type": "array"
+		},
+		"currencyId": {
+			"type": "string"
+		},
+		"requestAdmission": {
+			"type": "string"
+		},
+		"shortDescription": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		}
+	},
+	"validations": [],
+	"scope": {
+		"include": [
+			{
+				"relation": "levels",
+				"scope":{
+					"fields": ["id", "name"]
+				}
+			},{
+				"relation": "majors",
+				"scope":{
+					"fields": ["id", "name"]
+				}
+			},{
+				"relation": "location",
+				"scope":{
+					"fields": ["id", "name"]
+				}
+			}
+		]
+	},
+	"relations": {
+		"location": {
+			"type": "belongsTo",
+			"model": "location",
+			"foreignKey": "locationId"
+		},
+		"city": {
+			"type": "belongsTo",
+			"model": "City",
+			"foreignKey": "cityId"
+		},
+		"cities": {
+			"type": "referencesMany",
+			"model": "City",
+			"foreignKey": "cityIds"
+		},
+		"levels": {
+			"type": "referencesMany",
+			"model": "Level",
+			"foreignKey": "levelIds"
+		},
+		"majors": {
+			"type": "referencesMany",
+			"model": "Major",
+			"foreignKey": "majorIds"
+		},
+		"scholarships": {
+			"type": "hasMany",
+			"model": "ScholarshipNews",
+			"foreignKey": "schoolId"
+		},
+		"courses": {
+			"type": "hasMany",
+			"model": "Course",
+			"foreignKey": "schoolId"
+		},
+		"user": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "userId"
+		}
+	},
+	"acls": [],
+	"methods": [],
+	"url": "`/schools/${slug}`"
+}

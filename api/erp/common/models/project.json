@@ -1,0 +1,71 @@
+{
+	"name": "Project",
+	"plural": "Projects",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"startDate": {
+			"type": "date",
+			"required": true
+		},
+		"endDate": {
+			"type": "date",
+			"required": true
+		},
+		"status": {
+			"type": "string",
+			"default": "pending",
+			"enum": [
+				"new",
+				"pending",
+				"in progress",
+				"completed",
+				"closed",
+				"cancelled"
+			]
+		},
+		"files": {
+			"type": "array"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"customer": {
+			"type": "belongsTo",
+			"model": "Customer",
+			"foreignKey": "customerId"
+		},
+		"location": {
+			"type": "belongsTo",
+			"model": "location",
+			"foreignKey": "locationId"
+		},
+		"department": {
+			"type": "belongsTo",
+			"model": "Department",
+			"foreignKey": "departmentId"
+		},
+		"tasks": {
+			"type": "hasMany",
+			"model": "Task",
+			"foreignKey": "projectId"
+		},
+		"teamMembers": {
+			"type": "referencesMany",
+			"model": "Employee",
+			"foreignKey": "teamMemberIds"
+		}
+	},
+	"acls": [],
+	"methods": {}
+}

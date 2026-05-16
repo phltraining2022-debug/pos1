@@ -1,0 +1,56 @@
+{
+  "name": "healthCheckUp",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "status": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "examedBy": {
+      "type": "string"
+    },
+    "patientId": {
+      "type": "string",
+      "required": true
+    },
+    "doctorId": {
+      "type": "string"
+    },
+    "EMRId": {
+      "type": "string"
+    },
+    "tests": {
+      "type": [
+        "object"
+      ]
+    },
+    "packageId": {
+      "type": "string"
+    },
+    "appointmentId": {
+      "type": "string"
+    },
+    "nurseId": {
+      "type": "string"
+    },
+    "stationId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

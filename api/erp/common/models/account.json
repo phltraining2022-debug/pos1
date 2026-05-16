@@ -1,0 +1,76 @@
+{
+	"name": "Account",
+	"plural": "accounts",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"properties": {
+		"id": {
+			"type": "string",
+			"id": true,
+			"generated": true
+		},
+		"name": {
+			"type": "string",
+			"required": true
+		},
+		"accountNumber": {
+			"type": "string",
+			"required": true
+		},
+		"accountType": {
+			"type": "string",
+			"required": true
+		},
+		"balance": {
+			"type": "number",
+			"default": 0
+		}
+	},
+	"validations": [],
+	"relations": {
+		"transactions": {
+			"type": "hasMany",
+			"model": "Transaction",
+			"foreignKey": "accountId"
+		}
+	},
+	"acls": [],
+	"methods": {},
+	"commonAccounts": [
+		{
+			"name": "Cash",
+			"accountNumber": "1000",
+			"accountType": "Asset"
+		},
+		{
+			"name": "Accounts Receivable",
+			"accountNumber": "1100",
+			"accountType": "Asset"
+		},
+		{
+			"name": "Accounts Payable",
+			"accountNumber": "2000",
+			"accountType": "Liability"
+		},
+		{
+			"name": "Sales Revenue",
+			"accountNumber": "4000",
+			"accountType": "Revenue"
+		},
+		{
+			"name": "Cost of Goods Sold",
+			"accountNumber": "5000",
+			"accountType": "Expense"
+		},
+		{
+			"name": "Salary Expense",
+			"accountNumber": "6000",
+			"accountType": "Expense"
+		},
+		{
+			"name": "Owner's Equity",
+			"accountNumber": "9000",
+			"accountType": "Equity"
+		}
+	]
+}

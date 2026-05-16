@@ -1,0 +1,62 @@
+{
+    "name": "Rate",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true
+    },
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "required": true,
+        "description": "ID của khách hàng đánh giá"
+      },
+      "userId": {
+        "type": "string",
+        "required": true,
+        "description": "ID của luật sư bị đánh giá"
+      },
+      "appointmentId": {
+        "type": "string",
+        "required": true,
+        "description": "ID của cuộc hẹn liên quan đến đánh giá"
+      },
+      "stars": {
+        "type": "number",
+        "required": true,
+        "description": "Số sao đánh giá",
+        "min": 1,
+        "max": 5
+      },
+      "content": {
+        "type": "string",
+        "required": false,
+        "description": "Nội dung đánh giá"
+      },
+      "createdAt": {
+        "type": "date",
+        "defaultFn": "now",
+        "description": "Thời gian đánh giá"
+      }
+    },
+    "validations": [],
+    "relations": {
+      "customer": {
+        "type": "belongsTo",
+        "model": "Customer",
+        "foreignKey": "customerId"
+      },
+      "lawyer": {
+        "type": "belongsTo",
+        "model": "user",
+        "foreignKey": "userId"
+      },
+      "appointment": {
+        "type": "belongsTo",
+        "model": "Appointment",
+        "foreignKey": "appointmentId"
+      }
+    },
+    "acls": [],
+    "methods": {}
+  }

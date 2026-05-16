@@ -1,0 +1,54 @@
+{
+	"name": "log",
+	"plural": "log",
+	"base": "PersistedModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"createdById": {
+			"type": "string"
+		},
+		"objectId": {
+			"type": "string"
+		},
+		"event": {
+			"type": "string",
+			"required": true
+		},
+		"model": {
+			"type": "string",
+			"required": true
+		},
+		"changes": {
+			"type": "object"
+		},
+		"level": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date",
+			"defaultFn": "now"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"createdBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "createdById"
+		},
+		"object": {
+			"type": "belongsTo",
+			"model": "AppModel",
+			"foreignKey": "objectId"
+		}
+	},
+	"acls": [],
+	"methods": {},
+	"scope": {
+		"order": "createdAt DESC",
+		"include": "createdBy"
+	}
+}

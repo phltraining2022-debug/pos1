@@ -1,0 +1,75 @@
+{
+	"name": "SaleOrderItem",
+	"plural": "SaleOrderItems",
+	"base": "AppModel",
+	"idInjection": true,
+	"options": {
+		"validateUpsert": true
+	},
+	"scope": {
+		"include": [
+			"product"
+		]
+	},
+	"properties": {
+		"productId": {
+			"type": "string"
+		},
+		"serviceId": {
+			"type": "string"
+		},
+		"quantity": {
+			"type": "number"
+		},
+		"unitPrice": {
+			"type": "number"
+		},
+		"discount": {
+			"type": "number"
+		},
+		"subtotal": {
+			"type": "number"
+		},
+		"warranty": {
+			"type": "object",
+			"properties": {
+				"startDate": {
+					"type": "date"
+				},
+				"endDate": {
+					"type": "date"
+				}
+			}
+		},
+		"isTimeBased": {
+			"type": "boolean"
+		}
+	},
+	"relations": {
+		"saleOrder": {
+			"type": "belongsTo",
+			"model": "SaleOrder",
+			"foreignKey": "saleOrderId"
+		},
+		"product": {
+			"type": "belongsTo",
+			"model": "Product",
+			"foreignKey": "productId"
+		},
+		"service": {
+			"type": "belongsTo",
+			"model": "Service",
+			"foreignKey": "serviceId"
+		},
+		"warehouse": {
+			"type": "belongsTo",
+			"model": "Warehouse",
+			"foreignKey": "warehouseId"
+		},
+		"executedBy": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "executedById"
+		}
+	}
+}

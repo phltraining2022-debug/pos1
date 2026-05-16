@@ -1,0 +1,75 @@
+{
+	"name": "StaffAssignment",
+	"plural": "StaffAssignments",
+	"base": "AppModel",
+	"description": "Assignment linking EventStaff to EventShift with role and confirmation",
+	"properties": {
+		"eventStaffId": {
+			"type": "string",
+			"required": true,
+			"index": true,
+			"description": "Reference to EventStaff"
+		},
+		"eventShiftId": {
+			"type": "string",
+			"index": true,
+			"description": "Reference to EventShift"
+		},
+        "contractId": {
+            "type": "string",
+            "description": "Reference to Contract for this assignment"
+        },
+		"jobRole": {
+			"type": "string",
+			"required": true,
+			"description": "Assigned job role for this shift: Phục vụ bàn, Bếp phụ, Lễ tân, Pha chế, Giám sát ca, Hỗ trợ sự kiện"
+		},
+		"isConfirmed": {
+			"type": "boolean",
+			"required": true,
+			"default": false,
+			"description": "Whether staff has confirmed this assignment"
+		},
+		"assignedBy": {
+			"type": "string",
+			"description": "User/Manager who assigned this staff (userId)"
+		},
+		"assignedAt": {
+			"type": "date",
+			"description": "When the assignment was made"
+		},
+		"confirmedAt": {
+			"type": "date",
+			"description": "When staff confirmed the assignment"
+		},
+		"notes": {
+			"type": "string",
+			"description": "Notes about this assignment"
+		}
+	},
+	"validations": [],
+	"relations": {
+		"eventStaff": {
+			"type": "belongsTo",
+			"model": "EventStaff",
+			"foreignKey": "eventStaffId"
+		},
+		"eventShift": {
+			"type": "belongsTo",
+			"model": "EventShift",
+			"foreignKey": "eventShiftId"
+		},
+		"assigner": {
+			"type": "belongsTo",
+			"model": "user",
+			"foreignKey": "assignedBy"
+		},
+        "contract": {
+            "type": "belongsTo",
+            "model": "Contract",
+            "foreignKey": "contractId"
+        }
+	},
+	"acls": [],
+	"methods": {}
+}

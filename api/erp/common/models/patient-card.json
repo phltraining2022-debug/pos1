@@ -1,0 +1,48 @@
+{
+  "name": "patientCard",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "patientId": {
+      "type": "string"
+    },
+    "cardId": {
+      "type": "string"
+    },
+    "validFrom": {
+      "type": "date",
+      "required": true
+    },
+    "validTo": {
+      "type": "date",
+      "required": true
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "card": {
+      "type": "belongsTo",
+      "model": "card",
+      "foreignKey": "cardId"
+    },
+    "patient": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "patientId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

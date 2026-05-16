@@ -1,0 +1,24 @@
+{
+	"name": "DeletedObj",
+	"plural": "DeletedObjs",
+	"base": "PersistedModel",
+	"properties": {
+		"originalId": {
+			"type": "string",
+			"required": true
+		},
+		"modelName": {
+			"type": "string",
+			"required": true
+		},
+		"data": {
+			"type": "object",
+			"required": true
+		},
+		"createdAt": {
+			"type": "date",
+			"required": true,
+			"defaultFn": "now"
+		}
+	}
+}

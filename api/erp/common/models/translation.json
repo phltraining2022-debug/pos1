@@ -1,0 +1,19 @@
+{
+    "name": "Translation",
+    "plural": "Translations",
+    "base": "AppModel",
+    "idInjection": true,
+    "properties": {
+       "language": {
+            "type": "string"
+        },
+        "translations": {
+            "type": "object"
+        }
+    },
+    "validations": [],
+    "relations": {},
+    "acls": [],
+    "methods": {},
+    "path": "translation"
+}

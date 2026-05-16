@@ -1,0 +1,65 @@
+{
+  "name": "questionAnswer",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "clinicId": {
+      "type": "string"
+    },
+    "clientId": {
+      "type": "string",
+      "required": true
+    },
+    "visitId": {
+      "type": "date",
+      "required": true
+    },
+    "orderId": {
+      "type": "string"
+    },
+    "questionId": {
+      "type": "string"
+    },
+    "answer": {
+      "type": "object",
+      "required": true
+    },
+    "createdById": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "date"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "visit": {
+      "type": "belongsTo",
+      "model": "visit",
+      "foreignKey": "visitId"
+    },
+    "question": {
+      "type": "belongsTo",
+      "model": "medicalQuestion",
+      "foreignKey": "questionId"
+    },
+    "client": {
+      "type": "belongsTo",
+      "model": "patient",
+      "foreignKey": "clientId"
+    },
+    "createdBy": {
+      "type": "belongsTo",
+      "model": "user",
+      "foreignKey": "createdById"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

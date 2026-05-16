@@ -1,0 +1,14 @@
+{
+	"name": "Subscriber",
+	"plural": "Subscribers",
+	"base": "AppModel",
+	"idInjection": true,
+	"properties": {
+		"email": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		}
+	}
+}
