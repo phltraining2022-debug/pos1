@@ -34,6 +34,18 @@ var notificationModule = module.exports = function(Notification) {
         } catch (err) {
             console.error('[Notification afterSave] Web push error:', err);
         }
+
+        try {
+            const Installation = app.models.Installation;
+            await Installation.sendMobilePushToUsers(
+                instance.receiverIds,
+                instance.title,
+                instance.content,
+                instance.data || {}
+            );
+        } catch (err) {
+            console.error('[Notification afterSave] Mobile push error:', err);
+        }
     });
 
 

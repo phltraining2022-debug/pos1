@@ -114,6 +114,14 @@ angular.module('karaApp').controller('WaiterController',
                     ApiService.getAll('saleorderitems', { where: { saleOrderId: saleOrderId } }).then(function(serverItems) {
                         if (!serverItems) return;
                         var allLocalItems = StorageService.get('saleorderitems') || [];
+                        var pendingLocalIds = allLocalItems
+                            .filter(function(i) {
+                                return i.saleOrderId === saleOrderId && i.id && String(i.id).startsWith('local-');
+                            })
+                            .map(function(i) { return i.id; });
+                        pendingLocalIds.forEach(function(localId) {
+                            SyncService.cancelPendingCreate('saleorderitems', localId);
+                        });
                         // Xóa tất cả items của saleOrder này (kể cả local-)
                         allLocalItems = allLocalItems.filter(function(i) { return i.saleOrderId !== saleOrderId; });
                         // Lưu lại items mới nhất từ server

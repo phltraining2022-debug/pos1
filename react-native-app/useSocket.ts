@@ -2,8 +2,7 @@ import { useEffect, useRef } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getServerUrl } from './api'
 
-const WS_PORT = 30000
-const TENANT_ID = 'kara'
+const CLINIC_SHORT_NAME = 'kara'
 
 export type SocketEvent = {
   event: string
@@ -39,7 +38,7 @@ export function useSocket(onMessage: (msg: SocketEvent) => void, enabled = true)
       const serverUrl = await getServerUrl()
       const wsHost = serverUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
       const wsProto = serverUrl.startsWith('https') ? 'wss' : 'ws'
-      const wsUrl = `${wsProto}://${wsHost}:${WS_PORT}`
+      const wsUrl = `${wsProto}://${wsHost}/wss/`
 
       let ws: WebSocket
       try {
@@ -55,7 +54,7 @@ export function useSocket(onMessage: (msg: SocketEvent) => void, enabled = true)
         ws.send(
           JSON.stringify({
             action: 'subscribe',
-            filter: { userId, tenantId: TENANT_ID },
+            filter: { userId, clinicShortName: CLINIC_SHORT_NAME },
           })
         )
       }

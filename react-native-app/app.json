@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "Kara POS",
+    "name": "Kara Pos",
+    "description": "Ứng dụng quản lý bàn, đặt món và thanh toán cho nhà hàng, quán ăn",
     "slug": "kara-pos-mobile",
     "scheme": "kara-pos-mobile",
     "orientation": "portrait",
@@ -9,7 +10,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.0",
+    "version": "1.1.0",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
@@ -21,9 +22,10 @@
     ],
     "ios": {
       "bundleIdentifier": "vn.vvs.pos1",
-      "buildNumber": "1",
-      "supportsTablet": true,
+      "buildNumber": "9",
+      "supportsTablet": false,
       "infoPlist": {
+        "CFBundleDisplayName": "Kara Pos",
         "NSCameraUsageDescription": "Dùng camera để quét mã QR đặt món và thanh toán.",
         "NSPhotoLibraryUsageDescription": "Dùng để lưu và tải ảnh sản phẩm.",
         "NSFaceIDUsageDescription": "Dùng Face ID để đăng nhập nhanh.",
@@ -33,6 +35,11 @@
           "NSAllowsArbitraryLoads": false,
           "NSExceptionDomains": {
             "kara.test.live1.vn": {
+              "NSExceptionAllowsInsecureHTTPLoads": false,
+              "NSExceptionMinimumTLSVersion": "TLSv1.2",
+              "NSIncludesSubdomains": true
+            },
+            "kara.app.live1.vn": {
               "NSExceptionAllowsInsecureHTTPLoads": false,
               "NSExceptionMinimumTLSVersion": "TLSv1.2",
               "NSIncludesSubdomains": true
@@ -59,11 +66,22 @@
           "color": "#7c3aed",
           "sounds": []
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "extra": {
       "sku": "pos1",
       "appleId": "6761367793",
+      "category": "Business",
+      "keywords": [
+        "pos",
+        "nhà hàng",
+        "quán ăn",
+        "đặt món",
+        "thanh toán",
+        "bàn",
+        "quản lý"
+      ],
       "eas": {
         "projectId": "69e58ae1-6906-4289-8e64-903a60afb121"
       }

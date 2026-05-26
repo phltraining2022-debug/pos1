@@ -5,8 +5,12 @@
  * Yêu cầu: backend đang chạy ở port 33000
  */
 
-const BASE_URL = 'http://10.28.3.129:33000/api';
-const TEST_USER = { username: 'cashier1', password: '1' };
+const BASE_URL = process.env.BASE_URL || 'http://10.28.3.129:33000/api';
+const TEST_USER = {
+  username: process.env.TEST_USERNAME || 'cashier1',
+  password: process.env.TEST_PASSWORD || '1',
+};
+const ALLOW_WRITE_TESTS = process.env.ALLOW_WRITE_TESTS === '1';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -254,6 +258,11 @@ async function testManagerData() {
 async function testOrderFlow() {
   section('5. ORDER FLOW — Kiểm tra luồng đặt món (Waiter → Kitchen → Cashier)');
 
+  if (!ALLOW_WRITE_TESTS) {
+    warn('ORDER FLOW write tests', 'Đang skip POST /Orders và POST /SaleOrders. Đặt ALLOW_WRITE_TESTS=1 nếu muốn chạy test có ghi dữ liệu.');
+    return;
+  }
+
   // Check if Orders endpoint supports POST
   const r = await apiFetch('/Orders', {
     method: 'POST',
@@ -328,8 +337,13 @@ async function printSummary() {
   }
   console.log('  └─────────────────────────────────────┴────────────┘');
 
-  console.log('\n  ✅ TẤT CẢ CHỨC NĂNG ĐÃ KẾT NỐI BACKEND!');
-  console.log('  Còn lại: /Orders TopItems khi có dữ liệu; /StaffAttendances không tồn tại');
+  if (ALLOW_WRITE_TESTS) {
+    console.log('\n  ✅ TẤT CẢ CHỨC NĂNG ĐÃ KẾT NỐI BACKEND!');
+    console.log('  Còn lại: /Orders TopItems khi có dữ liệu; /StaffAttendances không tồn tại');
+  } else {
+    console.log('\n  ⚠️  ĐÃ SKIP CÁC WRITE TEST (/Orders, /SaleOrders).');
+    console.log('  Đặt ALLOW_WRITE_TESTS=1 nếu muốn xác nhận thêm các endpoint tạo dữ liệu.');
+  }
   console.log('');
 }
 

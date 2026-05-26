@@ -65,6 +65,13 @@
 		"discount": {
 			"type": "number"
 		},
+		"allowEditAfterPrint": {
+			"type": "boolean",
+			"default": false
+		},
+		"printedBillSnapshot": {
+			"type": "object"
+		},
 		"total": {
 			"type": "number"
 		},

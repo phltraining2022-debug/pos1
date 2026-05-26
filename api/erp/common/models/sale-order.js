@@ -2,8 +2,38 @@
 var _ = require('lodash');
 var moment = require('moment');
 var app = require('../../server/server');
+var LoopBackContext = require('loopback-context');
+
+function getCurrentUserId(ctx) {
+    if (ctx && ctx.options && ctx.options.accessToken && ctx.options.accessToken.userId) {
+        return String(ctx.options.accessToken.userId);
+    }
+
+    var lbCtx = LoopBackContext.getCurrentContext();
+    if (!lbCtx) return null;
+
+    var currentUser = lbCtx.get('currentUser');
+    var currentUserId = lbCtx.get('currentUserId') || (currentUser && currentUser.id);
+    return currentUserId ? String(currentUserId) : null;
+}
 
 module.exports = function (AppModel) {
+
+    AppModel.observe('before save', function stampActor(ctx, next) {
+        var inst = ctx.instance || ctx.data;
+        if (!inst) return next();
+
+        var currentUserId = getCurrentUserId(ctx);
+        if (!currentUserId) return next();
+
+        inst.updatedById = currentUserId;
+        if (ctx.isNewInstance) {
+            if (!inst.createdById) inst.createdById = currentUserId;
+            if (!inst.executedById) inst.executedById = currentUserId;
+        }
+
+        next();
+    });
 
     AppModel.estimateMaterials = function (saleOrderId, cb) {
         var SaleOrder = app.models.SaleOrder;
@@ -409,12 +439,51 @@ module.exports = function (AppModel) {
      * Tự động tạo StockMove (offline-sale) + StockMoveItems để trừ kho
      */
     var _stockMoveProcessing = new Set(); // in-memory lock chống race condition
+    var _paymentNotifSent = new Set();   // dedup notification
 
     AppModel.observe('after save', async function(ctx) {
         var instance = ctx.instance;
         // Chỉ xử lý khi update (có previousData) và status vừa đổi sang completed
         if (!instance) return;
         if (instance.status !== 'completed') return;
+
+        // ── Gửi push notification cho manager + cashier (chạy 1 lần duy nhất) ──
+        var notifKey = String(instance.id);
+        if (!_paymentNotifSent.has(notifKey)) {
+            _paymentNotifSent.add(notifKey);
+            try {
+                var { getUserIdsByRoles } = require('../../server/triggers/kara/_helpers');
+                var Notification = app.models.notification;
+                var Room = app.models.Room;
+                var paidAmount = instance.paidAmount || instance.total || 0;
+                var paymentMethod = instance.paymentMethod || 'cash';
+                var pmLabel = paymentMethod === 'cash' ? 'Tiền mặt'
+                    : paymentMethod === 'transfer' ? 'Chuyển khoản' : paymentMethod;
+                var roomName = instance.roomId ? String(instance.roomId) : 'N/A';
+                try {
+                    var room = await Room.findById(instance.roomId);
+                    if (room) roomName = room.name || room.code || roomName;
+                } catch (_) {}
+                var receiverIds = await getUserIdsByRoles(app, ['cashier']);
+                await Notification.create({
+                    title: '\u{1F4B0} [Thanh toán] - Phòng ' + roomName,
+                    content: 'Phòng ' + roomName + ' đã thanh toán '
+                        + paidAmount.toLocaleString('vi-VN') + ' VNĐ qua ' + pmLabel + '.',
+                    receiverIds: receiverIds,
+                    createdAt: new Date(),
+                    data: {
+                        type: 'paymentCompleted',
+                        saleOrderId: notifKey,
+                        roomName: roomName,
+                        paidAmount: paidAmount,
+                        paymentMethod: paymentMethod,
+                    }
+                });
+                console.log('[SaleOrder] Payment notification sent - ' + (instance.code || notifKey) + ', Room: ' + roomName + ', Amount: ' + paidAmount);
+            } catch (notifErr) {
+                console.error('[SaleOrder] Payment notification error:', notifErr.message);
+            }
+        }
 
         // Tránh tạo trùng: kiểm tra xem đã có StockMove cho saleOrder này chưa
         var StockMove    = app.models.StockMove;
@@ -425,17 +494,9 @@ module.exports = function (AppModel) {
         try {
             var saleOrderKey = String(instance.id);
 
-            // In-memory lock: nếu đang xử lý rồi thì bỏ qua (tránh race condition)
+            // In-memory lock: nếu đang xử lý rồi thì bỏ qua (tránh race condition trong cùng process)
             if (_stockMoveProcessing.has(saleOrderKey)) return;
             _stockMoveProcessing.add(saleOrderKey);
-
-            var existingMove = await StockMove.findOne({
-                where: { saleOrderId: saleOrderKey }
-            });
-            if (existingMove) {
-                _stockMoveProcessing.delete(saleOrderKey);
-                return; // Đã xử lý rồi, bỏ qua
-            }
 
             // Lấy các item của sale order (chỉ item có productId)
             var orderItems = await SaleOrderItem.find({
@@ -446,17 +507,33 @@ module.exports = function (AppModel) {
                 return i.productId && (Number(i.quantity) || 0) > 0;
             });
 
-            if (!productItems.length) return;
+            if (!productItems.length) {
+                _stockMoveProcessing.delete(saleOrderKey);
+                return;
+            }
 
-            // Tạo StockMove loại offline-sale, status completed
-            var stockMove = await StockMove.create({
+            // Dùng findOrCreate thay vì findOne + create riêng lẻ:
+            // - Giảm cửa sổ race condition giữa PM2 cluster workers
+            // - Nếu worker khác đã tạo → created=false → bỏ qua, không tạo trùng
+            var stockMoveData = {
                 type: 'offline-sale',
                 status: 'completed',
                 completedAt: new Date(),
-                saleOrderId: String(instance.id),
+                saleOrderId: saleOrderKey,
                 note: 'Xuất kho tự động từ đơn hàng ' + (instance.code || instance.id),
-                totalAmount: instance.total || 0
-            });
+                totalAmount: instance.total || 0,
+            };
+            var findOrCreateResult = await StockMove.findOrCreate(
+                { where: { saleOrderId: saleOrderKey } },
+                stockMoveData
+            );
+            var stockMove = findOrCreateResult[0];
+            var created   = findOrCreateResult[1];
+            if (!created) {
+                console.log('[SaleOrder complete] StockMove đã tồn tại (race condition bị chặn), bỏ qua:', saleOrderKey);
+                _stockMoveProcessing.delete(saleOrderKey);
+                return;
+            }
 
             // Với mỗi sản phẩm, tìm warehouseId từ StockItem
             var moveItemPromises = productItems.map(async function(item) {
@@ -521,6 +598,151 @@ module.exports = function (AppModel) {
         req.end();
 
         return next();
+    });
+
+    // ─── Revenue Report: server-side aggregation ──────────────────────────────
+    AppModel.revenueReport = async function(from, to) {
+        const app = AppModel.app;
+        const SaleOrderItem = app.models.SaleOrderItem;
+        const Product       = app.models.Product;
+        const Room          = app.models.Room;
+
+        const fromDate = new Date(from);
+        const toDate   = to ? new Date(to) : new Date();
+
+        // 1. Completed orders in range
+        const orders = await AppModel.find({
+            where: { status: 'completed', updatedAt: { gte: fromDate, lte: toDate } },
+            fields: { id: true, paidAmount: true, total: true, paymentMethod: true, updatedAt: true, code: true, roomId: true },
+        });
+
+        const totalRevenue = orders.reduce((s, o) => s + (o.paidAmount || o.total || 0), 0);
+        const orderCount   = orders.length;
+
+        // Revenue by payment method (dùng giá trị thô: 'cash', 'transfer', ...)
+        const byMethod = {};
+        orders.forEach(o => {
+            const m = o.paymentMethod || 'other';
+            byMethod[m] = (byMethod[m] || 0) + (o.paidAmount || o.total || 0);
+        });
+
+        // Revenue by day: key = 'YYYY-MM-DD'
+        const byDay = {};
+        orders.forEach(o => {
+            const key = new Date(o.updatedAt).toISOString().slice(0, 10);
+            byDay[key] = (byDay[key] || 0) + (o.paidAmount || o.total || 0);
+        });
+
+        // Revenue by hour (0–23) — cho biểu đồ theo giờ
+        const byHour = {};
+        orders.forEach(o => {
+            const h = String(new Date(o.updatedAt).getHours());
+            byHour[h] = (byHour[h] || 0) + (o.paidAmount || o.total || 0);
+        });
+
+        // Open orders count (tất cả đơn chưa completed/cancelled)
+        const openOrderCount = await AppModel.count({ status: { nin: ['completed', 'cancelled'] } });
+
+        // Recent 15 transactions
+        const sorted = orders.slice().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        const recentRaw = sorted.slice(0, 15).map(o => ({
+            code: o.code || '', roomId: String(o.roomId || ''),
+            paidAmount: o.paidAmount || o.total || 0,
+            paymentMethod: o.paymentMethod || '', updatedAt: o.updatedAt,
+        }));
+        const roomIds = [...new Set(recentRaw.map(o => o.roomId).filter(Boolean))];
+        const rooms = roomIds.length
+            ? await Room.find({ where: { id: { inq: roomIds } }, fields: { id: true, name: true, code: true } })
+            : [];
+        const roomNameMap = {};
+        rooms.forEach(r => { roomNameMap[String(r.id)] = r.name || r.code || String(r.id); });
+        const recentTransactions = recentRaw.map(o => ({ ...o, roomName: roomNameMap[o.roomId] || o.roomId }));
+
+        // 2. SaleOrderItems → product analytics
+        const orderIds = orders.map(o => String(o.id));
+        const items = orderIds.length
+            ? await SaleOrderItem.find({ where: { saleOrderId: { inq: orderIds } } })
+            : [];
+
+        // 3. Product cost map
+        const productIds = [...new Set(items.map(i => String(i.productId)).filter(Boolean))];
+        const products = productIds.length
+            ? await Product.find({ where: { id: { inq: productIds } }, fields: { id: true, price: true } })
+            : [];
+        const costMap = {};
+        products.forEach(p => { costMap[String(p.id)] = p.price || 0; });
+
+        // 4. Aggregate by product name
+        const productMap = {};
+        items.forEach(item => {
+            const unitCost = item.productId ? (costMap[String(item.productId)] || 0) : 0;
+            const rev  = (item.quantity || 0) * (item.unitPrice || 0);
+            const cost = (item.quantity || 0) * unitCost;
+            const key  = item.name || 'Unknown';
+            if (!productMap[key]) productMap[key] = { name: key, qty: 0, revenue: 0, cost: 0, profit: 0 };
+            productMap[key].qty     += item.quantity || 0;
+            productMap[key].revenue += rev;
+            productMap[key].cost    += cost;
+            productMap[key].profit  += rev - cost;
+        });
+        const productAnalytics = Object.values(productMap)
+            .map(p => ({ ...p, margin: p.revenue > 0 ? Math.round(p.profit / p.revenue * 100) : 0 }))
+            .sort((a, b) => b.profit - a.profit);
+
+        return { totalRevenue, orderCount, openOrderCount, byMethod, byDay, byHour, recentTransactions, productAnalytics };
+    };
+
+    AppModel.remoteMethod('revenueReport', {
+        description: 'Revenue summary + product analytics for a date range',
+        accepts: [
+            { arg: 'from', type: 'string', required: true,  http: { source: 'query' } },
+            { arg: 'to',   type: 'string', required: false, http: { source: 'query' } },
+        ],
+        returns: { arg: 'result', type: 'object', root: true },
+        http: { path: '/revenue-report', verb: 'get' },
+    });
+
+    // ── Batch upsert SaleOrderItems (1 request thay vì N parallel calls) ────
+    AppModel.batchItems = async function(id, data) {
+        const SaleOrderItem = AppModel.app.models.SaleOrderItem;
+        const items = (data && data.items) || [];
+        const now = new Date().toISOString();
+        await Promise.all(items.map(async function(item) {
+            if (item.itemId) {
+                // Item đã có trên server → PATCH qty
+                await SaleOrderItem.updateAll({ id: item.itemId }, {
+                    quantity: item.quantity,
+                    subtotal: item.subtotal,
+                    updatedAt: now,
+                });
+            } else {
+                // Item mới → POST (trigger after-save → push notification)
+                await SaleOrderItem.create({
+                    saleOrderId: id,
+                    productId: item.productId,
+                    name: item.name,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice,
+                    unit: item.unit || 'phần',
+                    discount: 0,
+                    subtotal: item.subtotal,
+                    note: item.note || '',
+                    createdAt: now,
+                    updatedAt: now,
+                });
+            }
+        }));
+        return { ok: true, count: items.length };
+    };
+
+    AppModel.remoteMethod('batchItems', {
+        description: 'Batch upsert SaleOrderItems for a SaleOrder (1 HTTP call)',
+        accepts: [
+            { arg: 'id',   type: 'string', required: true,  http: { source: 'path' } },
+            { arg: 'data', type: 'object', required: true,  http: { source: 'body' } },
+        ],
+        returns: { arg: 'result', type: 'object', root: true },
+        http: { path: '/:id/batch-items', verb: 'post' },
     });
 
 };

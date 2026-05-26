@@ -5,13 +5,15 @@ module.exports = async function(instance) {
     if (instance.changes.status.from !== 'cleaning' || instance.changes.status.to !== 'available') return;
 
     const app = require('../../server');
-    const { User, notification: Notification } = app.models;
+    const { getUserIdsByRoles } = require('./_helpers');
+    const { notification: Notification } = app.models;
 
     const room = instance.data;
     const roomId = instance.objectId || room.id || 'none';
     const roomName = room.name || room.code || 'Phòng không tên';
 
-    const allUserIds = (await User.find({ fields: { id: true } })).map(u => u.id);
+    // cashier + manager nhận thông báo phòng sẵn sàng
+    const allUserIds = await getUserIdsByRoles(app, ['cashier']);
 
     console.log(`[Trigger] Room.updated (available) - Room: ${roomName}`);
 

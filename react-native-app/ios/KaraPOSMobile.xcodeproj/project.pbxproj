@@ -19,7 +19,7 @@
 /* Begin PBXFileReference section */
 		128A5D927D1DF82D47B0E981 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-KaraPOSMobile/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* KaraPOSMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KaraPOSMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FA01A680F5B00A75B9A /* KaraPOSMobile/KaraPOSMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KaraPOSMobile/KaraPOSMobile.entitlements; sourceTree = "<group>"; };
+		13B07FA01A680F5B00A75B9A /* KaraPOSMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KaraPOSMobile/KaraPOSMobile.entitlements; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = KaraPOSMobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = KaraPOSMobile/Info.plist; sourceTree = "<group>"; };
 		98FE91CBCC493BE1E9D5B5E9 /* Pods-KaraPOSMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KaraPOSMobile.release.xcconfig"; path = "Target Support Files/Pods-KaraPOSMobile/Pods-KaraPOSMobile.release.xcconfig"; sourceTree = "<group>"; };
@@ -50,7 +50,7 @@
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				F11748442D0722820044C1D9 /* KaraPOSMobile-Bridging-Header.h */,
-				13B07FA01A680F5B00A75B9A /* KaraPOSMobile/KaraPOSMobile.entitlements */,
+				13B07FA01A680F5B00A75B9A /* KaraPOSMobile.entitlements */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,

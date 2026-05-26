@@ -115,6 +115,328 @@ angular.module('karaApp').controller('CashierController',
         $scope.serverBillsSkip = 0;
         $scope.hasMoreBills = true;
         $scope.editBillMode = false; // Chế độ sửa bill
+
+        function getSelectedSaleOrder() {
+            if (!$scope.selectedRoom || !$scope.selectedRoom.saleOrderId) {
+                return null;
+            }
+
+            var saleOrders = StorageService.get('saleorders') || [];
+            return saleOrders.find(function(order) {
+                return order.id === $scope.selectedRoom.saleOrderId;
+            }) || null;
+        }
+
+        function toIsoStringOrNull(value) {
+            if (!value) {
+                return null;
+            }
+
+            var parsed = value instanceof Date ? value : new Date(value);
+            return isNaN(parsed.getTime()) ? null : parsed.toISOString();
+        }
+
+        function buildSnapshotItems(items) {
+            return (items || []).map(function(item) {
+                var quantity = Number(item.quantity || 0);
+                var unitPrice = Number(item.price != null ? item.price : (item.unitPrice || 0));
+                var itemTotal = item.total != null
+                    ? Number(item.total)
+                    : (item.subtotal != null ? Number(item.subtotal) : quantity * unitPrice);
+                var snapshotItem = {
+                    productId: item.itemId || item.productId || null,
+                    name: item.name || '',
+                    quantity: quantity,
+                    unit: item.unit || 'phần',
+                    price: unitPrice,
+                    total: itemTotal,
+                    note: item.note || '',
+                    isTimeBased: !!item.isTimeBased,
+                    isSurcharge: !!item.isSurcharge,
+                    isCombo: !!item.isCombo
+                };
+                var startTime = item._manualStartTime || item.startTime || item.createdAt || null;
+                var endTime = item._manualEndTime || item.endTime || null;
+                if (startTime) {
+                    snapshotItem.startTime = toIsoStringOrNull(startTime);
+                }
+                if (endTime) {
+                    snapshotItem.endTime = toIsoStringOrNull(endTime);
+                }
+                if (item.bomItems && item.bomItems.length) {
+                    snapshotItem.bomItems = angular.copy(item.bomItems);
+                }
+                return snapshotItem;
+            });
+        }
+
+        function buildCurrentSelectedRoomBill() {
+            if (!$scope.selectedRoom) {
+                return null;
+            }
+
+            return {
+                saleOrderId: $scope.selectedRoom.saleOrderId || null,
+                roomName: $scope.selectedRoom.name,
+                roomId: $scope.selectedRoom.id,
+                startTime: $scope.selectedRoom.startTime,
+                customerInfo: angular.copy($scope.selectedRoom.customerInfo || {}),
+                items: buildSnapshotItems($scope.cart),
+                roomCharge: Number($scope.roomCharge || 0),
+                foodTotal: Number($scope.foodTotal || 0),
+                subtotal: Number($scope.subtotal || 0),
+                discount: Number($scope.discount || 0),
+                discountType: $scope.discountType || 'amount',
+                discountInput: Number($scope.discountInput || 0),
+                total: Number($scope.total || 0)
+            };
+        }
+
+        function buildPrintedBillSnapshot(sourceBill, printedAt) {
+            if (!sourceBill) {
+                return null;
+            }
+
+            return {
+                version: 1,
+                printedAt: printedAt || new Date().toISOString(),
+                saleOrderId: sourceBill.saleOrderId || ($scope.selectedRoom && $scope.selectedRoom.saleOrderId) || null,
+                roomId: sourceBill.roomId || ($scope.selectedRoom && $scope.selectedRoom.id) || null,
+                roomName: sourceBill.roomName || ($scope.selectedRoom && $scope.selectedRoom.name) || '',
+                startTime: toIsoStringOrNull(sourceBill.startTime || ($scope.selectedRoom && $scope.selectedRoom.startTime)),
+                customerInfo: angular.copy(sourceBill.customerInfo || ($scope.selectedRoom && $scope.selectedRoom.customerInfo) || {}),
+                roomCharge: Number(sourceBill.roomCharge || 0),
+                foodTotal: Number(sourceBill.foodTotal || 0),
+                subtotal: Number(sourceBill.subtotal || 0),
+                discount: Number(sourceBill.discount || 0),
+                discountType: sourceBill.discountType || 'amount',
+                discountInput: Number(sourceBill.discountInput || 0),
+                total: Number(sourceBill.total != null ? sourceBill.total : (sourceBill.totalAmount || 0)),
+                items: buildSnapshotItems(sourceBill.items || [])
+            };
+        }
+
+        function getPendingSelectedSaleOrderCreate() {
+            if (!$scope.selectedRoom || !$scope.selectedRoom.saleOrderId) {
+                return null;
+            }
+
+            var saleOrderIdStr = String($scope.selectedRoom.saleOrderId || '');
+            if (!saleOrderIdStr.startsWith('temp-') && !saleOrderIdStr.startsWith('local-')) {
+                return null;
+            }
+
+            return (SyncService.getSyncQueue() || []).find(function(queueItem) {
+                return queueItem.action === 'create' &&
+                       queueItem.model === 'saleorders' &&
+                       queueItem.status === 'pending' &&
+                       queueItem.data &&
+                       queueItem.data.roomId === $scope.selectedRoom.id;
+            }) || null;
+        }
+
+        function patchPendingSelectedSaleOrderCreate(patch) {
+            if (!patch) {
+                return false;
+            }
+
+            var pendingCreate = getPendingSelectedSaleOrderCreate();
+            if (!pendingCreate || !pendingCreate.data) {
+                return false;
+            }
+
+            angular.extend(pendingCreate.data, angular.copy(patch));
+            SyncService.saveSyncQueue();
+            return true;
+        }
+
+        function getLatestPrintedSaleOrderSnapshot(saleOrder) {
+            var localOrder = getSelectedSaleOrder();
+            var candidates = [];
+
+            if (saleOrder && saleOrder.printedBillSnapshot) {
+                candidates.push(saleOrder.printedBillSnapshot);
+            }
+            if (localOrder && localOrder.printedBillSnapshot) {
+                candidates.push(localOrder.printedBillSnapshot);
+            }
+
+            if (!candidates.length) {
+                return null;
+            }
+
+            candidates.sort(function(a, b) {
+                return (Date.parse(b && b.printedAt || '') || 0) - (Date.parse(a && a.printedAt || '') || 0);
+            });
+
+            return angular.copy(candidates[0]);
+        }
+
+        function getEffectivePaymentBillContext(saleOrder) {
+            var printedSnapshot = getLatestPrintedSaleOrderSnapshot(saleOrder);
+            if (printedSnapshot && printedSnapshot.printedAt) {
+                if (!Array.isArray(printedSnapshot.items)) {
+                    printedSnapshot.items = [];
+                }
+                return {
+                    source: 'snapshot',
+                    bill: printedSnapshot
+                };
+            }
+
+            return {
+                source: 'live',
+                bill: buildCurrentSelectedRoomBill()
+            };
+        }
+
+        function getSelectedBillRecord() {
+            return getSelectedSaleOrder() || {
+                printedAt: $scope.selectedRoom && $scope.selectedRoom.printedAt,
+                timeFrozen: $scope.selectedRoom && $scope.selectedRoom.timeFrozen,
+                status: $scope.selectedRoom && $scope.selectedRoom.saleOrderStatus,
+                allowEditAfterPrint: $scope.selectedRoom && $scope.selectedRoom.allowEditAfterPrint
+            };
+        }
+
+        function isLockedBillRecord(record) {
+            return !!(record && (
+                record.status === 'completed' ||
+                record.status === 'paid' ||
+                (record.printedAt && !record.allowEditAfterPrint)
+            ));
+        }
+
+        function canTemporarilyUnlockBillRecord(record) {
+            return !!(record && record.printedAt && record.status !== 'completed' && record.status !== 'paid');
+        }
+
+        function isSelectedBillLockedInternal() {
+            return isLockedBillRecord(getSelectedBillRecord());
+        }
+
+        $scope.isSelectedBillLocked = function() {
+            return isSelectedBillLockedInternal();
+        };
+
+        $scope.canTemporarilyUnlockSelectedBill = function() {
+            var record = getSelectedBillRecord();
+            return canTemporarilyUnlockBillRecord(record) && !record.allowEditAfterPrint;
+        };
+
+        $scope.isSelectedBillTemporarilyUnlocked = function() {
+            var record = getSelectedBillRecord();
+            return !!(record && record.printedAt && record.allowEditAfterPrint && record.status !== 'completed' && record.status !== 'paid');
+        };
+
+        $scope.isSelectedBillPaused = function() {
+            return !!($scope.selectedRoom && $scope.selectedRoom.timeFrozen);
+        };
+
+        function ensureSelectedBillEditable(actionText) {
+            if (!isSelectedBillLockedInternal()) {
+                return true;
+            }
+
+            alert('Bill đã in, không thể ' + actionText + '.');
+            return false;
+        }
+
+        function persistSelectedRoomStatePatch(patch) {
+            if (!$scope.selectedRoom || !patch) {
+                return;
+            }
+
+            angular.extend($scope.selectedRoom, patch);
+
+            var rooms = StorageService.get('rooms') || [];
+            var roomIndex = rooms.findIndex(function(room) {
+                return room.id === $scope.selectedRoom.id;
+            });
+            if (roomIndex >= 0) {
+                angular.extend(rooms[roomIndex], patch);
+                StorageService.set('rooms', rooms);
+            }
+        }
+
+        function syncCurrentSaleOrderFreezeState(isFrozen, extraPatch) {
+            if (!$scope.selectedRoom || !$scope.selectedRoom.saleOrderId) {
+                return;
+            }
+
+            var saleOrders = StorageService.get('saleorders') || [];
+            var orderIndex = saleOrders.findIndex(function(order) {
+                return order.id === $scope.selectedRoom.saleOrderId;
+            });
+            var updatedAt = new Date().toISOString();
+            var saleOrderIdStr = String($scope.selectedRoom.saleOrderId || '');
+            var isLocalSaleOrder = saleOrderIdStr.startsWith('temp-') || saleOrderIdStr.startsWith('local-');
+            var saleOrderPatch = angular.extend({
+                timeFrozen: isFrozen,
+                updatedAt: updatedAt
+            }, extraPatch || {});
+
+            if (orderIndex >= 0) {
+                angular.extend(saleOrders[orderIndex], saleOrderPatch);
+                StorageService.set('saleorders', saleOrders);
+
+                if (isLocalSaleOrder) {
+                    patchPendingSelectedSaleOrderCreate(saleOrderPatch);
+                } else {
+                    SyncService.addToQueue('update', 'saleorders', saleOrders[orderIndex]);
+                }
+                return;
+            }
+
+            if (isLocalSaleOrder) {
+                patchPendingSelectedSaleOrderCreate(saleOrderPatch);
+                return;
+            }
+
+            var fallbackPatch = angular.extend({
+                id: $scope.selectedRoom.saleOrderId
+            }, saleOrderPatch);
+            SyncService.addToQueue('update', 'saleorders', fallbackPatch);
+        }
+
+        function setTemporaryBillUnlock(isUnlocked) {
+            var record = getSelectedBillRecord();
+            if (!canTemporarilyUnlockBillRecord(record)) {
+                return;
+            }
+
+            var nextValue = !!isUnlocked;
+            if (!!record.allowEditAfterPrint === nextValue) {
+                return;
+            }
+
+            var confirmMessage = nextValue
+                ? 'Mở tạm chỉnh bill đã in?\nCác thao tác sửa bill sẽ được bật lại cho bill này.'
+                : 'Khóa lại bill này?\nCác thao tác chỉnh bill sẽ bị khóa lại như sau khi in.';
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            persistSelectedRoomStatePatch({ allowEditAfterPrint: nextValue });
+            syncCurrentSaleOrderFreezeState(!!($scope.selectedRoom && $scope.selectedRoom.timeFrozen), {
+                allowEditAfterPrint: nextValue
+            });
+
+            AuditService.log(nextValue ? 'unlock_printed_bill' : 'relock_printed_bill', {
+                room: $scope.selectedRoom && $scope.selectedRoom.name,
+                saleOrderId: $scope.selectedRoom && $scope.selectedRoom.saleOrderId,
+                user: currentUser.username,
+                printedAt: record.printedAt || null
+            });
+        }
+
+        $scope.temporarilyUnlockSelectedBill = function() {
+            setTemporaryBillUnlock(true);
+        };
+
+        $scope.relockSelectedBill = function() {
+            setTemporaryBillUnlock(false);
+        };
         
         // Daily summary data
         $scope.dailySummary = {
@@ -511,10 +833,19 @@ angular.module('karaApp').controller('CashierController',
                                 return;
                             }
                             if (order) {
-                                r.timeFrozen = !!(order.timeFrozen || order.printedAt);
+                                r.timeFrozen = !!order.timeFrozen;
+                                r.printedAt = order.printedAt || null;
+                                r.saleOrderStatus = order.status || null;
+                                r.allowEditAfterPrint = !!order.allowEditAfterPrint;
                                 var rooms3 = StorageService.get('rooms') || [];
                                 var rIdx3 = rooms3.findIndex(function(x) { return x.id === r.id; });
-                                if (rIdx3 >= 0) { rooms3[rIdx3].timeFrozen = r.timeFrozen; StorageService.set('rooms', rooms3); }
+                                if (rIdx3 >= 0) {
+                                    rooms3[rIdx3].timeFrozen = r.timeFrozen;
+                                    rooms3[rIdx3].printedAt = r.printedAt;
+                                    rooms3[rIdx3].saleOrderStatus = r.saleOrderStatus;
+                                    rooms3[rIdx3].allowEditAfterPrint = r.allowEditAfterPrint;
+                                    StorageService.set('rooms', rooms3);
+                                }
                                 // Lưu saleorder vào localStorage để autoSaveOrder có thể update được
                                 var allSaleOrders = StorageService.get('saleorders') || [];
                                 var soIdx = allSaleOrders.findIndex(function(o) { return o.id === order.id; });
@@ -1036,6 +1367,10 @@ angular.module('karaApp').controller('CashierController',
                 alert('Vui lòng chọn phòng đang sử dụng!');
                 return;
             }
+
+            if (!ensureSelectedBillEditable('thêm món')) {
+                return;
+            }
             
             // Xử lý time-based products đặc biệt
             if (item.isTimeBased) {
@@ -1315,6 +1650,10 @@ angular.module('karaApp').controller('CashierController',
         
         // Edit note for existing cart item
         $scope.editNote = function(item) {
+            if (!ensureSelectedBillEditable('ghi chú món')) {
+                return;
+            }
+
             $scope.currentItemForNote = item;
             $scope.itemNote = item.note || '';
             // Save old note so autoSaveOrder can find the record even after note changes
@@ -1323,6 +1662,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.saveItemNote = function() {
+            if (!ensureSelectedBillEditable('ghi chú món')) {
+                return;
+            }
+
             var item = $scope.currentItemForNote;
             var note = $scope.itemNote;
             
@@ -1344,6 +1687,10 @@ angular.module('karaApp').controller('CashierController',
 
         // ===== Chỉnh giờ bắt đầu / kết thúc cho time-based cart item =====
         $scope.editTimeBasedItem = function(item) {
+            if (!ensureSelectedBillEditable('chỉnh giờ món')) {
+                return;
+            }
+
             $scope._editTimeItem = item;
             // AngularJS datetime-local input binds to Date objects, NOT strings.
             // Strip seconds & ms so the input shows clean hh:mm on Mac (no fractional seconds).
@@ -1367,6 +1714,10 @@ angular.module('karaApp').controller('CashierController',
         };
 
         $scope.saveEditTimeBased = function() {
+            if (!ensureSelectedBillEditable('chỉnh giờ món')) {
+                return;
+            }
+
             var item = $scope._editTimeItem;
             if (!item) return;
 
@@ -1397,6 +1748,10 @@ angular.module('karaApp').controller('CashierController',
 
         var _updateQtyTimer = null;
         $scope.updateQuantity = function(item, delta) {
+            if (!ensureSelectedBillEditable('điều chỉnh số lượng')) {
+                return;
+            }
+
             // Time-based items: quantity is auto-calculated, cannot be manually adjusted
             if (item.isTimeBased) return;
 
@@ -1428,6 +1783,10 @@ angular.module('karaApp').controller('CashierController',
         };
 
         $scope.removeFromCart = function(item) {
+            if (!ensureSelectedBillEditable('xóa món')) {
+                return;
+            }
+
             var index = $scope.cart.indexOf(item);
             if (index > -1 && confirm('Xóa món ' + item.name + '?')) {
                 console.log('🗑️ [removeFromCart] START — cart item:', {
@@ -1550,6 +1909,10 @@ angular.module('karaApp').controller('CashierController',
         
         // Return item with reason
         $scope.showReturnModal = function() {
+            if (!ensureSelectedBillEditable('trả món')) {
+                return;
+            }
+
             if (!$scope.selectedRoom || !$scope.cart || $scope.cart.length === 0) {
                 alert('Không có món nào để trả!');
                 return;
@@ -1578,6 +1941,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.confirmReturn = function() {
+            if (!ensureSelectedBillEditable('trả món')) {
+                return;
+            }
+
             if (!$scope.selectedReturnItem) {
                 alert('Vui lòng chọn món cần trả!');
                 return;
@@ -1731,6 +2098,10 @@ angular.module('karaApp').controller('CashierController',
         $scope.voucherMessage = null;
         
         $scope.applyDiscount = function() {
+            if (!ensureSelectedBillEditable('giảm giá')) {
+                return;
+            }
+
             if (!$scope.discountInput || $scope.discountInput < 0) {
                 $scope.discount = 0;
             } else if ($scope.discountType === 'percentage') {
@@ -1746,6 +2117,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.clearDiscount = function() {
+            if (!ensureSelectedBillEditable('xóa giảm giá')) {
+                return;
+            }
+
             $scope.discount = 0;
             $scope.discountInput = 0;
             $scope.voucherCode = '';
@@ -1755,11 +2130,18 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.showDiscountModal = function() {
+            if (!ensureSelectedBillEditable('mở chỉnh giảm giá')) {
+                return;
+            }
+
             document.getElementById('discountModal').classList.remove('hidden');
         };
         
         $scope.closeDiscountModal = function() {
             document.getElementById('discountModal').classList.add('hidden');
+            if (!ensureSelectedBillEditable('cập nhật giảm giá')) {
+                return;
+            }
             autoSaveOrder(); // Lưu discount vào saleorder 1 lần khi đóng modal
         };
         
@@ -1770,6 +2152,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.applyVoucher = function() {
+            if (!ensureSelectedBillEditable('áp dụng voucher')) {
+                return;
+            }
+
             if (!$scope.voucherCode || $scope.voucherCode.trim() === '') {
                 $scope.voucherMessage = { success: false, text: 'Vui lòng nhập voucher code' };
                 return;
@@ -1865,8 +2251,14 @@ angular.module('karaApp').controller('CashierController',
             }
             
             $scope.calculateTotal();
+            var paymentContext = getEffectivePaymentBillContext();
             $scope.paymentMethod = 'cash';
-            $scope.paymentReceived = $scope.total;
+            $scope.paymentUsesPrintedSnapshot = paymentContext.source === 'snapshot';
+            $scope.paymentSnapshotPrintedAt = paymentContext.bill && paymentContext.bill.printedAt
+                ? new Date(paymentContext.bill.printedAt)
+                : null;
+            $scope.paymentTargetTotal = Number((paymentContext.bill && paymentContext.bill.total) || 0);
+            $scope.paymentReceived = $scope.paymentTargetTotal;
             $scope.paymentChange = 0;
             
             showModal('paymentModal');
@@ -1877,11 +2269,14 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.calculateChange = function() {
-            $scope.paymentChange = $scope.paymentReceived - $scope.total;
+            var targetTotal = Number($scope.paymentTargetTotal != null ? $scope.paymentTargetTotal : $scope.total || 0);
+            $scope.paymentChange = $scope.paymentReceived - targetTotal;
         };
         
         $scope.processPayment = function() {
-            if ($scope.paymentMethod === 'cash' && $scope.paymentReceived < $scope.total) {
+            var targetTotal = Number($scope.paymentTargetTotal != null ? $scope.paymentTargetTotal : $scope.total || 0);
+
+            if ($scope.paymentMethod === 'cash' && $scope.paymentReceived < targetTotal) {
                 alert('Số tiền nhận không đủ!');
                 return;
             }
@@ -1947,49 +2342,65 @@ angular.module('karaApp').controller('CashierController',
         }
 
         function completePay(saleOrder) {
+            var paymentContext = getEffectivePaymentBillContext(saleOrder);
             _nextInvoiceNumber().then(function(invoiceNumber) {
-                _doCreateInvoice(invoiceNumber, saleOrder);
+                _doCreateInvoice(invoiceNumber, saleOrder, paymentContext);
             });
         }
 
-        function _doCreateInvoice(invoiceNumber, saleOrder) {
+        function _doCreateInvoice(invoiceNumber, saleOrder, paymentContext) {
+            var sourceBill = paymentContext && paymentContext.bill ? paymentContext.bill : buildCurrentSelectedRoomBill();
+            var sourceItems = (sourceBill && sourceBill.items) || [];
+            var sourceTotal = Number((sourceBill && (sourceBill.total != null ? sourceBill.total : sourceBill.totalAmount)) || 0);
+            var effectiveSaleOrderId = saleOrder ? saleOrder.id : (($scope.selectedRoom && $scope.selectedRoom.saleOrderId) || sourceBill.saleOrderId || null);
+            if (effectiveSaleOrderId) {
+                var effectiveSaleOrderIdStr = String(effectiveSaleOrderId);
+                if (effectiveSaleOrderIdStr.startsWith('temp-') || effectiveSaleOrderIdStr.startsWith('local-')) {
+                    effectiveSaleOrderId = null;
+                }
+            }
 
             // Create bill using backend data
             var billData = {
                 invoiceNumber: invoiceNumber,
                 invoiceDate: new Date(),
                 customerId: saleOrder ? saleOrder.customerId : null,
-                roomId: $scope.selectedRoom.id,
-                startTime: $scope.selectedRoom.startTime
-                    ? new Date($scope.selectedRoom.startTime).toISOString() : null,
-                totalAmount: $scope.total,
-                subtotal: $scope.subtotal,
-                discount: $scope.discount || 0,
-                discountType: $scope.discountType || 'amount',
-                discountInput: $scope.discountInput || 0,
+                saleOrderId: effectiveSaleOrderId,
+                roomId: (sourceBill && sourceBill.roomId) || $scope.selectedRoom.id,
+                startTime: toIsoStringOrNull(sourceBill && sourceBill.startTime),
+                printedAt: sourceBill && sourceBill.printedAt ? sourceBill.printedAt : null,
+                totalAmount: sourceTotal,
+                subtotal: Number((sourceBill && sourceBill.subtotal) || 0),
+                discount: Number((sourceBill && sourceBill.discount) || 0),
+                discountType: (sourceBill && sourceBill.discountType) || 'amount',
+                discountInput: Number((sourceBill && sourceBill.discountInput) || 0),
                 status: 'paid',
                 paidAmount: $scope.paymentReceived,
                 remainingAmount: 0,
                 paidBy: currentUser.username,
                 cashierName: currentUser.username,
-                roomCharge: $scope.roomCharge || 0,
-                foodTotal: $scope.foodTotal || 0,
+                roomCharge: Number((sourceBill && sourceBill.roomCharge) || 0),
+                foodTotal: Number((sourceBill && sourceBill.foodTotal) || 0),
                 paymentMethod: $scope.paymentMethod || 'cash',
-                items: $scope.cart.map(function(item) {
+                items: sourceItems.map(function(item) {
+                    var quantity = Number(item.quantity || 0);
+                    var price = Number(item.price != null ? item.price : (item.unitPrice || 0));
                     var mapped = {
-                        productId: item.itemId,
+                        productId: item.productId || item.itemId,
                         name: item.name,
-                        quantity: item.quantity,
+                        quantity: quantity,
                         unit: item.unit || 'phần',
-                        price: item.price,
-                        total: item.quantity * item.price,
+                        price: price,
+                        total: item.total != null ? Number(item.total) : quantity * price,
                         note: item.note || '',
                         isTimeBased: item.isTimeBased || false,
                         isSurcharge: item.isSurcharge || false
                     };
                     if (item.isTimeBased) {
-                        var tStart = item._manualStartTime || item.startTime || item.createdAt;
-                        if (tStart) mapped.startTime = new Date(tStart).toISOString();
+                        var tStart = item.startTime || item._manualStartTime || item.createdAt;
+                        var tEnd = item.endTime || item._manualEndTime || null;
+                        if (tStart) mapped.startTime = toIsoStringOrNull(tStart);
+                        if (tEnd) mapped.endTime = toIsoStringOrNull(tEnd);
                     }
                     return mapped;
                 }),
@@ -2005,20 +2416,21 @@ angular.module('karaApp').controller('CashierController',
                 if (saleOrder && saleOrder.id) {
                     ApiService.update('saleorders', saleOrder.id, {
                         status: 'completed',
-                        paidAmount: $scope.total,
-                        total: $scope.total,
+                        paidAmount: sourceTotal,
+                        total: sourceTotal,
                         updatedAt: new Date()
                     });
                 }
                 
                 // Deduct stock for all items
-                $scope.cart.forEach(function(item) {
+                sourceItems.forEach(function(item) {
+                    var productId = item.itemId || item.productId;
                     if (item.isCombo && item.bomItems) {
                         item.bomItems.forEach(function(bomItem) {
                             MenuService.updateStock(bomItem.itemId, -bomItem.quantity * item.quantity);
                         });
                     } else {
-                        MenuService.updateStock(item.itemId, -item.quantity);
+                        MenuService.updateStock(productId, -item.quantity);
                     }
                 });
                 
@@ -2034,7 +2446,7 @@ angular.module('karaApp').controller('CashierController',
                 $scope.cart = [];
                 $scope.closePaymentModal();
                 
-                alert('Thanh toán thành công!\nHóa đơn: ' + invoiceNum + '\nTổng: ' + $scope.total.toLocaleString() + 'đ');
+                alert('Thanh toán thành công!\nHóa đơn: ' + invoiceNum + '\nTổng: ' + sourceTotal.toLocaleString() + 'đ');
             }).catch(function(error) {
                 console.error('Failed to create invoice:', error);
                 alert('Lỗi tạo hóa đơn! Vui lòng thử lại.');
@@ -2206,35 +2618,26 @@ angular.module('karaApp').controller('CashierController',
                     var roomInStorage = allRooms.find(function(r) { return r.id === $scope.selectedRoom.id; });
                     if (roomInStorage) { roomInStorage.timeFrozen = true; StorageService.set('rooms', allRooms); }
                 }
-                bill = {
-                    roomName:     $scope.selectedRoom.name,
-                    roomId:       $scope.selectedRoom.id,
-                    startTime:    $scope.selectedRoom.startTime,
-                    customerInfo: $scope.selectedRoom.customerInfo || {},
-                    items:        $scope.cart,
-                    roomCharge:   $scope.roomCharge,
-                    foodTotal:    $scope.foodTotal,
-                    subtotal:     $scope.subtotal,
-                    discount:     $scope.discount || 0,
-                    discountType: $scope.discountType || 'amount',
-                    discountInput:$scope.discountInput || 0,
-                    total:        $scope.total,
-                    printTime:    new Date()
-                };
+                bill = buildCurrentSelectedRoomBill();
+                if (bill) {
+                    bill.printTime = new Date();
+                }
             }
 
             // ── Ghi nhận thời gian in bill ──────────────────────────────
             var printedAt = new Date().toISOString();
+            persistSelectedRoomStatePatch({
+                printedAt: printedAt,
+                allowEditAfterPrint: false
+            });
             // Trường hợp 1: cập nhật saleorder của phòng hiện tại
             if (!bill.id && $scope.selectedRoom && $scope.selectedRoom.saleOrderId) {
-                var _soList = StorageService.get('saleorders') || [];
-                var _soIdx  = _soList.findIndex(function(o) { return o.id === $scope.selectedRoom.saleOrderId; });
-                if (_soIdx > -1) {
-                    _soList[_soIdx].printedAt  = printedAt;
-                    _soList[_soIdx].updatedAt  = printedAt;
-                    StorageService.set('saleorders', _soList);
-                    SyncService.addToQueue('update', 'saleorders', _soList[_soIdx]);
-                }
+                var printedBillSnapshot = buildPrintedBillSnapshot(bill, printedAt);
+                syncCurrentSaleOrderFreezeState(true, {
+                    printedAt: printedAt,
+                    allowEditAfterPrint: false,
+                    printedBillSnapshot: printedBillSnapshot
+                });
             }
             // Trường hợp 2: cập nhật bills_cache và server nếu bill đã có id
             if (bill.id) {
@@ -2288,6 +2691,10 @@ angular.module('karaApp').controller('CashierController',
         
         // Room operations
         $scope.showChangeRoomModal = function() {
+            if (!ensureSelectedBillEditable('đổi phòng')) {
+                return;
+            }
+
             if (!$scope.selectedRoom || $scope.selectedRoom.status !== 'occupied') {
                 alert('Vui lòng chọn phòng đang sử dụng!');
                 return;
@@ -2305,6 +2712,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.changeRoom = function(newRoom) {
+            if (!ensureSelectedBillEditable('đổi phòng')) {
+                return;
+            }
+
             if (confirm('Chuyển từ ' + $scope.selectedRoom.name + ' sang ' + newRoom.name + '?\nĐơn hàng và giờ vào sẽ được chuyển sang phòng mới.')) {
                 var result = RoomService.changeRoom($scope.selectedRoom.id, newRoom.id, OrderService);
                 if (result) {
@@ -2325,6 +2736,9 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.showPrintConfirmModal = function() {
+                    if ($scope.selectedRoom) {
+                        $scope.selectedRoom.printedAt = printedAt;
+                    }
             $scope.printBill();
         };
 
@@ -2373,11 +2787,16 @@ angular.module('karaApp').controller('CashierController',
                 roomInStorage.timeFrozen = false;
                 StorageService.set('rooms', allRooms);
             }
+            syncCurrentSaleOrderFreezeState(false);
             startSurchargeTimer();
             $scope.calculateTotal();
         };
 
         $scope.showEditTimeModal = function() {
+            if (!ensureSelectedBillEditable('sửa giờ vào')) {
+                return;
+            }
+
             if (!$scope.selectedRoom || $scope.selectedRoom.status !== 'occupied') {
                 alert('Vui lòng chọn phòng đang sử dụng!');
                 return;
@@ -2398,6 +2817,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.confirmEditTime = function() {
+            if (!ensureSelectedBillEditable('sửa giờ vào')) {
+                return;
+            }
+
             if (!$scope.editTimeData.reason) {
                 alert('Vui lòng nhập lý do!');
                 return;
@@ -2410,17 +2833,18 @@ angular.module('karaApp').controller('CashierController',
             }
             
             var oldTime = $scope.selectedRoom.startTime;
+            var updatedAt = new Date();
+            var roomPatch = {
+                startTime: newStartTime,
+                updatedAt: updatedAt
+            };
 
-            // 1. Update the in-memory room object immediately (so UI + calculateTotal reflect it)
-            $scope.selectedRoom.startTime = newStartTime;
-
-            // 2. Persist the room to localStorage
-            var allRooms = StorageService.get('rooms') || [];
-            var roomInStorage = allRooms.find(function(r) { return r.id === $scope.selectedRoom.id; });
-            if (roomInStorage) {
-                roomInStorage.startTime = newStartTime;
-                StorageService.set('rooms', allRooms);
-            }
+            // Room.startTime is the primary source used when the UI rehydrates a room,
+            // so editing check-in time must be persisted and synced on the room itself.
+            persistSelectedRoomStatePatch(roomPatch);
+            SyncService.addToQueue('update', 'rooms', angular.extend({
+                id: $scope.selectedRoom.id
+            }, roomPatch));
 
             // 3. Update SaleOrder orderDate
             if ($scope.selectedRoom.saleOrderId) {
@@ -2432,16 +2856,32 @@ angular.module('karaApp').controller('CashierController',
                 if (saleOrder) {
                     saleOrder.orderDate = newStartTime;
                     saleOrder.deliveryDate = newStartTime;
-                    saleOrder.updatedAt = new Date();
+                    saleOrder.updatedAt = updatedAt;
                     StorageService.set('saleorders', saleOrders);
-                    
-                    // Sync to server
-                    SyncService.addToQueue('update', 'saleorders', {
-                        id: saleOrder.id,
-                        orderDate: newStartTime,
-                        deliveryDate: newStartTime,
-                        updatedAt: new Date()
-                    });
+
+                    var saleOrderIdStr = String(saleOrder.id || $scope.selectedRoom.saleOrderId || '');
+                    if (saleOrderIdStr && !saleOrderIdStr.startsWith('temp-') && !saleOrderIdStr.startsWith('local-')) {
+                        SyncService.addToQueue('update', 'saleorders', {
+                            id: saleOrder.id,
+                            orderDate: newStartTime,
+                            deliveryDate: newStartTime,
+                            updatedAt: updatedAt
+                        });
+                    } else {
+                        var pendingSaleOrderCreate = SyncService.getSyncQueue().find(function(queueItem) {
+                            return queueItem.action === 'create' &&
+                                   queueItem.model === 'saleorders' &&
+                                   queueItem.status === 'pending' &&
+                                   queueItem.data &&
+                                   queueItem.data.roomId === $scope.selectedRoom.id;
+                        });
+                        if (pendingSaleOrderCreate && pendingSaleOrderCreate.data) {
+                            pendingSaleOrderCreate.data.orderDate = newStartTime;
+                            pendingSaleOrderCreate.data.deliveryDate = newStartTime;
+                            pendingSaleOrderCreate.data.updatedAt = updatedAt;
+                            SyncService.saveSyncQueue();
+                        }
+                    }
                 }
             }
 
@@ -2461,6 +2901,10 @@ angular.module('karaApp').controller('CashierController',
         
         // Merge Bills
         $scope.showMergeBillModal = function() {
+            if (!ensureSelectedBillEditable('gộp bill')) {
+                return;
+            }
+
             if (!$scope.selectedRoom || $scope.selectedRoom.status !== 'occupied') {
                 alert('Vui lòng chọn phòng hiện tại!');
                 return;
@@ -2478,6 +2922,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.mergeBill = function(fromRoom) {
+            if (!ensureSelectedBillEditable('gộp bill')) {
+                return;
+            }
+
             if (confirm('Gộp bill ' + fromRoom.name + ' vào ' + $scope.selectedRoom.name + '?')) {
                 // Get orders from both rooms
                 var fromOrders = OrderService.getOrdersByRoom(fromRoom.id);
@@ -2511,6 +2959,10 @@ angular.module('karaApp').controller('CashierController',
         
         // Split Bill
         $scope.showSplitBillModal = function() {
+            if (!ensureSelectedBillEditable('tách bill')) {
+                return;
+            }
+
             if (!$scope.selectedRoom || $scope.selectedRoom.status !== 'occupied') {
                 alert('Vui lòng chọn phòng hiện tại!');
                 return;
@@ -2537,6 +2989,10 @@ angular.module('karaApp').controller('CashierController',
         };
         
         $scope.splitBill = function(toRoom) {
+            if (!ensureSelectedBillEditable('tách bill')) {
+                return;
+            }
+
             var itemsToSplit = $scope.splitItems.filter(function(item) {
                 return item.toSplit;
             });
@@ -2595,6 +3051,11 @@ angular.module('karaApp').controller('CashierController',
         
         // Bill History Management
         $scope.editBill = function(bill) {
+            if (isLockedBillRecord(bill)) {
+                alert('Bill đã in hoặc đã khóa, không thể sửa.');
+                return;
+            }
+
             if (!bill) return;
             hideModal('billDetailModal');
             $scope.selectedBill = null;
@@ -2638,6 +3099,10 @@ angular.module('karaApp').controller('CashierController',
                 status:       'occupied',
                 startTime:    bill.startTime ? new Date(bill.startTime) : null,
                 saleOrderId:  bill.saleOrderId || bill.id || null,
+                printedAt:    bill.printedAt || null,
+                timeFrozen:   !!bill.timeFrozen,
+                allowEditAfterPrint: !!bill.allowEditAfterPrint,
+                saleOrderStatus: bill.status || null,
                 customerInfo: bill.customerInfo || {}
             };
 

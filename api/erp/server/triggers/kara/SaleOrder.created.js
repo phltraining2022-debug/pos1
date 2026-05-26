@@ -4,11 +4,13 @@ module.exports = async function(instance) {
     if (!instance || !instance.data) return;
 
     const app = require('../../server');
+    const { getUserIdsByRoles } = require('./_helpers');
     const { User, notification: Notification, Room, Employee, SaleOrderItem, Product, Cfg } = app.models;
 
     const saleOrder = instance.data;
     console.log('saleorder ', JSON.stringify(saleOrder));
     const orderId = instance.objectId || 'none';
+    const orderCode = saleOrder.code || orderId || 'Mới';
 
     // Thông tin phòng
     let roomName = 'N/A';
@@ -26,7 +28,7 @@ module.exports = async function(instance) {
 
     // Người tạo đơn — lấy từ createdById trên Log instance (userId thực hiện request)
     let creatorName = '';
-    const creatorId = saleOrder.createdById;
+    const creatorId = saleOrder.createdById || saleOrder.executedById;
     console.log(`[Trigger] SaleOrder.created - creatorId: ${creatorId}, salePersonId: ${saleOrder.salePersonId}`);
     if (creatorId) {
         const creator = await User.findById(creatorId);
@@ -40,15 +42,20 @@ module.exports = async function(instance) {
         if (executor) executorName = executor.fullName || executor.username || 'Nhân viên phục vụ';
     }
 
-    const allUserIds = (await User.find({ fields: { id: true } })).map(u => u.id);
+    // cashier + manager nhận thông báo mở phòng
+    const allUserIds = await getUserIdsByRoles(app, ['cashier']);
+    const openerName = creatorName || executorName || salePersonName || 'Không rõ';
+    const customerName = saleOrder.customerInfo && saleOrder.customerInfo.name;
+    const noteText = typeof saleOrder.note === 'string' ? saleOrder.note.trim() : '';
 
-    const title = `[${saleOrder.code || 'Mới'}] - Phòng ${roomName}`;
-    let content = `Phòng ${roomName} vừa có đơn hàng mới. Tạo bởi: ${creatorName || 'Không rõ'}.`;
-    if (executorName && executorName !== creatorName) content += ` Phục vụ bởi: ${executorName}.`;
-    if (salePersonName) content += ` Phụ trách bởi: ${salePersonName}.`;
-    if (saleOrder.note) content += ` Ghi chú: ${saleOrder.note}`;
+    const title = `[Mở phòng] - Phòng ${roomName}`;
+    let content = `${openerName} vừa mở phòng ${roomName}.`;
+    if (customerName) content += ` Khách: ${customerName}.`;
+    if (executorName && executorName !== openerName) content += ` Phục vụ: ${executorName}.`;
+    if (salePersonName && salePersonName !== openerName && salePersonName !== executorName) content += ` Phụ trách: ${salePersonName}.`;
+    if (noteText && !/^Check-in:/i.test(noteText)) content += ` Ghi chú: ${noteText}.`;
 
-    console.log(`[Trigger] SaleOrder.created - Room: ${roomName}, Creator: ${creatorName}`);
+    console.log(`[Trigger] SaleOrder.created - Room: ${roomName}, Opener: ${openerName}`);
 
     await Notification.create({
         title,
@@ -60,7 +67,12 @@ module.exports = async function(instance) {
             objectId: orderId,
             model: 'SaleOrder',
             status: saleOrder.status,
-            type: saleOrder.type
+            type: 'roomOpened',
+            orderCode,
+            roomName,
+            openedById: creatorId || saleOrder.executedById || null,
+            openedByName: openerName,
+            customerName: customerName || ''
         }
     });
     // Web push được gửi tự động qua Notification.afterSave

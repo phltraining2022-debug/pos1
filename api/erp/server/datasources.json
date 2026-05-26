@@ -23,7 +23,7 @@
     "name": "storage",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
-    "root": "/Users/ben/Documents/bk/cdn/builder-1/kara2/api/erp/server/storage"
+    "root": "/home/ubuntu/staging/kara/erp/server/storage"
   },
   "mailgun": {
     "name": "mailgun",

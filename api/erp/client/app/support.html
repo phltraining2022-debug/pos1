@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kara POS – Hỗ trợ người dùng</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f6fb; color: #1e293b; }
+    header { background: #7c3aed; color: #fff; padding: 28px 24px 22px; text-align: center; }
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: .3px; }
+    header p { font-size: 14px; margin-top: 6px; opacity: .85; }
+    main { max-width: 680px; margin: 32px auto; padding: 0 16px 48px; }
+    .card { background: #fff; border-radius: 12px; padding: 22px 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    h2 { font-size: 15px; font-weight: 700; color: #7c3aed; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #7c3aed; border-radius: 2px; }
+    p, li { font-size: 14px; line-height: 1.65; color: #334155; }
+    ul { padding-left: 18px; }
+    li { margin-bottom: 5px; }
+    a { color: #7c3aed; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .contact-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .contact-btn { display: inline-flex; align-items: center; gap: 6px; background: #7c3aed; color: #fff; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; text-decoration: none; }
+    .contact-btn:hover { background: #6d28d9; }
+    .contact-btn.outline { background: transparent; border: 1.5px solid #7c3aed; color: #7c3aed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
+    th { color: #64748b; font-weight: 600; }
+    td:last-child { color: #7c3aed; font-weight: 600; }
+    .faq-q { font-weight: 600; color: #1e293b; margin-top: 14px; }
+    .faq-a { color: #475569; margin-top: 3px; }
+    footer { text-align: center; font-size: 12px; color: #94a3b8; padding-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kara POS – Hỗ trợ người dùng</h1>
+    <p>Hỗ trợ đăng nhập, sự cố nghiệp vụ và xử lý lỗi ứng dụng</p>
+  </header>
+  <main>
+
+    <div class="card">
+      <h2>Liên hệ hỗ trợ</h2>
+      <p>Khi cần hỗ trợ đăng nhập, lỗi dữ liệu hoặc vấn đề nghiệp vụ, vui lòng liên hệ:</p>
+      <br/>
+      <p><strong>Email:</strong> <a href="mailto:ben@live1.vn">ben@live1.vn</a></p>
+      <p><strong>Điện thoại / Zalo:</strong> <a href="tel:+840909430828">0909 430 828</a></p>
+      <div class="contact-row" style="margin-top:14px">
+        <a class="contact-btn" href="mailto:ben@live1.vn?subject=Kara%20POS%20Support%20Request">Gửi yêu cầu hỗ trợ</a>
+        <a class="contact-btn outline" href="tel:+840909430828">Gọi ngay</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Thời gian hỗ trợ</h2>
+      <table>
+        <tr><th>Thời gian</th><th>Ngày</th><th>Phản hồi</th></tr>
+        <tr><td>08:00 – 18:00</td><td>Thứ 2 – Thứ 6</td><td>&lt; 4 giờ</td></tr>
+        <tr><td>08:00 – 12:00</td><td>Thứ 7</td><td>&lt; 8 giờ</td></tr>
+        <tr><td>–</td><td>Chủ nhật &amp; Lễ</td><td>&lt; 24 giờ</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Cần chuẩn bị gì khi báo lỗi</h2>
+      <ul>
+        <li>Tên cửa hàng và tài khoản đăng nhập (không gửi mật khẩu).</li>
+        <li>Thiết bị đang dùng (iPhone / Android, phiên bản hệ điều hành).</li>
+        <li>Các bước thao tác trước khi lỗi xảy ra.</li>
+        <li>Ảnh chụp màn hình hoặc video ngắn (nếu có).</li>
+        <li>Thời điểm xảy ra lỗi (ngày, giờ gần đúng).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Câu hỏi thường gặp</h2>
+
+      <p class="faq-q">Q: Quên mật khẩu thì làm thế nào?</p>
+      <p class="faq-a">A: Liên hệ quản trị viên nội bộ hoặc nhắn tin Zalo/email để được cấp lại mật khẩu.</p>
+
+      <p class="faq-q">Q: Không đăng nhập được, báo lỗi "Sai tài khoản hoặc mật khẩu"?</p>
+      <p class="faq-a">A: Kiểm tra kết nối mạng, nhập lại đúng tên đăng nhập (không phân biệt hoa-thường), và thử lại. Nếu vẫn lỗi, liên hệ hỗ trợ.</p>
+
+      <p class="faq-q">Q: App cần quyền gì trên thiết bị?</p>
+      <p class="faq-a">A: Chỉ xin quyền <strong>Thông báo</strong> (để nhận cảnh báo đơn hàng, thanh toán). Không xin quyền Camera, Ảnh hay Vị trí.</p>
+
+      <p class="faq-q">Q: Không nhận được thông báo đẩy?</p>
+      <p class="faq-a">A: Kiểm tra Cài đặt &gt; Thông báo &gt; Kara POS và đảm bảo đã cho phép thông báo. Đăng xuất và đăng nhập lại để đăng ký lại thiết bị.</p>
+
+      <p class="faq-q">Q: Dữ liệu phòng/bàn không cập nhật theo thời gian thực?</p>
+      <p class="faq-a">A: Vuốt xuống để làm mới, kiểm tra kết nối mạng. Ứng dụng tự đồng bộ qua WebSocket; nếu mất kết nối sẽ có thông báo lỗi.</p>
+
+      <p class="faq-q">Q: Thanh toán xong nhưng phòng chưa chuyển sang "Dọn dẹp"?</p>
+      <p class="faq-a">A: Vuốt làm mới danh sách phòng. Nếu vẫn sai trạng thái, liên hệ hỗ trợ kèm mã đơn hàng.</p>
+    </div>
+
+    <div class="card">
+      <h2>Về ứng dụng</h2>
+      <p><strong>Kara POS</strong> là ứng dụng quản lý điểm bán hàng (POS) cho nhà hàng, quán karaoke và dịch vụ ăn uống. Hỗ trợ quản lý bàn/phòng, ghi nhận đơn hàng, gửi món bếp và thanh toán theo thời gian thực.</p>
+      <br/>
+      <p><strong>Bundle ID:</strong> vn.vvs.pos1 &nbsp;|&nbsp; <strong>Nhà phát triển:</strong> Vastbit Company Limited</p>
+    </div>
+
+  </main>
+  <footer>
+    <p>© 2026 Vastbit Company Limited · <a href="mailto:ben@live1.vn">ben@live1.vn</a></p>
+  </footer>
+</body>
+</html>

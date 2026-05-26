@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Alert } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome5 } from '@expo/vector-icons'
@@ -10,7 +10,19 @@ import ManagerScreen from './ManagerScreen'
 import InventoryScreen from './InventoryScreen'
 import LoginScreen from './LoginScreen'
 import { ThemeProvider, useTheme } from './ThemeContext'
+import { StoreProvider } from './StoreContext'
 import { setAuthErrorHandler, restoreSession, registerInstallation } from './api'
+
+// Hiện thông báo hệ thống kể cả khi app đang foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+})
 
 const IOS_BUNDLE_ID = 'vn.vvs.pos1'
 const ANDROID_PACKAGE = 'vn.vvs.pos1'
@@ -126,6 +138,15 @@ function getAllowedScreens(roles: string[]): Screen[] {
   return Array.from(set)
 }
 
+// Mapping notification type → screen
+const NOTIF_TYPE_TO_SCREEN: Record<string, Screen> = {
+  newKitchenItem:   'waiter',
+  paymentRequested: 'cashier',
+  roomOpened:       'cashier',
+  roomCleaning:     'cashier',
+  invoiceCreated:   'manager',
+}
+
 function AppInner() {
   const [appState, setAppState] = useState<AppState>('login')
   const [userRoles, setUserRoles] = useState<string[]>([])
@@ -133,6 +154,12 @@ function AppInner() {
   const { mode, toggle } = useTheme()
 
   const allowedScreens = getAllowedScreens(userRoles)
+
+  // Refs để dùng trong listener mà không tạo stale closure
+  const appStateRef = useRef(appState)
+  const allowedScreensRef = useRef(allowedScreens)
+  useEffect(() => { appStateRef.current = appState }, [appState])
+  useEffect(() => { allowedScreensRef.current = allowedScreens }, [allowedScreens])
 
   // Khi token expired/invalid → về login
   useEffect(() => {
@@ -151,6 +178,36 @@ function AppInner() {
       }
       setBooting(false)
     })
+  }, [])
+
+  // Xử lý khi user tap vào push notification
+  useEffect(() => {
+    function navigateFromNotif(type: string | undefined) {
+      if (!type) return
+      const state = appStateRef.current
+      if (state === 'login') return // chưa đăng nhập → bỏ qua
+      const target = NOTIF_TYPE_TO_SCREEN[type]
+      if (!target) return
+      if (!allowedScreensRef.current.includes(target)) return // role không có quyền
+      setAppState(target)
+      console.log(`[Notif] Tap → navigate to ${target} (type=${type})`)
+    }
+
+    // App đang chạy / background → user tap notification
+    const sub = Notifications.addNotificationResponseReceivedListener(response => {
+      const type = response.notification.request.content.data?.type as string | undefined
+      navigateFromNotif(type)
+    })
+
+    // App vừa mở từ killed state bởi notification
+    Notifications.getLastNotificationResponseAsync().then(response => {
+      if (response) {
+        const type = response.notification.request.content.data?.type as string | undefined
+        navigateFromNotif(type)
+      }
+    })
+
+    return () => sub.remove()
   }, [])
 
   if (booting) return null
@@ -200,11 +257,13 @@ function AppInner() {
 
       {/* Header row */}
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 16, paddingTop: 8, gap: 8 }}>
-        <TouchableOpacity style={s.themeToggle} onPress={toggle}>
-          <FontAwesome5 name={isDark ? 'sun' : 'moon'} size={15} color={isDark ? '#fbbf24' : '#6b7280'} solid />
+        <TouchableOpacity style={[s.themeToggle, { flexDirection: 'row', alignItems: 'center', gap: 4 }]} onPress={toggle}>
+          <FontAwesome5 name={isDark ? 'sun' : 'moon'} size={14} color={isDark ? '#fbbf24' : '#6b7280'} solid />
+          <Text style={{ fontSize: 11, color: isDark ? '#fbbf24' : '#6b7280', fontWeight: '600' }}>{isDark ? 'Sáng' : 'Tối'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[s.themeToggle, { backgroundColor: 'rgba(239,68,68,0.12)' }]} onPress={() => { setAppState('login'); setUserRoles([]) }}>
+        <TouchableOpacity style={[s.themeToggle, { backgroundColor: 'rgba(239,68,68,0.12)', flexDirection: 'row', alignItems: 'center', gap: 4 }]} onPress={() => { setAppState('login'); setUserRoles([]) }}>
           <FontAwesome5 name="sign-out-alt" size={14} color="#ef4444" solid />
+          <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: '600' }}>Đăng xuất</Text>
         </TouchableOpacity>
       </View>
 
@@ -265,7 +324,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AppInner />
+        <StoreProvider>
+          <AppInner />
+        </StoreProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   )
@@ -273,7 +334,7 @@ export default function App() {
 
 const s = StyleSheet.create({
   root: { flex: 1 },
-  themeToggle: { position: 'absolute', top: 56, right: 20, zIndex: 10, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.08)', justifyContent: 'center', alignItems: 'center' },
+  themeToggle: { width: 'auto', minHeight: 36, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.08)', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 16 },
   brand: { fontSize: 28, fontWeight: '800', marginTop: 12 },
   sub: { fontSize: 15, marginBottom: 8 },

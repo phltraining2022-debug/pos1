@@ -7,8 +7,10 @@ module.exports = async function(instance) {
     if (!invoice) return;
 
     const app = require('../../server');
-    const { Invoice, User, notification: Notification, Room } = app.models;
-    const allUserIds = (await User.find({ fields: { id: true } })).map(u => u.id);
+    const { getUserIdsByRoles } = require('./_helpers');
+    const { Invoice, notification: Notification, Room } = app.models;
+    // manager only nhận thông báo hóa đơn
+    const allUserIds = await getUserIdsByRoles(app, []);
     const invoiceId = instance.objectId || '';
     const invoiceCode = invoice.invoiceNumber || invoiceId;
 

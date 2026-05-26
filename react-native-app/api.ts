@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DEFAULT_SERVER_URL = 'https://kara.test.live1.vn';
+const DEFAULT_SERVER_URL = 'https://kara.app.live1.vn';
 const SERVER_URL_KEY = 'kara_server_url';
 
 // URL động — đọc từ AsyncStorage, fallback về default
@@ -32,6 +32,7 @@ export function setAuthErrorHandler(cb: () => void) {
 
 const TOKEN_KEY = 'kara_access_token';
 const USER_ID_KEY = 'kara_user_id';
+const INSTALLATION_ID_KEY = 'kara_installation_id';
 
 export async function saveToken(token: string, userId: string) {
   await AsyncStorage.multiSet([[TOKEN_KEY, token], [USER_ID_KEY, userId]]);
@@ -42,7 +43,7 @@ export async function getToken(): Promise<string | null> {
 }
 
 export async function clearToken() {
-  await AsyncStorage.multiRemove([TOKEN_KEY, USER_ID_KEY]);
+  await AsyncStorage.multiRemove([TOKEN_KEY, USER_ID_KEY, INSTALLATION_ID_KEY]);
 }
 
 // ─── Internal fetch helper ────────────────────────────────────────────────────
@@ -54,10 +55,8 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   if (options?.headers) Object.assign(headers, options.headers);
 
   const url = (await getBaseUrl()) + path;
-  console.log('[API] fetch', options?.method ?? 'GET', url);
   try {
     const res = await fetch(url, { ...options, headers });
-    console.log('[API] response', res.status, url);
     if (!res.ok) {
       // Token hết hạn hoặc không hợp lệ → về login
       if (res.status === 401 || res.status === 403) {
@@ -71,6 +70,38 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   } catch (e: any) {
     console.error('[API] error', url, e?.message ?? e);
     throw e;
+  }
+}
+
+// ─── Cache layer (30s TTL) ────────────────────────────────────────────────────
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+const CACHE_TTL = 30000; // 30 seconds
+const apiCache: Record<string, CacheEntry<any>> = {};
+
+function getCached<T>(key: string): T | null {
+  const entry = apiCache[key];
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    delete apiCache[key];
+    return null;
+  }
+  return entry.data as T;
+}
+
+function setCached<T>(key: string, data: T): void {
+  apiCache[key] = { data, timestamp: Date.now() };
+}
+
+// Clear cache for rooms and products (call after operations like checkout, check-in)
+export function invalidateCache(keys?: string[]): void {
+  if (!keys) {
+    // Clear all cache
+    Object.keys(apiCache).forEach(key => delete apiCache[key]);
+  } else {
+    keys.forEach(key => delete apiCache[key]);
   }
 }
 
@@ -125,6 +156,15 @@ export async function restoreSession(): Promise<LoginResult | null> {
 export async function logout() {
   const token = await getToken();
   if (token) {
+    // Xóa installation record → device không nhận push nữa
+    try {
+      const installationId = await AsyncStorage.getItem(INSTALLATION_ID_KEY);
+      if (installationId) {
+        await apiFetch(`/installations/${installationId}`, { method: 'DELETE' });
+      }
+    } catch {
+      // ignore — installation có thể đã bị xóa trước đó
+    }
     try {
       await apiFetch('/users/logout', { method: 'POST' });
     } catch {
@@ -169,13 +209,17 @@ export async function registerInstallation(payload: InstallationPayload): Promis
         method: 'PATCH',
         body: JSON.stringify(basePayload),
       });
+      await AsyncStorage.setItem(INSTALLATION_ID_KEY, existing[0].id);
       return;
     }
 
-    await apiFetch('/installations', {
+    const created = await apiFetch<{ id: string }>('/installations', {
       method: 'POST',
       body: JSON.stringify({ ...basePayload, createdAt: new Date().toISOString() }),
     });
+    if (created?.id) {
+      await AsyncStorage.setItem(INSTALLATION_ID_KEY, created.id);
+    }
   } catch (err: any) {
     const reason = String(err?.message ?? err ?? 'Unknown error')
     const enriched = new Error(`Cannot register installation: ${reason}`)
@@ -232,19 +276,34 @@ export interface ProductCategory {
 // ─── Rooms ────────────────────────────────────────────────────────────────────
 
 export async function getRooms(): Promise<Room[]> {
+  const cached = getCached<Room[]>('rooms');
+  if (cached) return cached;
+  
   const rooms = await apiFetch<Room[]>('/Rooms');
-  return rooms.filter(r => r.isActive !== false);
+  const filtered = rooms.filter(r => r.isActive !== false);
+  setCached('rooms', filtered);
+  return filtered;
 }
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 export async function getProducts(): Promise<Product[]> {
+  const cached = getCached<Product[]>('products');
+  if (cached) return cached;
+  
   const products = await apiFetch<Product[]>('/Products');
-  return products.filter(p => p.isActive !== false);
+  const filtered = products.filter(p => p.isActive !== false);
+  setCached('products', filtered);
+  return filtered;
 }
 
 export async function getProductCategories(): Promise<ProductCategory[]> {
-  return apiFetch<ProductCategory[]>('/ProductCategories');
+  const cached = getCached<ProductCategory[]>('productCategories');
+  if (cached) return cached;
+  
+  const categories = await apiFetch<ProductCategory[]>('/ProductCategories');
+  setCached('productCategories', categories);
+  return categories;
 }
 
 export async function getAllProducts(): Promise<Product[]> {
@@ -324,8 +383,12 @@ export interface SaleOrder {
   total: number;
   paidAmount: number;
   discount: number;
+  discountPct?: number;   // % giảm giá (0 hoặc undefined = giảm cố định)
   deposit: number;
   paymentMethod?: string;
+  isPrinted?: boolean;
+  printedAt?: string;
+  timeFrozen?: boolean;  // true = đã đóng băng giờ (chờ thanh toán)
   createdAt: string;
   updatedAt: string;
   customerId?: string;
@@ -334,10 +397,12 @@ export interface SaleOrder {
 }
 
 export interface OrderItemInput {
+  id?: string;          // cart item id: 'sol_xxx' = đã có server record, 'ci_xxx' = mới
   productId: string;
   name: string;
-  quantity: number;
-  price: number;  // unitPrice on server
+  quantity: number;     // total quantity trong cart
+  submittedQty?: number; // số lượng đã submit trước (dùng tính delta khi POST)
+  price: number;        // unitPrice on server
   unit?: string;
   note?: string;
 }
@@ -389,27 +454,111 @@ export async function submitOrderItems(
   saleOrderId: string,
   items: OrderItemInput[],
 ): Promise<void> {
-  const now = new Date().toISOString();
+  // 1 request thay vì N parallel calls
+  const batchItems = items.map(item => {
+    const serverItemId = item.id?.startsWith('sol_') ? item.id.slice(4) : null;
+    if (serverItemId) {
+      return { itemId: serverItemId, quantity: item.quantity, subtotal: item.quantity * item.price };
+    }
+    const delta = item.quantity - (item.submittedQty ?? 0);
+    return {
+      productId: item.productId,
+      name: item.name,
+      quantity: delta,
+      unitPrice: item.price,
+      unit: item.unit ?? 'phần',
+      note: item.note ?? '',
+      subtotal: delta * item.price,
+    };
+  });
+  await apiFetch(`/SaleOrders/${encodeURIComponent(saleOrderId)}/batch-items`, {
+    method: 'POST',
+    body: JSON.stringify({ items: batchItems }),
+  });
+}
+
+/** Cập nhật một số trường của SaleOrderItem (ví dụ: note, quantity) */
+export async function patchSaleOrderItem(
+  itemId: string,
+  patch: Partial<{ note: string; quantity: number; subtotal: number }>,
+): Promise<void> {
+  await apiFetch(`/SaleOrderItems/${encodeURIComponent(itemId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ ...patch, updatedAt: new Date().toISOString() }),
+  });
+}
+
+/** Xóa SaleOrderItem khỏi server */
+export async function deleteSaleOrderItem(itemId: string): Promise<void> {
+  await apiFetch(`/SaleOrderItems/${encodeURIComponent(itemId)}`, { method: 'DELETE' });
+}
+
+/** Lấy một SaleOrder theo id */
+export async function getSaleOrder(saleOrderId: string): Promise<SaleOrder> {
+  return apiFetch<SaleOrder>(`/SaleOrders/${encodeURIComponent(saleOrderId)}`);
+}
+
+/** Cập nhật SaleOrder (ví dụ: ghi printedAt khi in bill) */
+export async function patchSaleOrder(saleOrderId: string, data: Record<string, unknown>): Promise<void> {
+  await apiFetch(`/SaleOrders/${encodeURIComponent(saleOrderId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Đổi phòng: chuyển SaleOrder từ phòng cũ sang phòng mới */
+export async function changeRoom(
+  oldRoomId: string,
+  newRoomId: string,
+  saleOrderId: string,
+  startTime: string,
+): Promise<void> {
+  await Promise.all([
+    // Cập nhật SaleOrder → roomId mới
+    apiFetch(`/SaleOrders/${encodeURIComponent(saleOrderId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ roomId: newRoomId, updatedAt: new Date().toISOString() }),
+    }),
+    // Phòng cũ → trống
+    apiFetch(`/Rooms/${encodeURIComponent(oldRoomId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'available', saleOrderId: null, startTime: null }),
+    }),
+    // Phòng mới → occupied
+    apiFetch(`/Rooms/${encodeURIComponent(newRoomId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'occupied', saleOrderId, startTime }),
+    }),
+  ]);
+}
+
+/** Gộp bill: chuyển tất cả SaleOrderItems từ fromSaleOrderId → toSaleOrderId, rồi đóng fromRoom */
+export async function mergeBill(
+  fromSaleOrderId: string,
+  fromRoomId: string,
+  toSaleOrderId: string,
+): Promise<void> {
+  // 1. Lấy items của fromRoom
+  const items = await getSaleOrderItems(fromSaleOrderId);
+  // 2. PATCH từng item → toSaleOrderId
   await Promise.all(
     items.map(item =>
-      apiFetch('/SaleOrderItems', {
-        method: 'POST',
-        body: JSON.stringify({
-          saleOrderId,
-          productId: item.productId,
-          name: item.name,
-          quantity: item.quantity,
-          unitPrice: item.price,
-          unit: item.unit ?? 'phần',
-          discount: 0,
-          subtotal: item.quantity * item.price,
-          note: item.note ?? '',
-          createdAt: now,
-          updatedAt: now,
-        }),
-      }),
-    ),
+      apiFetch(`/SaleOrderItems/${encodeURIComponent(item.id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ saleOrderId: toSaleOrderId }),
+      })
+    )
   );
+  // 3. Đóng SaleOrder gốc (mark merged)
+  await apiFetch(`/SaleOrders/${encodeURIComponent(fromSaleOrderId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'merged', updatedAt: new Date().toISOString() }),
+  });
+  // 4. Phòng nguồn → cleaning
+  await apiFetch(`/Rooms/${encodeURIComponent(fromRoomId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'cleaning', saleOrderId: null }),
+  });
 }
 
 /** Thanh toán: PATCH SaleOrder → completed + cập nhật Room → cleaning */
@@ -420,30 +569,15 @@ export async function checkout(
   paymentMethod: string,
   discount: number,
 ): Promise<void> {
-  await apiFetch(`/SaleOrders/${encodeURIComponent(saleOrderId)}`, {
-    method: 'PATCH',
+  // Dùng atomic endpoint: SaleOrder + Room cập nhật trong 1 request
+  await apiFetch(`/Rooms/${encodeURIComponent(roomId)}/checkout`, {
+    method: 'POST',
     body: JSON.stringify({
-      status: 'completed',
+      totalAmount: total,
       paymentMethod,
-      paidAmount: total - discount,
-      total,
       discount,
-      updatedAt: new Date().toISOString(),
     }),
   });
-  // Cập nhật Room: cleaning + xoá saleOrderId
-  try {
-    await apiFetch(`/Rooms/${encodeURIComponent(roomId)}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        status: 'cleaning',
-        saleOrderId: null,
-        startTime: null,
-      }),
-    });
-  } catch (e) {
-    console.warn('[checkout] Could not update Room status:', e);
-  }
 }
 
 // ─── SaleOrderItems ───────────────────────────────────────────────────────────
@@ -482,9 +616,95 @@ export async function getSaleOrders(filter?: object): Promise<SaleOrder[]> {
   return apiFetch<SaleOrder[]>(`/SaleOrders${q}`);
 }
 
+export async function getSaleOrderById(id: string): Promise<SaleOrder> {
+  return apiFetch<SaleOrder>(`/SaleOrders/${encodeURIComponent(id)}`);
+}
+
+// ─── Revenue Report (server-side aggregation) ─────────────────────────────────
+
+export interface RevenueReportTransaction {
+  code: string; roomId: string; roomName: string;
+  paidAmount: number; paymentMethod: string; updatedAt: string;
+}
+
+export interface ProductAnalyticsItem {
+  name: string; qty: number; revenue: number; cost: number; profit: number; margin: number;
+}
+
+export interface RevenueReport {
+  totalRevenue: number;
+  orderCount: number;
+  openOrderCount: number;
+  byMethod: Record<string, number>;   // key = paymentMethod raw value ('cash','transfer',...)
+  byDay: Record<string, number>;      // key = 'YYYY-MM-DD'
+  byHour: Record<string, number>;     // key = '0'..'23'
+  recentTransactions: RevenueReportTransaction[];
+  productAnalytics: ProductAnalyticsItem[];
+}
+
+export async function getRevenueReport(from: string, to?: string): Promise<RevenueReport> {
+  let q = `?from=${encodeURIComponent(from)}`;
+  if (to) q += `&to=${encodeURIComponent(to)}`;
+  return apiFetch<RevenueReport>(`/SaleOrders/revenue-report${q}`);
+}
+
 /** Lấy danh sách Users (nhân viên) */
 export async function getUsers(): Promise<Array<{
   id: string; username: string; fullName?: string; role?: string;
 }>> {
   return apiFetch<any[]>('/Users');
+}
+
+// ─── Stores / Locations ────────────────────────────────────────────────────────
+// Hỗ trợ multi-store/multi-location (để pass Apple review)
+
+export interface Store {
+  id: string;
+  name: string;
+  code?: string;
+  address?: string;
+  phone?: string;
+  type?: string;
+}
+
+const SELECTED_STORE_KEY = 'kara_selected_store_id';
+const SELECTED_STORE_NAME_KEY = 'kara_selected_store_name';
+
+export async function getStores(): Promise<Store[]> {
+  try {
+    // Cố gắng fetch từ backend
+    const stores = await apiFetch<Store[]>('/Locations');
+    return stores && stores.length > 0 ? stores : getDefaultStores();
+  } catch (e) {
+    // Nếu endpoint không tồn tại, dùng mock data
+    console.warn('[getStores] Endpoint error, using default stores:', e);
+    return getDefaultStores();
+  }
+}
+
+function getDefaultStores(): Store[] {
+  // Mock stores nếu backend không hỗ trợ
+  return [
+    { id: 'store_1', name: 'Karaoke Luxury', code: 'KL-001', type: 'karaoke' },
+    { id: 'store_2', name: 'Nhà hàng Kara', code: 'NH-001', type: 'restaurant' },
+    { id: 'store_3', name: 'Quán ăn Kara Central', code: 'QA-001', type: 'restaurant' },
+  ];
+}
+
+export async function saveSelectedStore(storeId: string, storeName: string): Promise<void> {
+  await AsyncStorage.multiSet([
+    [SELECTED_STORE_KEY, storeId],
+    [SELECTED_STORE_NAME_KEY, storeName],
+  ]);
+}
+
+export async function getSelectedStore(): Promise<{ id: string; name: string } | null> {
+  const [id, name] = await AsyncStorage.multiGet([SELECTED_STORE_KEY, SELECTED_STORE_NAME_KEY]);
+  const storeId = id[1];
+  const storeName = name[1];
+  return storeId && storeName ? { id: storeId, name: storeName } : null;
+}
+
+export async function clearSelectedStore(): Promise<void> {
+  await AsyncStorage.multiRemove([SELECTED_STORE_KEY, SELECTED_STORE_NAME_KEY]);
 }

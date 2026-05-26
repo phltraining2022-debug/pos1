@@ -282,6 +282,44 @@ angular.module('karaApp').service('SyncService', ['$interval', '$q', 'StorageSer
                     return;
                 }
 
+                var isLockedBillError = error && (
+                    error.code === 'SALE_ORDER_LOCKED' ||
+                    error.statusCode === 422 ||
+                    error.status === 422 ||
+                    (error.message && error.message.indexOf('Bill đã in hoặc đã khóa') >= 0)
+                );
+
+                if (isLockedBillError && item.model === 'saleorderitems') {
+                    console.warn('🔒 [sync] SaleOrderItem bị chặn do bill đã khóa:', item.action, item.localId);
+                    item.retryCount = item.maxRetries;
+                    item.status = 'failed';
+                    item.lastError = error.message || 'Bill locked';
+
+                    var failedId = item.localId;
+                    if (failedId) {
+                        var storedRecordsLocked = StorageService.get(item.model) || [];
+                        var beforeLocked = storedRecordsLocked.length;
+                        storedRecordsLocked = storedRecordsLocked.filter(function(record) {
+                            return record.id !== failedId && record._id !== failedId;
+                        });
+                        if (storedRecordsLocked.length < beforeLocked) {
+                            StorageService.set(item.model, storedRecordsLocked);
+                            console.warn('🔒 [sync] Removed locked local record from localStorage:', item.model, failedId);
+                        }
+
+                        syncQueue.forEach(function(q) {
+                            if (q.id !== item.id && q.model === item.model && q.localId === failedId && q.status === 'pending') {
+                                q.status = 'failed';
+                                q.lastError = 'Bill locked';
+                            }
+                        });
+                    }
+
+                    this.saveSyncQueue();
+                    deferred.reject(error);
+                    return;
+                }
+
                 item.retryCount++;
                 item.status = item.retryCount >= item.maxRetries ? 'failed' : 'pending';
                 item.lastError = error.message || error;

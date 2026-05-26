@@ -1,111 +1,84 @@
+const WebSocket = require('ws');
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
-const cors = require('cors');
+const redis = require('redis');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const wss = new WebSocket.Server({ server });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Redis pub/sub
+const redisSubscriber = redis.createClient();
+const redisPublisher = redis.createClient();
 
-// Store connected clients by app/room
-const connectedApps = new Map();
+// Map: ws → { userId, tenantId }
+const clients = new Map();
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-    console.log(`🔌 Client connected: ${socket.id}`);
+wss.on('connection', (ws) => {
+    console.log('Client connected');
 
-    // Handle joining an app/room
-    socket.on('join_app', (appName) => {
-        socket.join(appName);
-        if (!connectedApps.has(appName)) {
-            connectedApps.set(appName, new Set());
-        }
-        connectedApps.get(appName).add(socket.id);
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
 
-        console.log(`📱 ${socket.id} joined app: ${appName}`);
-        console.log(`📊 Total clients in ${appName}: ${connectedApps.get(appName).size}`);
-
-        // Notify others in the app
-        socket.to(appName).emit('app_sync_data', {
-            type: 'user_joined',
-            socketId: socket.id,
-            app: appName,
-            timestamp: Date.now()
-        });
-    });
-
-    // Handle app updates (cart changes, orders, etc.)
-    socket.on('app_update', (data) => {
-        console.log(`📤 Update from ${socket.id}:`, data);
-
-        // Broadcast to all clients in the same app/room
-        socket.to(data.app).emit('app_sync_data', {
-            ...data,
-            from: socket.id,
-            timestamp: Date.now()
-        });
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        console.log(`❌ Client disconnected: ${socket.id}`);
-
-        // Remove from all apps
-        for (const [appName, clients] of connectedApps.entries()) {
-            if (clients.has(socket.id)) {
-                clients.delete(socket.id);
-                console.log(`📱 ${socket.id} left app: ${appName}`);
-                console.log(`📊 Remaining clients in ${appName}: ${clients.size}`);
-
-                // Notify others
-                socket.to(appName).emit('app_sync_data', {
-                    type: 'user_left',
-                    socketId: socket.id,
-                    app: appName,
-                    timestamp: Date.now()
+            if (data.action === 'subscribe') {
+                clients.set(ws, {
+                    userId: data.filter.userId,
+                    clinicShortName: data.filter.clinicShortName,
                 });
-
-                // Clean up empty apps
-                if (clients.size === 0) {
-                    connectedApps.delete(appName);
-                }
+                console.log(`Client subscribed: userId=${data.filter.userId}, clinicShortName=${data.filter.clinicShortName}`);
+                ws.send(JSON.stringify({ action: 'subscribe_success', filter: data.filter }));
+            } else {
+                console.log('Unknown action:', data.action);
             }
+        } catch (err) {
+            console.error('Invalid message format:', err);
+        }
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+        clients.delete(ws);
+    });
+});
+
+// Subscribe to Redis channel "updates"
+redisSubscriber.subscribe('updates');
+
+redisSubscriber.on('message', (channel, message) => {
+    if (channel !== 'updates') return;
+
+    let newData;
+    try {
+        newData = JSON.parse(message);
+    } catch (err) {
+        console.error('Invalid Redis message:', err);
+        return;
+    }
+
+    console.log('Received update:', newData);
+
+    clients.forEach((filter, client) => {
+        if (client.readyState !== WebSocket.OPEN) return;
+
+        // Filter theo clinicShortName (tên datasource, vd: 'kara')
+        if (newData.clinicShortName && newData.clinicShortName !== filter.clinicShortName) return;
+
+        // Nếu có toId thì gửi riêng cho user đó
+        if (newData.toId) {
+            if (newData.toId === filter.userId) {
+                client.send(JSON.stringify(newData));
+            }
+        } else {
+            client.send(JSON.stringify(newData));
         }
     });
 });
 
-// Basic health check endpoint
+// Health check
 app.get('/health', (req, res) => {
-    res.json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        connectedApps: Array.from(connectedApps.keys()),
-        totalClients: io.engine.clientsCount
-    });
+    res.json({ status: 'OK', clients: clients.size, timestamp: new Date().toISOString() });
 });
 
-// Start server
-const PORT = 39001;
-server.listen(PORT, () => {
-    console.log(`🚀 Socket.IO server running on port ${PORT}`);
-    console.log(`🔗 WebSocket endpoint: ws://localhost:${PORT}/socket.io/`);
-    console.log(`🌐 Health check: http://localhost:${PORT}/health`);
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-    console.log('🛑 Shutting down server...');
-    io.close(() => {
-        console.log('✅ Socket.IO server closed');
-        process.exit(0);
-    });
-});
+const PORT = 30000;
+server.listen(PORT, () => console.log(`WebSocket server running on port ${PORT}`));

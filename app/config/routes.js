@@ -8,7 +8,7 @@ angular.module('karaApp').config(['$routeProvider', '$locationProvider',
                 requireAuth: false
             })
             .when('/cashier', {
-                templateUrl: 'app/views/cashier.html',
+                templateUrl: 'app/views/cashier.html?v=1',
                 controller: 'CashierController',
                 requireAuth: true,
                 requiredRoles: ['cashier', 'admin', 'manager']

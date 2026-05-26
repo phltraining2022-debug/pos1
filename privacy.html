@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kara POS – Chính sách quyền riêng tư</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f6fb; color: #1e293b; }
+    header { background: #7c3aed; color: #fff; padding: 28px 24px 22px; text-align: center; }
+    header h1 { font-size: 22px; font-weight: 700; }
+    header p { font-size: 13px; margin-top: 6px; opacity: .8; }
+    main { max-width: 720px; margin: 32px auto; padding: 0 16px 48px; }
+    .card { background: #fff; border-radius: 12px; padding: 22px 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    h2 { font-size: 15px; font-weight: 700; color: #7c3aed; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #7c3aed; border-radius: 2px; }
+    p { font-size: 14px; line-height: 1.7; color: #334155; margin-bottom: 8px; }
+    ul { padding-left: 18px; margin-bottom: 8px; }
+    li { font-size: 14px; line-height: 1.65; color: #334155; margin-bottom: 5px; }
+    a { color: #7c3aed; }
+    .last-updated { font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 20px; }
+    footer { text-align: center; font-size: 12px; color: #94a3b8; padding-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Chính sách quyền riêng tư</h1>
+    <p>Kara POS — Vastbit Company Limited</p>
+  </header>
+  <main>
+    <p class="last-updated">Cập nhật lần cuối: 19/05/2026</p>
+
+    <div class="card">
+      <h2>Giới thiệu</h2>
+      <p>Vastbit Company Limited ("chúng tôi") xây dựng ứng dụng <strong>Kara POS</strong> dùng cho quản lý điểm bán hàng trong nhà hàng, quán karaoke và dịch vụ ăn uống. Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin khi bạn sử dụng ứng dụng.</p>
+    </div>
+
+    <div class="card">
+      <h2>Thông tin chúng tôi thu thập</h2>
+      <p><strong>Thông tin tài khoản:</strong></p>
+      <ul>
+        <li>Tên đăng nhập và mật khẩu (được mã hoá khi truyền qua HTTPS)</li>
+        <li>Vai trò người dùng (cashier, waiter, manager)</li>
+        <li>ID cửa hàng / địa điểm làm việc</li>
+      </ul>
+      <p><strong>Thông tin thiết bị:</strong></p>
+      <ul>
+        <li>Device push token (APNs / FCM) để gửi thông báo đơn hàng</li>
+        <li>Loại thiết bị và phiên bản hệ điều hành (chỉ dùng để đăng ký push)</li>
+      </ul>
+      <p><strong>Dữ liệu nghiệp vụ:</strong></p>
+      <ul>
+        <li>Đơn hàng, danh sách món, trạng thái bàn/phòng — lưu trên server của doanh nghiệp</li>
+        <li>Thông tin thanh toán (phương thức, số tiền) — không lưu thẻ tín dụng</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Mục đích sử dụng thông tin</h2>
+      <ul>
+        <li>Xác thực đăng nhập và phân quyền theo vai trò</li>
+        <li>Gửi thông báo đẩy (push notification) khi có đơn hàng mới, yêu cầu thanh toán</li>
+        <li>Đồng bộ dữ liệu bàn/phòng và đơn hàng theo thời gian thực</li>
+        <li>Tổng hợp báo cáo doanh thu cho quản lý (không có thông tin cá nhân khách hàng)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Chia sẻ thông tin với bên thứ ba</h2>
+      <p>Chúng tôi <strong>không bán, không cho thuê</strong> thông tin người dùng cho bất kỳ bên thứ ba nào.</p>
+      <p>Thông báo đẩy được gửi qua dịch vụ của Apple (APNs) và Google (FCM) — các dịch vụ này nhận device token nhưng không nhận nội dung dữ liệu nghiệp vụ.</p>
+    </div>
+
+    <div class="card">
+      <h2>Lưu trữ và bảo mật</h2>
+      <ul>
+        <li>Toàn bộ dữ liệu truyền giữa app và server được mã hoá bằng TLS/HTTPS</li>
+        <li>Server đặt tại Việt Nam, quản lý bởi Vastbit Company Limited</li>
+        <li>Mật khẩu được hash trước khi lưu vào cơ sở dữ liệu</li>
+        <li>Token đăng nhập có thời hạn và bị xoá khi đăng xuất</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Quyền của người dùng</h2>
+      <ul>
+        <li><strong>Truy cập:</strong> Yêu cầu xem thông tin cá nhân chúng tôi lưu trữ</li>
+        <li><strong>Xoá:</strong> Yêu cầu xoá tài khoản và dữ liệu liên quan</li>
+        <li><strong>Tắt thông báo:</strong> Vào Cài đặt thiết bị → Thông báo → Kara POS để tắt</li>
+      </ul>
+      <p>Để thực hiện các quyền trên, liên hệ: <a href="mailto:ben@live1.vn">ben@live1.vn</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Ứng dụng không thu thập</h2>
+      <ul>
+        <li>Vị trí địa lý (GPS)</li>
+        <li>Danh bạ hoặc ảnh trên thiết bị</li>
+        <li>Thông tin thẻ tín dụng / tài khoản ngân hàng</li>
+        <li>Dữ liệu sinh trắc học</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Thay đổi chính sách</h2>
+      <p>Chúng tôi có thể cập nhật chính sách này khi cần thiết. Ngày cập nhật lần cuối luôn hiển thị ở đầu trang. Việc tiếp tục sử dụng ứng dụng sau khi có thay đổi đồng nghĩa với việc bạn chấp nhận chính sách mới.</p>
+    </div>
+
+    <div class="card">
+      <h2>Liên hệ</h2>
+      <p>Mọi câu hỏi về quyền riêng tư, vui lòng liên hệ:</p>
+      <p><strong>Vastbit Company Limited</strong><br/>
+      Email: <a href="mailto:ben@live1.vn">ben@live1.vn</a><br/>
+      Điện thoại / Zalo: <a href="tel:+840909430828">0909 430 828</a></p>
+    </div>
+
+  </main>
+  <footer>
+    <p>© 2026 Vastbit Company Limited · <a href="/support.html">Hỗ trợ</a> · <a href="mailto:ben@live1.vn">ben@live1.vn</a></p>
+  </footer>
+</body>
+</html>

@@ -8,7 +8,9 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { useTheme, Colors } from './ThemeContext'
+import { useStore } from './StoreContext'
 import * as api from './api'
+import { useSocket, SocketEvent } from './useSocket'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -56,7 +58,7 @@ function getPresetRange(key: DateRangeKey, todayStart: Date): { from: Date; to: 
   }
 }
 
-type DashTab = 'overview' | 'revenue' | 'rooms' | 'staff'
+type DashTab = 'overview' | 'revenue' | 'analytics' | 'staff'
 
 interface KpiCard {
   icon: string; iconColor: string; bg: string
@@ -73,69 +75,11 @@ interface StaffRow {
   name: string; role: string; status: 'online' | 'offline' | 'break'
   orders: number; checkIn: string; shift: string
 }
-
-// ─── Mock data (thay bằng API sau) ──────────────────────────────────────────
-
-const TODAY_KPI: KpiCard[] = [
-  { icon: 'money-bill-wave', iconColor: '#34d399', bg: '#064e3b', label: 'Doanh thu hôm nay', value: '18.450.000đ', sub: 'vs hôm qua: 16.200.000đ', trend: 13.9 },
-  { icon: 'door-open',       iconColor: '#60a5fa', bg: '#1e3a5f', label: 'Phòng đang hoạt động', value: '5 / 9',    sub: '3 trống · 1 đang dọn',  trend: 0 },
-  { icon: 'receipt',         iconColor: '#fbbf24', bg: '#451a03', label: 'Hóa đơn đã thanh toán', value: '24',      sub: '2 đang mở',              trend: 4 },
-  { icon: 'users',           iconColor: '#a78bfa', bg: '#2e1065', label: 'Nhân viên online', value: '6',            sub: 'Phục vụ: 4 · Thu ngân: 2', trend: 0 },
-]
-
-const HOURLY: HourlyBar[] = [
-  { hour: '08h', value: 0.05 }, { hour: '09h', value: 0.10 }, { hour: '10h', value: 0.22 },
-  { hour: '11h', value: 0.48 }, { hour: '12h', value: 0.65 }, { hour: '13h', value: 0.55 },
-  { hour: '14h', value: 0.42 }, { hour: '15h', value: 0.38 }, { hour: '16h', value: 0.50 },
-  { hour: '17h', value: 0.72 }, { hour: '18h', value: 0.85 }, { hour: '19h', value: 1.00 },
-  { hour: '20h', value: 0.92 }, { hour: '21h', value: 0.70 }, { hour: '22h', value: 0.45 },
-]
-
-const TOP_ITEMS: TopItem[] = [
-  { name: 'Combo trái cây lớn', qty: 18, revenue: 3960000 },
-  { name: '2 bia + 1 nước suối', qty: 32, revenue: 4640000 },
-  { name: 'Tiger bạc', qty: 80, revenue: 2800000 },
-  { name: 'Mực nướng sa tế', qty: 9, revenue: 1620000 },
-  { name: 'Lạp xưởng nướng', qty: 12, revenue: 1140000 },
-]
-
-const TRANSACTIONS: Transaction[] = [
-  { id: 'HD001', room: 'VIP 01', amount: 1850000, method: 'Chuyển khoản', cashier: 'Hà Linh', time: '21:14', status: 'paid' },
-  { id: 'HD002', room: 'P.201',  amount: 2140000, method: 'Tiền mặt',     cashier: 'Hà Linh', time: '20:42', status: 'paid' },
-  { id: 'HD003', room: 'VIP 02', amount: 3200000, method: '',              cashier: 'Hà Linh', time: '20:00', status: 'open' },
-  { id: 'HD004', room: 'P.108',  amount: 980000,  method: 'Thẻ',          cashier: 'Hà Linh', time: '19:35', status: 'paid' },
-  { id: 'HD005', room: 'P.204',  amount: 1560000, method: '',              cashier: 'Minh Thu', time: '19:00', status: 'open' },
-  { id: 'HD006', room: 'P.305',  amount: 760000,  method: 'Tiền mặt',     cashier: 'Minh Thu', time: '18:15', status: 'paid' },
-]
-
-const STAFF: StaffRow[] = [
-  { name: 'Nguyễn Văn A', role: 'Phục vụ',  status: 'online',  orders: 14, checkIn: '08:00', shift: 'S' },
-  { name: 'Trần Thị B',   role: 'Phục vụ',  status: 'online',  orders: 11, checkIn: '08:00', shift: 'S' },
-  { name: 'Lê Văn C',     role: 'Phục vụ',  status: 'break',   orders: 8,  checkIn: '08:00', shift: 'S' },
-  { name: 'Phạm Thị D',   role: 'Phục vụ',  status: 'online',  orders: 9,  checkIn: '14:00', shift: 'C' },
-  { name: 'Hà Linh',      role: 'Thu ngân', status: 'online',  orders: 0,  checkIn: '08:00', shift: 'S' },
-  { name: 'Minh Thu',     role: 'Thu ngân', status: 'online',  orders: 0,  checkIn: '14:00', shift: 'C' },
-  { name: 'Hoàng Văn E',  role: 'Phục vụ',  status: 'offline', orders: 0,  checkIn: '--:--', shift: 'T' },
-]
-
-const WEEK_REVENUE = [12400000, 18200000, 15800000, 21000000, 16500000, 19800000, 18450000]
-const WEEK_DAYS    = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
-
-interface RoomLive {
-  name: string; type: 'VIP' | 'Standard'; status: 'occupied' | 'available' | 'cleaning'
-  revenue: number; time: string
+interface ProductAnalytics {
+  name: string; qty: number; revenue: number; cost: number; profit: number; margin: number
 }
-const ALL_ROOMS: RoomLive[] = [
-  { name: 'VIP 01', type: 'VIP',      status: 'occupied',  revenue: 3200000, time: '02:14' },
-  { name: 'VIP 02', type: 'VIP',      status: 'occupied',  revenue: 2140000, time: '01:05' },
-  { name: 'P.201',  type: 'Standard', status: 'occupied',  revenue: 1850000, time: '01:28' },
-  { name: 'P.204',  type: 'Standard', status: 'occupied',  revenue: 980000,  time: '00:43' },
-  { name: 'P.108',  type: 'Standard', status: 'occupied',  revenue: 560000,  time: '00:22' },
-  { name: 'P.301',  type: 'Standard', status: 'available', revenue: 0,       time: '' },
-  { name: 'P.302',  type: 'Standard', status: 'available', revenue: 0,       time: '' },
-  { name: 'P.303',  type: 'Standard', status: 'available', revenue: 0,       time: '' },
-  { name: 'VIP 03', type: 'VIP',      status: 'cleaning',  revenue: 0,       time: '' },
-]
+
+
 
 const fmtVnd  = (n: number) => n >= 1_000_000 ? (n / 1_000_000).toFixed(1) + 'M' : (n / 1000).toFixed(0) + 'K'
 const fmtFull = (n: number) => n.toLocaleString('vi-VN') + 'đ'
@@ -143,10 +87,22 @@ const fmtFull = (n: number) => n.toLocaleString('vi-VN') + 'đ'
 const statusColor = (s: StaffRow['status']) => s === 'online' ? '#34d399' : s === 'break' ? '#fbbf24' : '#6b7280'
 const statusLabel = (s: StaffRow['status']) => s === 'online' ? 'Online' : s === 'break' ? 'Nghỉ giải lao' : 'Offline'
 
+// Tính số giờ tạm tính cho time-based item (giống CashierScreen)
+const calcTimeBasedQty = (startIso: string, blockMinutes = 5): number => {
+  const start = new Date(startIso)
+  if (isNaN(start.getTime())) return 1
+  const startMin = Math.floor(start.getTime() / 60000)
+  const endMin   = Math.floor(Date.now() / 60000)
+  const diffMin  = Math.max(1, endMin - startMin + 1)
+  const blocks   = Math.max(1, Math.ceil(diffMin / blockMinutes))
+  return Math.round((blocks * blockMinutes / 60) * 1000) / 1000
+}
+
 // ─── Manager Screen ──────────────────────────────────────────────────────────
 
 export default function ManagerScreen({ onBack }: { onBack: () => void }) {
   const { colors: c, mode, toggle } = useTheme()
+  const { selectedStore } = useStore()
   const s = useMemo(() => makeStyles(c), [c])
   const [tab, setTab] = useState<DashTab>('overview')
   const [dateRange, setDateRange] = useState<DateRangeKey>('today')
@@ -157,31 +113,38 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
   const [showCustomModal, setShowCustomModal] = useState(false)
   const [timeStr, setTimeStr] = useState('')
   const [refreshing, setRefreshing] = useState(false)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [openOrderItemsMap, setOpenOrderItemsMap] = useState<Record<string, api.SaleOrderItem[]>>({})
+  const [liveTick, setLiveTick] = useState(0)
 
   // ── Real data state ──────────────────────────────────────────────────────
-  const [liveOrders, setLiveOrders] = useState<api.SaleOrder[]>([])
+  const [reportData, setReportData] = useState<api.RevenueReport | null>(null)
   const [liveRoomsData, setLiveRoomsData] = useState<api.Room[]>([])
   const [liveUsersData, setLiveUsersData] = useState<Array<{ id: string; username: string; fullName?: string }>>([])
   const [dataLoaded, setDataLoaded] = useState(false)
 
-  // ── Derived KPI values ───────────────────────────────────────────────────
   // Ngày kinh doanh tính từ 12:00 trưa → 12:00 trưa hôm sau
-  const todayStart = useMemo(() => {
+  const getTodayStart = () => {
     const now = new Date()
     const d = new Date(now)
     d.setHours(12, 0, 0, 0)
-    // Nếu hiện tại trước 12h trưa → ngày kinh doanh bắt đầu từ hôm qua 12h
     if (now.getHours() < 12) d.setDate(d.getDate() - 1)
     return d
-  }, [dataLoaded]) // eslint-disable-line
+  }
+  const todayStart = useMemo(getTodayStart, [dataLoaded]) // eslint-disable-line
 
-  // old app: pending = đang mở, completed = đã thanh toán
-  const todayOrders = liveOrders.filter(o => o.status === 'completed' && new Date(o.updatedAt) >= todayStart)
-  const todayRevenue = todayOrders.reduce((s, o) => s + (o.paidAmount || o.total || 0), 0)
-  const occupiedRooms = liveRoomsData.filter(r => r.status === 'occupied')
-  const openOrders = liveOrders.filter(o => o.status === 'pending')  // pending = đang mở
+  // ── Derived KPIs từ server report ───────────────────────────────────────
+  const todayRevenue    = reportData?.totalRevenue ?? 0
+  const todayOrderCount = reportData?.orderCount ?? 0
+  const openOrderCount  = reportData?.openOrderCount ?? 0
+  const rangeRevenue    = reportData?.totalRevenue ?? 0  // report = current range
+  const occupiedRooms   = liveRoomsData.filter(r => r.status === 'occupied')
+  const analyticsTotCost = useMemo(
+    () => (reportData?.productAnalytics ?? []).reduce((s, i) => s + i.cost, 0),
+    [reportData]
+  )
 
-  // Range orders theo dateRange selector (tab Doanh thu)
+  // rangeStart/rangeEnd/rangeLabel — vẫn cần cho chart + date picker
   const { from: rangeStart, to: rangeEnd, label: rangeLabel } = useMemo(() => {
     if (dateRange === 'custom') {
       const from = new Date(customFromDate)
@@ -194,41 +157,97 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
     return getPresetRange(dateRange, todayStart)
   }, [dateRange, customFromDate, customToDate, todayStart])
 
-  const rangeOrders = useMemo(() =>
-    liveOrders.filter(o => {
-      if (o.status !== 'completed') return false
-      const t = new Date(o.updatedAt)
-      return t >= rangeStart && t <= rangeEnd
-    })
-  , [liveOrders, rangeStart, rangeEnd])
-  const rangeRevenue = rangeOrders.reduce((s, o) => s + (o.paidAmount || o.total || 0), 0)
+  // ── fetchReport: 1 API call → toàn bộ dữ liệu aggregated từ server ──────
+  const fetchReport = async (from: Date, to?: Date, showLoading = false) => {
+    if (showLoading) setReportLoading(true)
+    try {
+      const r = await api.getRevenueReport(from.toISOString(), to?.toISOString())
+      setReportData(r)
+    } catch (e) {
+      console.error('fetchReport error:', e)
+    } finally {
+      if (showLoading) setReportLoading(false)
+    }
+  }
 
   const loadData = async () => {
     try {
-      const sixtyDaysAgo = new Date()
-      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
-      const [rooms, orders, users] = await Promise.all([
+      const todayS = getTodayStart()
+      const [rooms, , users] = await Promise.all([
         api.getRooms(),
-        api.getSaleOrders({
-          where: { updatedAt: { gte: sixtyDaysAgo.toISOString() } },
-          order: 'updatedAt DESC',
-          limit: 1000,
-        }),
+        fetchReport(todayS),
         api.getUsers(),
       ])
       setLiveRoomsData(rooms)
-      setLiveOrders(orders)
       setLiveUsersData(users)
       setDataLoaded(true)
+      // Fetch items cho các phòng occupied (live revenue tiles)
+      const occupied = rooms.filter(r => r.status === 'occupied' && r.saleOrderId)
+      if (occupied.length > 0) {
+        const itemsResults = await Promise.all(
+          occupied.map(r => api.getSaleOrderItems(r.saleOrderId!).catch(() => [] as api.SaleOrderItem[]))
+        )
+        const itemsMap: Record<string, api.SaleOrderItem[]> = {}
+        occupied.forEach((r, i) => { if (r.saleOrderId) itemsMap[r.saleOrderId] = itemsResults[i] })
+        setOpenOrderItemsMap(itemsMap)
+      }
     } catch (err) {
       console.error('ManagerScreen loadData error:', err)
     }
   }
 
+  const isFirstRangeLoad = useRef(true)
   useEffect(() => { loadData() }, [])
+  // Reload report khi user đổi date range (skip lần đầu — đã có từ loadData)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!dataLoaded) return
+    if (isFirstRangeLoad.current) { isFirstRangeLoad.current = false; return }
+    fetchReport(rangeStart, rangeEnd, true)
+  }, [dateRange, customFromDate, customToDate, dataLoaded])
+
+  // ── Refresh dữ liệu live: rooms + items + report (silent, không show loading) ──
+  const refreshLiveData = async () => {
+    try {
+      const [rooms] = await Promise.all([
+        api.getRooms(),
+        fetchReport(rangeStart, rangeEnd),
+      ])
+      setLiveRoomsData(rooms)
+      setLiveTick(t => t + 1)
+      // Cập nhật items cho phòng occupied
+      const occupied = rooms.filter((r: any) => r.status === 'occupied' && r.saleOrderId)
+      if (occupied.length > 0) {
+        const itemsResults = await Promise.all(
+          occupied.map((r: any) => api.getSaleOrderItems(r.saleOrderId!).catch(() => [] as api.SaleOrderItem[]))
+        )
+        const itemsMap: Record<string, api.SaleOrderItem[]> = {}
+        occupied.forEach((r: any, i: number) => { if (r.saleOrderId) itemsMap[r.saleOrderId] = itemsResults[i] })
+        setOpenOrderItemsMap(prev => ({ ...prev, ...itemsMap }))
+      }
+    } catch (e) {
+      // silent — không alert
+    }
+  }
+
+  // ── Real-time WebSocket: reload toàn bộ khi có sự kiện ──────────────────
+  useSocket((msg: SocketEvent) => {
+    if (
+      msg.event === 'saleOrder:updated' || msg.event === 'saleOrder:created' ||
+      msg.event === 'room:updated' || msg.model === 'Room'
+    ) {
+      refreshLiveData()
+    }
+  })
+
+  // ── Auto-refresh mỗi 30s để đảm bảo dữ liệu luôn mới nhất ──────────────
+  useEffect(() => {
+    const id = setInterval(() => refreshLiveData(), 30000)
+    return () => clearInterval(id)
+  }, [rangeStart, rangeEnd])
+
   const screenW = Dimensions.get('window').width
   const barMaxH = 80
-  const weekMax  = Math.max(...WEEK_REVENUE)
 
   useEffect(() => {
     const tick = () => {
@@ -257,28 +276,28 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
       {
         icon: 'money-bill-wave', iconColor: '#34d399', bg: '#064e3b',
         label: 'Doanh thu hôm nay',
-        value: dataLoaded ? todayRevenue.toLocaleString('vi-VN') + 'đ' : TODAY_KPI[0].value,
-        sub: `${todayOrders.length} hóa đơn đã thanh toán`,
+        value: dataLoaded ? todayRevenue.toLocaleString('vi-VN') + 'đ' : '--',
+        sub: `${todayOrderCount} hóa đơn đã thanh toán`,
         trend: 0,
       },
       {
         icon: 'door-open', iconColor: '#60a5fa', bg: '#1e3a5f',
         label: 'Phòng đang hoạt động',
-        value: dataLoaded ? `${occupiedRooms.length} / ${liveRoomsData.length}` : TODAY_KPI[1].value,
+        value: dataLoaded ? `${occupiedRooms.length} / ${liveRoomsData.length}` : '--',
         sub: `${liveRoomsData.filter(r => r.status === 'available').length} trống · ${liveRoomsData.filter(r => r.status === 'cleaning').length} đang dọn`,
         trend: 0,
       },
       {
         icon: 'receipt', iconColor: '#fbbf24', bg: '#451a03',
         label: 'Hóa đơn đã thanh toán',
-        value: dataLoaded ? String(todayOrders.length) : TODAY_KPI[2].value,
-        sub: `${openOrders.length} đang mở`,
+        value: dataLoaded ? String(todayOrderCount) : '--',
+        sub: `${openOrderCount} đang mở`,
         trend: 0,
       },
       {
         icon: 'users', iconColor: '#a78bfa', bg: '#2e1065',
         label: 'Nhân viên hệ thống',
-        value: dataLoaded ? String(liveUsersData.length) : TODAY_KPI[3].value,
+        value: dataLoaded ? String(liveUsersData.length) : '--',
         sub: 'Tổng tài khoản',
         trend: 0,
       },
@@ -307,20 +326,16 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
   // ── Hourly bar chart ────────────────────────────────────────────────────────
   const HourlyChart = () => {
-    // Group today's completed orders by hour
-    const hourlyMap: Record<number, number> = {}
-    todayOrders.forEach(o => {
-      const h = new Date(o.updatedAt).getHours()
-      hourlyMap[h] = (hourlyMap[h] || 0) + (o.paidAmount || o.total || 0)
-    })
+    // Dữ liệu giờ từ server (key = '0'..'23')
+    const serverHour = reportData?.byHour ?? {}
     // Hiển thị 12h→23h (buổi tối) rồi 0h→11h (sáng hôm sau)
     const hours = [...Array.from({ length: 12 }, (_, i) => i + 12), ...Array.from({ length: 12 }, (_, i) => i)]
-    const maxVal = Math.max(...hours.map(h => hourlyMap[h] || 0), 1)
+    const maxVal = Math.max(...hours.map(h => serverHour[String(h)] || 0), 1)
     const bars: HourlyBar[] = hours.map(h => ({
       hour: h === 12 ? '12h' : h === 0 ? '0h' : `${String(h).padStart(2, '0')}h`,
-      value: (hourlyMap[h] || 0) / maxVal,
+      value: (serverHour[String(h)] || 0) / maxVal,
     }))
-    const data = dataLoaded && todayOrders.length > 0 ? bars : HOURLY
+    const data = bars
     const startLabel = (() => { const d = new Date(todayStart); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} 12:00` })()
     return (
       <View style={s.chartBox}>
@@ -347,20 +362,16 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
   const DayRangeChart = () => {
     const diffMs = rangeEnd.getTime() - rangeStart.getTime()
     const nDays = Math.max(2, Math.min(60, Math.ceil(diffMs / 86400000) + 1))
-    const dayMap: Record<string, number> = {}
-    rangeOrders.forEach(o => {
-      const d = new Date(o.updatedAt)
-      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
-      dayMap[key] = (dayMap[key] || 0) + (o.paidAmount || o.total || 0)
-    })
+    // Dữ liệu ngày từ server (key = 'YYYY-MM-DD')
+    const serverDay = reportData?.byDay ?? {}
     const days = Array.from({ length: nDays }, (_, i) => {
       const d = new Date(rangeStart); d.setDate(d.getDate() + i)
-      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+      const key = d.toISOString().slice(0, 10)
       const labels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
-      return { rev: dayMap[key] ?? 0, label: nDays <= 7 ? labels[d.getDay()] : `${d.getDate()}/${d.getMonth()+1}` }
+      return { rev: serverDay[key] ?? 0, label: nDays <= 7 ? labels[d.getDay()] : `${d.getDate()}/${d.getMonth()+1}` }
     })
-    const revData = dataLoaded ? days.map(d => d.rev) : WEEK_REVENUE
-    const labData = dataLoaded ? days.map(d => d.label) : WEEK_DAYS
+    const revData = days.map(d => d.rev)
+    const labData = days.map(d => d.label)
     const wMax = Math.max(...revData, 1)
     return (
       <View style={s.chartBox}>
@@ -393,57 +404,56 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
       <View style={{ flex: 1 }}>
         <Text style={s.heroSmLabel}>Doanh thu · {rangeLabel}</Text>
         <Text style={[s.heroRevVal, { fontSize: 24 }]}>
-          {dataLoaded ? rangeRevenue.toLocaleString('vi-VN') + 'đ' : '...'}
+          {dataLoaded ? rangeRevenue.toLocaleString('vi-VN') + 'đ' : '--'}
         </Text>
-        <Text style={s.heroCompare}>{rangeOrders.length} hóa đơn đã thanh toán</Text>
+        <Text style={s.heroCompare}>{reportData?.orderCount ?? 0} hóa đơn đã thanh toán</Text>
       </View>
       <View style={{ alignItems: 'flex-end', gap: 4 }}>
         <Text style={s.heroSmLabel}>Trung bình / đơn</Text>
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#60a5fa' }}>
-          {rangeOrders.length > 0 ? Math.round(rangeRevenue / rangeOrders.length).toLocaleString('vi-VN') + 'đ' : '--'}
+          {(reportData?.orderCount ?? 0) > 0 ? Math.round(rangeRevenue / reportData!.orderCount).toLocaleString('vi-VN') + 'đ' : '--'}
         </Text>
       </View>
     </View>
   )
 
   // ── Top items ───────────────────────────────────────────────────────────────
-  const TopItems = () => (
-    <View style={s.tableBox}>
-      <Text style={s.sectionTitle}>Top món bán chạy hôm nay</Text>
-      {TOP_ITEMS.length > 0 ? TOP_ITEMS.map((item, i) => (
-        <View key={i} style={s.tableRow}>
-          <View style={[s.rank, { backgroundColor: i < 3 ? '#7c3aed' : '#374151' }]}>
-            <Text style={s.rankText}>{i + 1}</Text>
+  const TopItems = () => {
+    const items = (reportData?.productAnalytics ?? []).slice(0, 5)
+    return (
+      <View style={s.tableBox}>
+        <Text style={s.sectionTitle}>Top món bán chạy hôm nay</Text>
+        {items.length > 0 ? items.map((item, i) => (
+          <View key={i} style={s.tableRow}>
+            <View style={[s.rank, { backgroundColor: i < 3 ? '#7c3aed' : '#374151' }]}>
+              <Text style={s.rankText}>{i + 1}</Text>
+            </View>
+            <Text style={s.tableItemName} numberOfLines={1}>{item.name}</Text>
+            <Text style={s.tableQty}>×{item.qty}</Text>
+            <Text style={s.tableRevenue}>{fmtVnd(item.revenue)}</Text>
           </View>
-          <Text style={s.tableItemName} numberOfLines={1}>{item.name}</Text>
-          <Text style={s.tableQty}>×{item.qty}</Text>
-          <Text style={s.tableRevenue}>{fmtVnd(item.revenue)}</Text>
-        </View>
-      )) : (
-        <View style={{ paddingVertical: 24, alignItems: 'center' }}>
-          <FontAwesome5 name="box-open" size={28} color={c.textMuted} />
-          <Text style={[s.kpiSub, { marginTop: 8, textAlign: 'center' }]}>Chưa có dữ liệu đơn hàng</Text>
-        </View>
-      )}
-    </View>
-  )
+        )) : (
+          <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+            <FontAwesome5 name="box-open" size={28} color={c.textMuted} />
+            <Text style={[s.kpiSub, { marginTop: 8, textAlign: 'center' }]}>{dataLoaded ? 'Không có dữ liệu hôm nay' : 'Đang tải...'}</Text>
+          </View>
+        )}
+      </View>
+    )
+  }
 
   // ── Revenue breakdown ───────────────────────────────────────────────────────
   const RevenueBreakdown = () => {
-    const txList = dataLoaded ? rangeOrders : TRANSACTIONS.map(t => ({
-      paidAmount: t.amount, total: t.amount, paymentMethod: t.method, status: 'completed',
-    } as any))
-    const totalPaid = txList.reduce((s: number, t: any) => s + (t.paidAmount || t.total || 0), 0)
-    const byMethod = (method: string) => txList.filter((t: any) =>
-      (t.paymentMethod ?? '') === method
-    ).reduce((s: number, t: any) => s + (t.paidAmount || t.total || 0), 0)
-    const cash = byMethod('Tiền mặt')
-    const transfer = byMethod('Chuyển khoản')
-    const card = byMethod('Thẻ')
+    // Dùng byMethod từ server (keys là giá trị raw: 'cash', 'transfer', ...)
+    const methodMap = reportData?.byMethod ?? {}
+    const totalPaid = rangeRevenue
+    const cash     = methodMap['cash'] ?? 0
+    const transfer = methodMap['transfer'] ?? 0
+    const card     = methodMap['card'] ?? 0
     const breakdown = [
-      { label: 'Tiền mặt', val: cash, color: '#34d399', pct: totalPaid ? cash / totalPaid : 0 },
+      { label: 'Tiền mặt',      val: cash,     color: '#34d399', pct: totalPaid ? cash / totalPaid : 0 },
       { label: 'Chuyển khoản', val: transfer, color: '#60a5fa', pct: totalPaid ? transfer / totalPaid : 0 },
-      { label: 'Thẻ', val: card, color: '#fbbf24', pct: totalPaid ? card / totalPaid : 0 },
+      { label: 'Thẻ',          val: card,     color: '#fbbf24', pct: totalPaid ? card / totalPaid : 0 },
     ]
     return (
       <View style={s.tableBox}>
@@ -473,25 +483,26 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
   // ── Recent transactions ─────────────────────────────────────────────────────
   const RecentTx = () => {
-    const txList: Transaction[] = dataLoaded
-      ? rangeOrders.slice(0, 15).map(o => {
-          const d = new Date(o.updatedAt)
-          return {
-            id: o.code,
-            room: o.room?.name ?? o.roomId,
-            amount: o.paidAmount || o.total || 0,
-            method: o.paymentMethod ?? '',
-            cashier: '',
-            time: `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
-            // old app: pending=đang mở, completed=đã TT
-            status: o.status === 'completed' ? 'paid' : 'open',
-          } as Transaction
-        })
-      : TRANSACTIONS
+    const txList: Transaction[] = (reportData?.recentTransactions ?? []).map(o => {
+      const d = new Date(o.updatedAt)
+      return {
+        id: o.code,
+        room: o.roomName || o.roomId,
+        amount: o.paidAmount,
+        method: o.paymentMethod,
+        cashier: '',
+        time: `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
+        status: 'paid',
+      } as Transaction
+    })
     return (
       <View style={s.tableBox}>
         <Text style={s.sectionTitle}>Giao dịch gần nhất</Text>
-        {txList.map((tx, i) => (
+        {txList.length === 0 ? (
+          <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+            <Text style={{ color: c.textMuted }}>{dataLoaded ? 'Chưa có giao dịch' : 'Đang tải...'}</Text>
+          </View>
+        ) : txList.map((tx, i) => (
           <View key={i} style={[s.txRow, i % 2 === 1 && s.txRowAlt]}>
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -516,10 +527,7 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
   // ── Room occupancy ──────────────────────────────────────────────────────────
   const RoomsPanel = () => {
-    const roomsData = dataLoaded ? liveRoomsData : ALL_ROOMS.map(r => ({
-      id: r.name, name: r.name, status: r.status, type: r.type,
-      isActive: true, code: '', saleOrderId: null, startTime: null, customerInfo: null,
-    } as api.Room))
+    const roomsData = liveRoomsData
     const occupied  = roomsData.filter(r => r.status === 'occupied').length
     const available = roomsData.filter(r => r.status === 'available').length
     const cleaning  = roomsData.filter(r => r.status !== 'occupied' && r.status !== 'available').length
@@ -569,16 +577,14 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
   // ── Staff panel ─────────────────────────────────────────────────────────────
   const StaffPanel = () => {
-    const staffData: StaffRow[] = dataLoaded && liveUsersData.length > 0
-      ? liveUsersData.map(u => ({
-          name: u.fullName ?? u.username,
-          role: u.role ?? 'Nhân viên',
-          status: 'online' as const,
-          orders: 0,
-          checkIn: '--:--',
-          shift: 'S',
-        }))
-      : STAFF
+    const staffData: StaffRow[] = liveUsersData.map(u => ({
+      name: u.fullName ?? u.username,
+      role: (u as any).role ?? 'Nhân viên',
+      status: 'online' as const,
+      orders: 0,
+      checkIn: '--:--',
+      shift: 'S',
+    }))
     const online  = staffData.filter(s => s.status === 'online').length
     const onBreak = staffData.filter(s => s.status === 'break').length
     const offline = staffData.filter(s => s.status === 'offline').length
@@ -599,7 +605,11 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
         <View style={s.tableBox}>
           <Text style={s.sectionTitle}>Danh sách nhân viên</Text>
-          {staffData.map((staff, i) => (
+          {staffData.length === 0 ? (
+            <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+              <Text style={{ color: c.textMuted }}>{dataLoaded ? 'Không có tài khoản' : 'Đang tải...'}</Text>
+            </View>
+          ) : staffData.map((staff, i) => (
             <View key={i} style={[s.txRow, i % 2 === 1 && s.txRowAlt, staff.status === 'offline' && { opacity: 0.45 }]}>
               <View style={[s.avatar, { backgroundColor: staff.role === 'Thu ngân' ? (mode === 'dark' ? '#2e1065' : '#ede9fe') : (mode === 'dark' ? '#1e3a5f' : '#dbeafe') }]}>
                 <Text style={s.avatarText}>{staff.name.split(' ').pop()?.charAt(0)}</Text>
@@ -624,8 +634,16 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
   // ── Overview: Revenue Hero ─────────────────────────────────────────────────
   const RevenueHero = () => {
-    const rev = dataLoaded ? todayRevenue : 18450000
-    const estimated = Math.round(rev * 0.68)
+    const rev = todayRevenue
+    // Dùng giá vốn thực nếu đã load analytics cho kỳ hôm nay; ngược lại ước tính 68%
+    const hasRealCost = reportData !== null && analyticsTotCost > 0
+    const profit = hasRealCost ? rev - analyticsTotCost : Math.round(rev * 0.68)
+    const margin = hasRealCost
+      ? (rev > 0 ? Math.round((rev - analyticsTotCost) / rev * 100) : 0)
+      : 68
+    const profitLabel = hasRealCost ? 'Lợi nhuận gộp' : 'Lợi nhuận ước tính'
+    const profitPrefix = hasRealCost ? '' : '~'
+    const marginNote = hasRealCost ? 'Sau khi trừ giá vốn' : 'ước tính, xem Phân tích'
     return (
       <View style={s.heroCard}>
         <View style={s.heroRow}>
@@ -638,16 +656,16 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
                 <Text style={[s.heroTrendText, { color: '#9ca3af' }]}> Đang tải...</Text>
               </View>
             )}
-            <Text style={s.heroCompare}>{todayOrders.length} đơn đã thanh toán hôm nay</Text>
+            <Text style={s.heroCompare}>{todayOrderCount} đơn đã thanh toán hôm nay</Text>
           </View>
           <View style={s.heroDivider} />
           <View style={s.heroSide}>
-            <Text style={s.heroSmLabel}>Lợi nhuận ước tính</Text>
-            <Text style={s.heroProfitVal}>~{estimated.toLocaleString('vi-VN')}đ</Text>
+            <Text style={s.heroSmLabel}>{profitLabel}</Text>
+            <Text style={s.heroProfitVal}>{profitPrefix}{profit.toLocaleString('vi-VN')}đ</Text>
             <View style={s.heroProfitBadge}>
-              <Text style={s.heroProfitBadgeText}>Biên 68%</Text>
+              <Text style={s.heroProfitBadgeText}>Biên {margin}%</Text>
             </View>
-            <Text style={s.heroCompare}>Sau chi phí cố định</Text>
+            <Text style={s.heroCompare}>{marginNote}</Text>
           </View>
         </View>
       </View>
@@ -657,9 +675,9 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
   // ── Overview: Stat chips ───────────────────────────────────────────────────
   const OverviewStats = () => {
     const chips = [
-      { icon: 'door-open',    color: '#7c3aed', val: dataLoaded ? `${occupiedRooms.length} / ${liveRoomsData.length}` : '5 / 9', label: 'Phòng mở' },
-      { icon: 'receipt',      color: '#ea580c', val: dataLoaded ? String(todayOrders.length) : '24', label: 'HĐ hôm nay' },
-      { icon: 'user-friends', color: '#0284c7', val: dataLoaded ? String(liveUsersData.length) : '6', label: 'Tài khoản NV' },
+      { icon: 'door-open',    color: '#7c3aed', val: dataLoaded ? `${occupiedRooms.length} / ${liveRoomsData.length}` : '--', label: 'Phòng mở' },
+      { icon: 'receipt',      color: '#ea580c', val: dataLoaded ? String(todayOrderCount) : '--', label: 'HĐ hôm nay' },
+      { icon: 'user-friends', color: '#0284c7', val: dataLoaded ? String(liveUsersData.length) : '--', label: 'Tài khoản NV' },
     ] as const
     return (
       <View style={s.statRow}>
@@ -678,87 +696,207 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
 
   // ── Overview: Live rooms ───────────────────────────────────────────────────
   const OverviewRooms = () => {
-    const roomsData = dataLoaded ? liveRoomsData : ALL_ROOMS.map(r => ({
-      id: r.name, name: r.name, status: r.status, type: r.type,
-      isActive: true, code: '', saleOrderId: null, startTime: null, customerInfo: null,
-    } as api.Room))
-    const occupied = roomsData.filter(r => r.status === 'occupied')
-    const others   = roomsData.filter(r => r.status !== 'occupied')
-    const totalLive = dataLoaded
-      ? liveOrders.filter(o => o.status === 'pending').reduce((s, o) => s + (o.total || 0), 0)
-      : ALL_ROOMS.filter(r => r.status === 'occupied').reduce((s, r) => s + r.revenue, 0)
+    void liveTick  // re-render mỗi phút để cập nhật thời gian + tiền time-based
+    const roomsData = liveRoomsData
+
+    // Tính totalLive từ items của các phòng occupied (dùng room.saleOrderId)
+    const totalLive = liveRoomsData
+          .filter(r => r.status === 'occupied' && r.saleOrderId)
+          .reduce((sum, r) => {
+            const items = openOrderItemsMap[r.saleOrderId!] ?? []
+            return sum + items.reduce((s, item) => {
+              if (item.unit === 'giờ') {
+                const qty = r.startTime ? calcTimeBasedQty(r.startTime, item.timeBasedConfig?.blockMinutes ?? 5) : item.quantity
+                return s + qty * item.unitPrice
+              }
+              return s + (item.subtotal || item.quantity * item.unitPrice)
+            }, 0)
+          }, 0)
+
+    const occupiedCount = roomsData.filter(r => r.status === 'occupied').length
+    const gap = 8
+    const pad = 12
+    const tileW = Math.floor((screenW - pad * 2 - gap) / 2)
+
     return (
       <>
-        <View style={s.ovSectionHeader}>
-          <Text style={s.ovSectionTitle}>Phòng đang mở ({occupied.length})</Text>
-          <Text style={[s.ovSectionTitle, { color: '#2563eb' }]}>{fmtFull(totalLive)}</Text>
+        {/* Header tổng – nổi bật hơn */}
+        <View style={{ paddingHorizontal: 14, paddingTop: 10, paddingBottom: 4 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <View>
+              <Text style={s.ovSectionTitle}>{occupiedCount} phòng đang mở / {roomsData.length} tổng</Text>
+              <Text style={{ color: c.textMuted, fontSize: 10, marginTop: 1 }}>Tổng tiền tạm tính</Text>
+            </View>
+            <Text style={{ color: '#2563eb', fontSize: 22, fontWeight: '800' }}>{fmtFull(totalLive)}</Text>
+          </View>
         </View>
-        {occupied.map((r, i) => {
-          const order = liveOrders.find(o => o.roomId === r.id && o.status === 'pending')
-          const timeStr2 = order?.createdAt
-            ? (() => {
-                const diff = Date.now() - new Date(order.createdAt).getTime()
-                const h = Math.floor(diff / 3600000)
-                const m = Math.floor((diff % 3600000) / 60000)
-                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`
-              })()
-            : '--:--'
-          const rev = order ? (order.total || 0) : 0
-          const isVip = r.type === 'vip' || r.type === 'VIP'
-          return (
-            <View key={i} style={[s.ovRoomCard, isVip && { borderLeftWidth: 3, borderLeftColor: '#7c3aed' }]}>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                  <Text style={s.ovRoomName}>{r.name}</Text>
-                  <View style={[s.roomTypeBadge, { backgroundColor: isVip ? '#f5f3ff' : '#eff6ff' }]}>
-                    <Text style={[s.roomTypeText, { color: isVip ? '#7c3aed' : '#2563eb' }]}>{r.type?.toUpperCase().slice(0,3)}</Text>
+
+        {/* Grid tile tất cả phòng */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap, padding: pad, paddingTop: 8 }}>
+          {roomsData.map((r, i) => {
+            const isOccupied  = r.status === 'occupied'
+            const isAvailable = r.status === 'available'
+            const isVip = r.type === 'vip' || r.type === 'VIP'
+
+            // Thời gian từ startTime phòng
+            const elapsedStr = r.startTime ? (() => {
+              const diff = Date.now() - new Date(r.startTime).getTime()
+              const totalMin = Math.floor(diff / 60000)
+              const h = Math.floor(totalMin / 60)
+              const m = totalMin % 60
+              return h > 0 ? `${h}h${String(m).padStart(2, '0')}m` : `${m}m`
+            })() : null
+
+            // Doanh thu tạm tính từ items của phòng (dùng saleOrderId trực tiếp)
+            const items = r.saleOrderId ? (openOrderItemsMap[r.saleOrderId] ?? []) : []
+            const liveRev = items.reduce((sum, item) => {
+              if (item.unit === 'giờ') {
+                const qty = r.startTime ? calcTimeBasedQty(r.startTime, item.timeBasedConfig?.blockMinutes ?? 5) : item.quantity
+                return sum + qty * item.unitPrice
+              }
+              return sum + (item.subtotal || item.quantity * item.unitPrice)
+            }, 0)
+
+            const bg   = isOccupied ? '#ef4444' : isAvailable ? '#10b981' : '#f59e0b'
+            const icon = isOccupied ? 'music'   : isAvailable ? 'check-circle' : 'broom'
+
+            return (
+              <View key={r.id ?? i} style={{ width: tileW, backgroundColor: bg, borderRadius: 10, padding: 12, minHeight: 90, justifyContent: 'space-between' }}>
+                {/* Top: icon + VIP badge */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <FontAwesome5 name={icon} size={16} color="rgba(255,255,255,0.85)" solid />
+                  {isVip && (
+                    <View style={{ backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 4, paddingHorizontal: 5, paddingVertical: 1 }}>
+                      <Text style={{ color: '#fff', fontSize: 9, fontWeight: '800' }}>VIP</Text>
+                    </View>
+                  )}
+                </View>
+                {/* Tên phòng */}
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>{r.name}</Text>
+                {/* Trạng thái */}
+                {isOccupied ? (
+                  <View style={{ marginTop: 4, gap: 2 }}>
+                    {elapsedStr && <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 12 }}>{elapsedStr}</Text>}
+                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>{fmtFull(liveRev)}</Text>
                   </View>
-                </View>
-                <Text style={s.ovRoomMeta}><Ico name="clock" size={10} color={c.textMuted} />{'  '}{timeStr2} đã mở</Text>
+                ) : (
+                  <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 6 }}>
+                    {isAvailable ? 'Trống' : 'Đang dọn'}
+                  </Text>
+                )}
               </View>
-              <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                <Text style={s.ovRoomAmount}>{fmtFull(rev)}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                  <View style={[s.liveDot, { width: 6, height: 6 }]} />
-                  <Text style={{ fontSize: 10, color: '#ef4444', fontWeight: '700' }}>LIVE</Text>
-                </View>
+            )
+          })}
+        </View>
+      </>
+    )
+  }
+
+  // ── Analytics panel ─────────────────────────────────────────────────────────
+  const AnalyticsPanel = () => {
+    // Dùng rangeRevenue (paidAmount) làm chuẩn doanh thu — nhất quán với tab Tổng quan & Doanh thu
+    // totCost/totMargin tính từ item-level data (ước tính giá vốn)
+    const items = reportData?.productAnalytics ?? []
+    const totCost    = items.reduce((s, i) => s + i.cost, 0)
+    const totProfit  = rangeRevenue - totCost
+    const totMargin  = rangeRevenue > 0 ? Math.round(totProfit / rangeRevenue * 100) : 0
+    const orderCount = reportData?.orderCount ?? 0
+
+    if (reportLoading) {
+      return (
+        <View style={{ alignItems: 'center', paddingVertical: 48 }}>
+          <ActivityIndicator size="large" color="#fbbf24" />
+          <Text style={{ color: c.textMuted, marginTop: 12 }}>Đang phân tích dữ liệu...</Text>
+        </View>
+      )
+    }
+
+    return (
+      <>
+        {/* KPI tổng hợp — dùng c.elevated để tương thích cả light/dark */}
+        {items.length > 0 && (
+          <View style={{ margin: 10, gap: 8 }}>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={{ flex: 1, backgroundColor: c.elevated, borderRadius: 12, padding: 14, borderLeftWidth: 3, borderLeftColor: '#16a34a' }}>
+                <Text style={{ color: c.textMuted, fontSize: 10, fontWeight: '600', marginBottom: 4 }}>DOANH THU</Text>
+                <Text style={{ color: c.text, fontSize: 17, fontWeight: '800' }}>{fmtFull(rangeRevenue)}</Text>
+                <Text style={{ color: c.textMuted, fontSize: 10, marginTop: 3 }}>{orderCount} đơn · {rangeLabel}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: c.elevated, borderRadius: 12, padding: 14, borderLeftWidth: 3, borderLeftColor: '#d97706' }}>
+                <Text style={{ color: c.textMuted, fontSize: 10, fontWeight: '600', marginBottom: 4 }}>GIÁ VỐN</Text>
+                <Text style={{ color: c.text, fontSize: 17, fontWeight: '800' }}>{fmtFull(totCost)}</Text>
+                <Text style={{ color: c.textMuted, fontSize: 10, marginTop: 3 }}>Ước tính từ giá nhập</Text>
               </View>
             </View>
-          )
-        })}
-        <View style={[s.ovSectionHeader, { marginTop: 4 }]}>
-          <Text style={s.ovSectionTitle}>Phòng khác ({others.length})</Text>
-        </View>
-        {others.map((r, i) => {
-          const isVip = r.type === 'vip' || r.type === 'VIP'
-          return (
-            <View key={i} style={s.ovRoomCardOther}>
-              <FontAwesome5
-                name={r.status === 'available' ? 'check-circle' : 'broom'}
-                size={14} color={r.status === 'available' ? '#16a34a' : '#d97706'} solid
-              />
-              <Text style={s.ovRoomName}>{r.name}</Text>
-              <View style={[s.roomTypeBadge, { backgroundColor: isVip ? '#f5f3ff' : c.elevated, marginLeft: 4 }]}>
-                <Text style={[s.roomTypeText, { color: isVip ? '#7c3aed' : c.textMuted }]}>{r.type?.toUpperCase().slice(0,3) ?? 'STD'}</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={{ flex: 1, backgroundColor: c.elevated, borderRadius: 12, padding: 14, borderLeftWidth: 3, borderLeftColor: '#7c3aed' }}>
+                <Text style={{ color: c.textMuted, fontSize: 10, fontWeight: '600', marginBottom: 4 }}>LỢI NHUẬN GỘP</Text>
+                <Text style={{ color: c.text, fontSize: 17, fontWeight: '800' }}>{fmtFull(totProfit)}</Text>
+                <Text style={{ color: c.textMuted, fontSize: 10, marginTop: 3 }}>Sau khi trừ giá vốn</Text>
               </View>
-              <View style={{ flex: 1 }} />
-              <Text style={{ fontSize: 12, fontWeight: '600', color: r.status === 'available' ? '#16a34a' : '#d97706' }}>
-                {r.status === 'available' ? 'Trống' : 'Đang dọn'}
+              <View style={{ flex: 1, backgroundColor: c.elevated, borderRadius: 12, padding: 14, borderLeftWidth: 3, borderLeftColor: '#2563eb' }}>
+                <Text style={{ color: c.textMuted, fontSize: 10, fontWeight: '600', marginBottom: 4 }}>BIÊN LỢI NHUẬN</Text>
+                <Text style={{ color: totMargin >= 50 ? '#15803d' : totMargin >= 30 ? '#b45309' : '#b91c1c', fontSize: 24, fontWeight: '800' }}>{totMargin}%</Text>
+                <Text style={{ color: c.textMuted, fontSize: 10, marginTop: 1 }}>{orderCount} đơn phân tích</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Bảng sản phẩm */}
+        <View style={s.tableBox}>
+          <Text style={s.sectionTitle}>
+            Sản phẩm · {rangeLabel}
+          </Text>
+          {items.length === 0 ? (
+            <View style={{ paddingVertical: 32, alignItems: 'center' }}>
+              <FontAwesome5 name="box-open" size={36} color={c.textFaint} solid />
+              <Text style={{ color: c.textMuted, marginTop: 12, textAlign: 'center' }}>
+                {orderCount === 0 ? 'Không có đơn hàng trong kỳ này' : 'Chờ phân tích xong...'}
               </Text>
             </View>
-          )
-        })}
-        <View style={{ height: 8 }} />
+          ) : (
+            <>
+              {/* Header row — align với row 2 của data */}
+              <View style={{ flexDirection: 'row', paddingBottom: 7, borderBottomWidth: 1, borderBottomColor: c.border, marginBottom: 4 }}>
+                <View style={{ width: 28 }} />
+                <Text style={{ flex: 1, color: c.textMuted, fontSize: 10, fontWeight: '600' }}>Doanh thu</Text>
+                <Text style={{ flex: 1, color: c.textMuted, fontSize: 10, fontWeight: '600' }}>Giá vốn</Text>
+                <Text style={{ flex: 1, color: c.textMuted, fontSize: 10, fontWeight: '600' }}>Lợi nhuận</Text>
+                <Text style={{ width: 42, color: c.textMuted, fontSize: 10, fontWeight: '600', textAlign: 'right' }}>Biên</Text>
+              </View>
+              {items.map((item, i) => (
+                <View key={i} style={{ borderBottomWidth: 1, borderBottomColor: c.borderFaint, paddingVertical: 9 }}>
+                  {/* Row 1: rank + tên + số lượng */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    <View style={[s.rank, { backgroundColor: i < 3 ? '#7c3aed' : c.elevated, flexShrink: 0 }]}>
+                      <Text style={[s.rankText, { color: i < 3 ? '#fff' : c.textSub }]}>{i + 1}</Text>
+                    </View>
+                    <Text style={{ color: c.text, fontWeight: '600', fontSize: 13, flex: 1 }} numberOfLines={2}>{item.name}</Text>
+                    <Text style={{ color: c.textMuted, fontSize: 11, flexShrink: 0 }}>×{item.qty}</Text>
+                  </View>
+                  {/* Row 2: 4 cột số liệu — align với header */}
+                  <View style={{ flexDirection: 'row', paddingLeft: 28 }}>
+                    <Text style={{ flex: 1, color: '#16a34a', fontWeight: '700', fontSize: 12 }}>{fmtVnd(item.revenue)}</Text>
+                    <Text style={{ flex: 1, color: '#b45309', fontWeight: '700', fontSize: 12 }}>{fmtVnd(item.cost)}</Text>
+                    <Text style={{ flex: 1, color: '#7c3aed', fontWeight: '700', fontSize: 12 }}>{fmtVnd(item.profit)}</Text>
+                    <Text style={{ width: 42, fontWeight: '800', fontSize: 13, textAlign: 'right', color: item.margin >= 50 ? '#15803d' : item.margin >= 30 ? '#b45309' : '#b91c1c' }}>{item.margin}%</Text>
+                  </View>
+                </View>
+              ))}
+            </>
+          )}
+        </View>
       </>
     )
   }
 
   // ────────────────────────────────────────────────────────────────────────────
   const tabs: { key: DashTab; label: string; icon: string }[] = [
-    { key: 'overview', label: 'Tổng quan', icon: 'chart-line' },
-    { key: 'revenue',  label: 'Doanh thu', icon: 'coins' },
-    { key: 'rooms',    label: 'Phòng',     icon: 'door-open' },
-    { key: 'staff',    label: 'Nhân viên', icon: 'users' },
+    { key: 'overview',  label: 'Tổng quan', icon: 'chart-line' },
+    { key: 'revenue',   label: 'Doanh thu', icon: 'coins' },
+    { key: 'analytics', label: 'Phân tích', icon: 'chart-pie' },
+    { key: 'staff',     label: 'Nhân viên', icon: 'users' },
   ]
 
   return (
@@ -770,7 +908,9 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
           <FontAwesome5 name="crown" size={18} color="#fbbf24" solid />
           <View>
             <Text style={s.headerTitle}>Quản lý & CEO</Text>
-            <Text style={s.headerClock}>{timeStr}</Text>
+            <Text style={s.headerClock}>
+              {selectedStore?.name ? `${selectedStore.name} • ${timeStr}` : timeStr}
+            </Text>
           </View>
         </TouchableOpacity>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -830,88 +970,101 @@ export default function ManagerScreen({ onBack }: { onBack: () => void }) {
             </TouchableOpacity>
           </View>
 
-          {/* Custom date range modal */}
-          <Modal visible={showCustomModal} transparent animationType="fade" onRequestClose={() => setShowCustomModal(false)}>
-            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' }}>
-              <View style={{ backgroundColor: c.surface, borderRadius: 16, padding: 20, width: 340, gap: 14 }}>
-                <Text style={{ color: c.text, fontWeight: '700', fontSize: 16 }}>Chọn khoảng thời gian</Text>
-
-                {/* Từ ngày */}
-                <View style={{ gap: 6 }}>
-                  <Text style={{ color: c.textMuted, fontSize: 12 }}>Từ ngày</Text>
-                  <TouchableOpacity
-                    onPress={() => { setShowFromPicker(true); setShowToPicker(false) }}
-                    style={{ backgroundColor: c.bg, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: showFromPicker ? '#fbbf24' : c.border }}
-                  >
-                    <Text style={{ color: c.text, fontSize: 15 }}>
-                      {`${String(customFromDate.getDate()).padStart(2,'0')}/${String(customFromDate.getMonth()+1).padStart(2,'0')}/${customFromDate.getFullYear()}`}
-                    </Text>
-                  </TouchableOpacity>
-                  {showFromPicker && (
-                    <DateTimePicker
-                      value={customFromDate}
-                      mode="date"
-                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                      maximumDate={customToDate}
-                      onChange={(_, d) => { setShowFromPicker(false); if (d) setCustomFromDate(d) }}
-                    />
-                  )}
-                </View>
-
-                {/* Đến ngày */}
-                <View style={{ gap: 6 }}>
-                  <Text style={{ color: c.textMuted, fontSize: 12 }}>Đến ngày</Text>
-                  <TouchableOpacity
-                    onPress={() => { setShowToPicker(true); setShowFromPicker(false) }}
-                    style={{ backgroundColor: c.bg, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: showToPicker ? '#fbbf24' : c.border }}
-                  >
-                    <Text style={{ color: c.text, fontSize: 15 }}>
-                      {`${String(customToDate.getDate()).padStart(2,'0')}/${String(customToDate.getMonth()+1).padStart(2,'0')}/${customToDate.getFullYear()}`}
-                    </Text>
-                  </TouchableOpacity>
-                  {showToPicker && (
-                    <DateTimePicker
-                      value={customToDate}
-                      mode="date"
-                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                      minimumDate={customFromDate}
-                      onChange={(_, d) => { setShowToPicker(false); if (d) setCustomToDate(d) }}
-                    />
-                  )}
-                </View>
-
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <TouchableOpacity
-                    style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: c.bg, alignItems: 'center', borderWidth: 1, borderColor: c.border }}
-                    onPress={() => setShowCustomModal(false)}
-                  >
-                    <Text style={{ color: c.textMuted, fontWeight: '600' }}>Hủy</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#451a03', alignItems: 'center', borderWidth: 1, borderColor: '#fbbf24' }}
-                    onPress={() => { setDateRange('custom'); setShowCustomModal(false) }}
-                  >
-                    <Text style={{ color: '#fbbf24', fontWeight: '700' }}>Áp dụng</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Modal>
-
           <RangeSummaryCard />
           {dateRange === 'today' ? <HourlyChart /> : <DayRangeChart />}
           <RevenueBreakdown />
           <RecentTx />
         </>}
 
-        {/* Rooms tab */}
-        {tab === 'rooms' && <RoomsPanel />}
+        {/* Analytics tab */}
+        {tab === 'analytics' && (
+          <>
+            {/* Date range selector (shared state with Revenue tab) */}
+            <View style={s.dateRangeRow}>
+              {DATE_RANGE_PRESETS.filter(p => p.key !== 'custom').map(p => (
+                <TouchableOpacity
+                  key={p.key}
+                  style={[s.drBtn, dateRange === p.key && s.drBtnActive]}
+                  onPress={() => setDateRange(p.key)}
+                >
+                  <Text style={[s.drBtnText, dateRange === p.key && { color: '#fbbf24' }]}>{p.label}</Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                style={[s.drBtn, dateRange === 'custom' && s.drBtnActive, { flexDirection: 'row', gap: 4 }]}
+                onPress={() => { setShowCustomModal(true); setShowFromPicker(false); setShowToPicker(false) }}
+              >
+                <FontAwesome5 name="calendar-alt" size={11} color={dateRange === 'custom' ? '#fbbf24' : '#6b7280'} solid />
+                <Text style={[s.drBtnText, dateRange === 'custom' && { color: '#fbbf24' }]}>
+                  {dateRange === 'custom' ? (() => { const fmt = (d: Date) => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; return `${fmt(customFromDate)}–${fmt(customToDate)}` })() : 'Tùy chỉnh'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <AnalyticsPanel />
+          </>
+        )}
 
         {/* Staff tab */}
         {tab === 'staff' && <StaffPanel />}
 
         <View style={{ height: 32 }} />
       </ScrollView>
+
+      {/* Custom date range modal — shared between Revenue & Analytics tabs */}
+      <Modal visible={showCustomModal} transparent animationType="fade" onRequestClose={() => setShowCustomModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: c.surface, borderRadius: 16, padding: 20, width: 340, gap: 14 }}>
+            <Text style={{ color: c.text, fontWeight: '700', fontSize: 16 }}>Chọn khoảng thời gian</Text>
+
+            <View style={{ gap: 6 }}>
+              <Text style={{ color: c.textMuted, fontSize: 12 }}>Từ ngày</Text>
+              <TouchableOpacity
+                onPress={() => { setShowFromPicker(true); setShowToPicker(false) }}
+                style={{ backgroundColor: c.bg, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: showFromPicker ? '#fbbf24' : c.border }}
+              >
+                <Text style={{ color: c.text, fontSize: 15 }}>
+                  {`${String(customFromDate.getDate()).padStart(2,'0')}/${String(customFromDate.getMonth()+1).padStart(2,'0')}/${customFromDate.getFullYear()}`}
+                </Text>
+              </TouchableOpacity>
+              {showFromPicker && (
+                <DateTimePicker value={customFromDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  maximumDate={customToDate} onChange={(_, d) => { setShowFromPicker(false); if (d) setCustomFromDate(d) }} />
+              )}
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <Text style={{ color: c.textMuted, fontSize: 12 }}>Đến ngày</Text>
+              <TouchableOpacity
+                onPress={() => { setShowToPicker(true); setShowFromPicker(false) }}
+                style={{ backgroundColor: c.bg, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: showToPicker ? '#fbbf24' : c.border }}
+              >
+                <Text style={{ color: c.text, fontSize: 15 }}>
+                  {`${String(customToDate.getDate()).padStart(2,'0')}/${String(customToDate.getMonth()+1).padStart(2,'0')}/${customToDate.getFullYear()}`}
+                </Text>
+              </TouchableOpacity>
+              {showToPicker && (
+                <DateTimePicker value={customToDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  minimumDate={customFromDate} onChange={(_, d) => { setShowToPicker(false); if (d) setCustomToDate(d) }} />
+              )}
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: c.bg, alignItems: 'center', borderWidth: 1, borderColor: c.border }}
+                onPress={() => setShowCustomModal(false)}
+              >
+                <Text style={{ color: c.textMuted, fontWeight: '600' }}>Hủy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#451a03', alignItems: 'center', borderWidth: 1, borderColor: '#fbbf24' }}
+                onPress={() => { setDateRange('custom'); setShowCustomModal(false) }}
+              >
+                <Text style={{ color: '#fbbf24', fontWeight: '700' }}>Áp dụng</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }

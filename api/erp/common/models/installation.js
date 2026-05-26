@@ -1,12 +1,12 @@
 const { all } = require('bluebird');
 const fs = require('fs');
+const apn = require('apn');
 
 module.exports = function (Installation) {
     const admin = require('firebase-admin');
     var allAdmin = {};
 
     function createApnProvider(app) {
-        const apn = require('apn');
         const keyId = process.env.APNS_KEY_ID;
         const teamId = process.env.APNS_TEAM_ID;
         const production = process.env.APNS_PRODUCTION !== 'false';
@@ -112,20 +112,24 @@ module.exports = function (Installation) {
 
         // push android notification
         // Path to your service account key JSON file
-        if (allAdmin[app] === undefined) {
-
-            const serviceAccount = require(`/home/ubuntu/certs/${app}/android.json`);
-            allAdmin[app] = {
-                admin: require('firebase-admin')
-            }
-            allAdmin[app].admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-        }
-        Installation.doInitFCM(app);
-  
         const androidInstallations = installations.filter(installation => installation.osVersion.toLowerCase().includes('android'));
         var androidDeviceTokens = androidInstallations.map(installation => installation.deviceToken);
+
+        if (androidDeviceTokens.length > 0) try {
+            if (allAdmin[app] === undefined) {
+                const serviceAccount = require(`/home/ubuntu/certs/${app}/android.json`);
+                allAdmin[app] = {
+                    admin: require('firebase-admin')
+                }
+                allAdmin[app].admin.initializeApp({
+                    credential: admin.credential.cert(serviceAccount)
+                });
+            }
+            Installation.doInitFCM(app);
+        } catch (fcmInitErr) {
+            console.log('[FCM] No android.json found, skipping Android push:', fcmInitErr.code);
+            androidDeviceTokens = [];
+        }
 
         // loop through the android device tokens and send the notification
         androidDeviceTokens.forEach(token => {
@@ -234,5 +238,38 @@ module.exports = function (Installation) {
         });
 
         console.log(`[WebPush] Sent to ${installations.length} devices.`);
+    };
+
+    // Send mobile push (APNs + FCM) to a list of userIds
+    Installation.sendMobilePushToUsers = async function(userIds, title, body, data) {
+        if (!userIds || !userIds.length) return;
+        const appName = process.env.DB_NAME || 'kara';
+        const bundleId = process.env.BUNDLE_ID || 'vn.vvs.pos1';
+
+        try {
+            const installations = await Installation.find({
+                where: {
+                    userId: { inq: userIds },
+                    osVersion: { neq: 'web-push' }
+                }
+            });
+
+            if (!installations || !installations.length) {
+                console.log('[MobilePush] No mobile installations found for userIds:', userIds);
+                return;
+            }
+
+            console.log(`[MobilePush] Sending to ${installations.length} mobile devices.`);
+
+            await Installation.sendApnNotifications(
+                installations,
+                { title, message: body, data: data || {} },
+                bundleId,
+                appName,
+                true // enableFCMTokenPush
+            );
+        } catch (err) {
+            console.error('[MobilePush] Error:', err);
+        }
     };
 };

@@ -7,6 +7,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { useTheme, Colors } from './ThemeContext'
+import { useStore } from './StoreContext'
 import * as api from './api'
 
 const fmtVnd = (n: number) => n.toLocaleString('vi-VN') + 'đ'
@@ -18,6 +19,7 @@ type TabKey = 'list' | 'stock'
 
 export default function InventoryScreen({ onBack }: { onBack: () => void }) {
   const { colors: c, mode } = useTheme()
+  const { selectedStore } = useStore()
   const s = useMemo(() => makeStyles(c), [c])
 
   const [tab, setTab] = useState<TabKey>('list')
@@ -245,7 +247,6 @@ export default function InventoryScreen({ onBack }: { onBack: () => void }) {
           <FontAwesome5 name="boxes" size={18} color="#7c3aed" solid />
           <View>
             <Text style={s.headerTitle}>Quản lý hàng hoá</Text>
-            <Text style={s.headerSub}>{products.filter(p => p.isActive !== false).length} SP · {lowStockCount > 0 ? `⚠️ ${lowStockCount} sắp hết` : 'kho ổn định'}</Text>
           </View>
         </TouchableOpacity>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

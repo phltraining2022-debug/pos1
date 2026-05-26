@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  StatusBar, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView,
+  StatusBar, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Modal, FlatList,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { useTheme, Colors } from './ThemeContext'
+import { useStore } from './StoreContext'
 import * as api from './api'
 
 type RoleKey = 'manager' | 'cashier' | 'waiter'
@@ -16,6 +17,7 @@ interface Props {
 
 export default function LoginScreen({ onLogin }: Props) {
   const { colors: c, mode } = useTheme()
+  const { selectStore, stores, loading: storeLoading } = useStore()
   const s = useMemo(() => makeStyles(c), [c])
 
   const [username, setUsername] = useState('')
@@ -25,6 +27,9 @@ export default function LoginScreen({ onLogin }: Props) {
   const [error,    setError]    = useState('')
   const [showServer, setShowServer] = useState(false)
   const [serverUrl, setServerUrl]   = useState('')
+  const [showStoreSelection, setShowStoreSelection] = useState(false)
+  const [tempUserId, setTempUserId] = useState('')
+  const [tempRoles, setTempRoles] = useState<string[]>([])
 
   // Load URL đã lưu từ AsyncStorage
   useEffect(() => {
@@ -47,13 +52,22 @@ export default function LoginScreen({ onLogin }: Props) {
     setLoading(true)
     try {
       const result = await api.login(username.trim(), password)
-      onLogin(result.roles, result.userId)
+      // Lưu tạm thời, show store selection
+      setTempUserId(result.userId)
+      setTempRoles(result.roles)
+      setShowStoreSelection(true)
     } catch (e: any) {
       console.error('[LOGIN ERROR]', e?.message ?? e)
       setError(String(e?.message ?? 'Lỗi không xác định'))
     } finally {
       setLoading(false)
     }
+  }
+
+  async function handleSelectStore(store: api.Store) {
+    await selectStore(store as any)
+    setShowStoreSelection(false)
+    onLogin(tempRoles, tempUserId)
   }
 
   return (
@@ -70,7 +84,7 @@ export default function LoginScreen({ onLogin }: Props) {
               </View>
             </TouchableOpacity>
             <Text style={s.brand}>Kara POS</Text>
-            <Text style={s.brandSub}>Hệ thống quản lý karaoke</Text>
+            <Text style={s.brandSub}>Hệ thống quản lý nhà hàng</Text>
           </View>
 
           {/* Server URL — hiện khi long press logo */}
@@ -161,6 +175,45 @@ export default function LoginScreen({ onLogin }: Props) {
 
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Store Selection Modal */}
+      <Modal visible={showStoreSelection} animationType="slide" transparent={true}>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { backgroundColor: c.bg }]}>
+            <View style={s.modalHeader}>
+              <Text style={[s.modalTitle, { color: c.text }]}>Chọn cửa hàng</Text>
+            </View>
+            {storeLoading ? (
+              <View style={s.modalCenter}>
+                <ActivityIndicator size="large" color="#7c3aed" />
+              </View>
+            ) : (
+              <FlatList
+                data={stores}
+                keyExtractor={store => store.id}
+                renderItem={({ item: store }) => (
+                  <TouchableOpacity
+                    style={[s.storeItem, { borderBottomColor: c.border }]}
+                    onPress={() => handleSelectStore(store)}
+                  >
+                    <View style={s.storeIcon}>
+                      <FontAwesome5 name="store" size={20} color="#7c3aed" solid />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.storeName, { color: c.text }]}>{store.name}</Text>
+                      {store.code && (
+                        <Text style={[s.storeCode, { color: c.textMuted }]}>{store.code}</Text>
+                      )}
+                    </View>
+                    <FontAwesome5 name="chevron-right" size={14} color={c.textMuted} />
+                  </TouchableOpacity>
+                )}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12 }}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -218,4 +271,27 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   // Privacy
   privacy: { textAlign: 'center', fontSize: 11, color: c.textFaint, marginTop: 12 },
   privacyLink: { color: '#7c3aed', textDecorationLine: 'underline' },
+
+  // Modal
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end'
+  },
+  modalContent: {
+    maxHeight: '70%', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: c.border,
+  },
+  modalTitle: { fontSize: 18, fontWeight: '700' },
+  modalCenter: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  storeItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1,
+  },
+  storeIcon: {
+    width: 40, height: 40, borderRadius: 8, backgroundColor: 'rgba(124,58,237,0.1)', justifyContent: 'center', alignItems: 'center',
+  },
+  storeName: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
+  storeCode: { fontSize: 12 },
 })
+

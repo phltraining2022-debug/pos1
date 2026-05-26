@@ -5,14 +5,16 @@ module.exports = async function(instance) {
     if (instance.changes.status.from !== 'paid' || instance.changes.status.to !== 'cancelled') return;
 
     const app = require('../../server');
-    const { User, notification: Notification } = app.models;
+    const { getUserIdsByRoles } = require('./_helpers');
+    const { notification: Notification } = app.models;
 
     const invoice = instance.data;
     const invoiceId = instance.objectId || invoice.id || 'none';
     const invoiceCode = invoice.invoiceNumber || invoiceId;
     const finalAmount = invoice.totalAmount || invoice.totalToPay || invoice.amountToPay || 0;
 
-    const allUserIds = (await User.find({ fields: { id: true } })).map(u => u.id);
+    // manager only nhận cảnh báo hủy hóa đơn
+    const allUserIds = await getUserIdsByRoles(app, []);
 
     console.log(`[Trigger] Invoice.updated (cancelled) - Invoice: ${invoiceCode}`);
 
