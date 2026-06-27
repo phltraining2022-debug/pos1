@@ -1,5 +1,5 @@
 // Main AngularJS Application Module
-var APP_VERSION = '1.1.02'; // Bump this value to clear localStorage on next load
+var APP_VERSION = '1.1.05'; // Bump this value to clear localStorage on next load
 
 angular.module('karaApp', ['ngRoute', 'ngAnimate'])
     .run(['$rootScope', '$location', 'ApiService', 'SocketService', function($rootScope, $location, ApiService, SocketService) {

@@ -174,6 +174,29 @@ export async function logout() {
   await clearToken();
 }
 
+export async function requestUserPasswordReset(identifier: string): Promise<void> {
+  await apiFetch('/user/forgotPassword', {
+    method: 'POST',
+    body: JSON.stringify({ phoneNumber: identifier }),
+  });
+}
+
+export async function resetUserPassword(
+  identifier: string,
+  verifyCode: string,
+  password: string,
+): Promise<void> {
+  await apiFetch('/newPassword', {
+    method: 'POST',
+    body: JSON.stringify({
+      phoneNumber: identifier,
+      verifyCode,
+      password,
+      context: 'user',
+    }),
+  });
+}
+
 // ─── Push notification installation ──────────────────────────────────────────
 // Gọi sau khi login thành công để đăng ký device nhận push notification
 export interface InstallationPayload {
@@ -426,7 +449,11 @@ export async function checkIn(
       deposit: 0,
       paidAmount: 0,
       discount: 0,
+      discountPct: 0,
       total: 0,
+      isPrinted: false,
+      printedAt: null,
+      timeFrozen: false,
       customerInfo: { name: customerName, phone: customerPhone ?? '' },
       note: `Check-in: ${roomId}${customerName ? ' - ' + customerName : ''}`,
       createdAt: now,

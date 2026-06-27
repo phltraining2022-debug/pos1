@@ -30,6 +30,15 @@ export default function LoginScreen({ onLogin }: Props) {
   const [showStoreSelection, setShowStoreSelection] = useState(false)
   const [tempUserId, setTempUserId] = useState('')
   const [tempRoles, setTempRoles] = useState<string[]>([])
+  const [forgotVisible, setForgotVisible] = useState(false)
+  const [forgotStep, setForgotStep] = useState<'contact' | 'code' | 'password'>('contact')
+  const [forgotContact, setForgotContact] = useState('')
+  const [forgotCode, setForgotCode] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [repeatPassword, setRepeatPassword] = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotError, setForgotError] = useState('')
+  const [forgotDone, setForgotDone] = useState('')
 
   // Load URL đã lưu từ AsyncStorage
   useEffect(() => {
@@ -68,6 +77,83 @@ export default function LoginScreen({ onLogin }: Props) {
     await selectStore(store as any)
     setShowStoreSelection(false)
     onLogin(tempRoles, tempUserId)
+  }
+
+  function openForgotPassword() {
+    setForgotVisible(true)
+    setForgotStep('contact')
+    setForgotContact(username.trim())
+    setForgotCode('')
+    setNewPassword('')
+    setRepeatPassword('')
+    setForgotError('')
+    setForgotDone('')
+  }
+
+  function closeForgotPassword() {
+    setForgotVisible(false)
+    setForgotLoading(false)
+  }
+
+  async function handleRequestResetCode() {
+    const contact = forgotContact.trim()
+    if (!contact) {
+      setForgotError('Vui lòng nhập số điện thoại hoặc email')
+      return
+    }
+    setForgotError('')
+    setForgotDone('')
+    setForgotLoading(true)
+    try {
+      await api.requestUserPasswordReset(contact)
+      setForgotStep('code')
+      setForgotDone('Đã gửi mã xác thực')
+    } catch (e: any) {
+      setForgotError(String(e?.message ?? 'Không gửi được mã xác thực'))
+    } finally {
+      setForgotLoading(false)
+    }
+  }
+
+  function handleConfirmResetCode() {
+    if (!forgotCode.trim()) {
+      setForgotError('Vui lòng nhập mã xác thực')
+      return
+    }
+    setForgotError('')
+    setForgotDone('')
+    setForgotStep('password')
+  }
+
+  async function handleResetPassword() {
+    const contact = forgotContact.trim()
+    const code = forgotCode.trim()
+    if (!newPassword || !repeatPassword) {
+      setForgotError('Vui lòng nhập đủ mật khẩu mới')
+      return
+    }
+    if (newPassword.length < 6) {
+      setForgotError('Mật khẩu mới phải có ít nhất 6 ký tự')
+      return
+    }
+    if (newPassword !== repeatPassword) {
+      setForgotError('Mật khẩu nhập lại không khớp')
+      return
+    }
+    setForgotError('')
+    setForgotDone('')
+    setForgotLoading(true)
+    try {
+      await api.resetUserPassword(contact, code, newPassword)
+      setUsername(contact)
+      setPassword('')
+      setForgotDone('Đổi mật khẩu thành công')
+      setTimeout(closeForgotPassword, 700)
+    } catch (e: any) {
+      setForgotError(String(e?.message ?? 'Không đổi được mật khẩu'))
+    } finally {
+      setForgotLoading(false)
+    }
   }
 
   return (
@@ -165,6 +251,10 @@ export default function LoginScreen({ onLogin }: Props) {
               }
             </TouchableOpacity>
 
+            <TouchableOpacity style={s.linkButton} onPress={openForgotPassword}>
+              <Text style={s.linkButtonText}>Quên mật khẩu?</Text>
+            </TouchableOpacity>
+
           </View>
 
           {/* Privacy policy link placeholder */}
@@ -175,6 +265,116 @@ export default function LoginScreen({ onLogin }: Props) {
 
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Forgot Password Modal */}
+      <Modal visible={forgotVisible} animationType="slide" transparent={true} onRequestClose={closeForgotPassword}>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { backgroundColor: c.bg }]}>
+            <View style={s.modalHeader}>
+              <Text style={[s.modalTitle, { color: c.text }]}>Quên mật khẩu</Text>
+            </View>
+            <View style={s.modalBody}>
+              {forgotStep === 'contact' && (
+                <>
+                  <Text style={s.label}>Số điện thoại hoặc email</Text>
+                  <View style={s.inputWrap}>
+                    <FontAwesome5 name="user" size={13} color={c.textMuted} style={s.inputIcon} />
+                    <TextInput
+                      style={s.input}
+                      placeholder="Nhập tài khoản"
+                      placeholderTextColor={c.textFaint}
+                      value={forgotContact}
+                      onChangeText={t => { setForgotContact(t); setForgotError(''); setForgotDone('') }}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="email-address"
+                    />
+                  </View>
+                </>
+              )}
+
+              {forgotStep === 'code' && (
+                <>
+                  <Text style={s.helperText}>Mã xác thực đã gửi tới {forgotContact.trim()}</Text>
+                  <Text style={s.label}>Mã xác thực</Text>
+                  <View style={s.inputWrap}>
+                    <FontAwesome5 name="key" size={13} color={c.textMuted} style={s.inputIcon} />
+                    <TextInput
+                      style={s.input}
+                      placeholder="OTP"
+                      placeholderTextColor={c.textFaint}
+                      value={forgotCode}
+                      onChangeText={t => { setForgotCode(t); setForgotError(''); setForgotDone('') }}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="number-pad"
+                    />
+                  </View>
+                </>
+              )}
+
+              {forgotStep === 'password' && (
+                <>
+                  <Text style={s.label}>Mật khẩu mới</Text>
+                  <View style={s.inputWrap}>
+                    <FontAwesome5 name="lock" size={13} color={c.textMuted} style={s.inputIcon} />
+                    <TextInput
+                      style={s.input}
+                      placeholder="Mật khẩu mới"
+                      placeholderTextColor={c.textFaint}
+                      value={newPassword}
+                      onChangeText={t => { setNewPassword(t); setForgotError(''); setForgotDone('') }}
+                      secureTextEntry
+                    />
+                  </View>
+                  <Text style={s.label}>Nhập lại mật khẩu</Text>
+                  <View style={s.inputWrap}>
+                    <FontAwesome5 name="lock" size={13} color={c.textMuted} style={s.inputIcon} />
+                    <TextInput
+                      style={s.input}
+                      placeholder="Nhập lại mật khẩu"
+                      placeholderTextColor={c.textFaint}
+                      value={repeatPassword}
+                      onChangeText={t => { setRepeatPassword(t); setForgotError(''); setForgotDone('') }}
+                      secureTextEntry
+                      onSubmitEditing={handleResetPassword}
+                    />
+                  </View>
+                </>
+              )}
+
+              {forgotError ? (
+                <View style={s.errorRow}>
+                  <FontAwesome5 name="exclamation-circle" size={12} color="#ef4444" />
+                  <Text style={s.errorText}>{forgotError}</Text>
+                </View>
+              ) : null}
+              {forgotDone ? (
+                <View style={s.successRow}>
+                  <FontAwesome5 name="check-circle" size={12} color="#10b981" />
+                  <Text style={s.successText}>{forgotDone}</Text>
+                </View>
+              ) : null}
+
+              <View style={s.modalActions}>
+                <TouchableOpacity style={s.btnSecondary} onPress={closeForgotPassword} disabled={forgotLoading}>
+                  <Text style={s.btnSecondaryText}>Huỷ</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.btnModalPrimary, forgotLoading && s.btnDisabled]}
+                  onPress={forgotStep === 'contact' ? handleRequestResetCode : forgotStep === 'code' ? handleConfirmResetCode : handleResetPassword}
+                  disabled={forgotLoading}
+                >
+                  {forgotLoading
+                    ? <ActivityIndicator color="#fff" />
+                    : <Text style={s.btnLoginText}>{forgotStep === 'password' ? 'Đổi mật khẩu' : 'Tiếp tục'}</Text>
+                  }
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Store Selection Modal */}
       <Modal visible={showStoreSelection} animationType="slide" transparent={true}>
@@ -267,6 +467,8 @@ const makeStyles = (c: Colors) => StyleSheet.create({
     shadowOpacity: 0.35, shadowRadius: 8, elevation: 6,
   },
   btnLoginText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  linkButton: { alignItems: 'center', paddingTop: 14 },
+  linkButtonText: { color: '#7c3aed', fontSize: 13, fontWeight: '700' },
 
   // Privacy
   privacy: { textAlign: 'center', fontSize: 11, color: c.textFaint, marginTop: 12 },
@@ -284,7 +486,23 @@ const makeStyles = (c: Colors) => StyleSheet.create({
     paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: c.border,
   },
   modalTitle: { fontSize: 18, fontWeight: '700' },
+  modalBody: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 20 },
+  modalActions: { flexDirection: 'row', gap: 10, marginTop: 8 },
   modalCenter: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  helperText: { color: c.textSub, fontSize: 13, marginBottom: 14 },
+  successRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12, marginTop: -2 },
+  successText: { color: '#10b981', fontSize: 13 },
+  btnSecondary: {
+    flex: 1, borderRadius: 12, paddingVertical: 14, alignItems: 'center',
+    borderWidth: 1, borderColor: c.border, backgroundColor: c.surface,
+  },
+  btnSecondaryText: { color: c.textSub, fontSize: 15, fontWeight: '700' },
+  btnModalPrimary: {
+    flex: 1, backgroundColor: '#7c3aed', borderRadius: 12, paddingVertical: 14,
+    alignItems: 'center', shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, shadowRadius: 8, elevation: 5,
+  },
+  btnDisabled: { opacity: 0.65 },
   storeItem: {
     flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1,
   },
@@ -294,4 +512,3 @@ const makeStyles = (c: Colors) => StyleSheet.create({
   storeName: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
   storeCode: { fontSize: 12 },
 })
-

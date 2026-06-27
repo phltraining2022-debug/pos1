@@ -2302,53 +2302,8 @@ angular.module('karaApp').controller('CashierController',
             }
         };
         
-        // Returns a promise that resolves to the next safe invoice number for today,
-        // by querying the server for the current max then taking max(server, local) + 1.
-        function _nextInvoiceNumber() {
-            var now = new Date();
-            var mmdd = String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
-            var prefix = 'HD' + mmdd;
-            var localKey = 'invoice_sequential_' + mmdd;
-
-            // Use createdAt date range (same approach as dashboard — known to work)
-            var startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-            var endOfDay   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-
-            return ApiService.getAll('invoices', {
-                where: {
-                    createdAt: { gte: startOfDay.toISOString(), lte: endOfDay.toISOString() }
-                },
-                order: 'invoiceNumber DESC',
-                limit: 1
-            }).then(function(results) {
-                var serverNum = 0;
-                if (results && results.length > 0) {
-                    var latest = (results[0].invoiceNumber || '').replace(prefix, '');
-                    var parsed = parseInt(latest, 10);
-                    if (!isNaN(parsed) && parsed > 0) serverNum = parsed;
-                }
-                var localNum = parseInt(localStorage.getItem(localKey) || '0');
-                var next = Math.max(serverNum, localNum) + 1;
-                localStorage.setItem(localKey, next.toString());
-                console.log('🔢 Invoice counter — server:', serverNum, 'local:', localNum, '→ next:', next);
-                return prefix + String(next).padStart(3, '0');
-            }).catch(function() {
-                // Offline fallback: trust localStorage only
-                var localNum = parseInt(localStorage.getItem(localKey) || '0') + 1;
-                localStorage.setItem(localKey, localNum.toString());
-                console.warn('🔢 Invoice counter offline fallback → next:', localNum);
-                return prefix + String(localNum).padStart(3, '0');
-            });
-        }
-
         function completePay(saleOrder) {
             var paymentContext = getEffectivePaymentBillContext(saleOrder);
-            _nextInvoiceNumber().then(function(invoiceNumber) {
-                _doCreateInvoice(invoiceNumber, saleOrder, paymentContext);
-            });
-        }
-
-        function _doCreateInvoice(invoiceNumber, saleOrder, paymentContext) {
             var sourceBill = paymentContext && paymentContext.bill ? paymentContext.bill : buildCurrentSelectedRoomBill();
             var sourceItems = (sourceBill && sourceBill.items) || [];
             var sourceTotal = Number((sourceBill && (sourceBill.total != null ? sourceBill.total : sourceBill.totalAmount)) || 0);
@@ -2360,33 +2315,35 @@ angular.module('karaApp').controller('CashierController',
                 }
             }
 
-            // Create bill using backend data
-            var billData = {
-                invoiceNumber: invoiceNumber,
-                invoiceDate: new Date(),
-                customerId: saleOrder ? saleOrder.customerId : null,
+            if (!$scope.selectedRoom || !$scope.selectedRoom.id) {
+                alert('Không tìm thấy phòng để thanh toán.');
+                return;
+            }
+
+            var roomId = encodeURIComponent($scope.selectedRoom.id);
+            var paymentPayload = {
                 saleOrderId: effectiveSaleOrderId,
-                roomId: (sourceBill && sourceBill.roomId) || $scope.selectedRoom.id,
-                startTime: toIsoStringOrNull(sourceBill && sourceBill.startTime),
-                printedAt: sourceBill && sourceBill.printedAt ? sourceBill.printedAt : null,
+                customerId: saleOrder ? saleOrder.customerId : null,
                 totalAmount: sourceTotal,
                 subtotal: Number((sourceBill && sourceBill.subtotal) || 0),
                 discount: Number((sourceBill && sourceBill.discount) || 0),
                 discountType: (sourceBill && sourceBill.discountType) || 'amount',
                 discountInput: Number((sourceBill && sourceBill.discountInput) || 0),
-                status: 'paid',
-                paidAmount: $scope.paymentReceived,
+                paymentReceived: Number($scope.paymentReceived || sourceTotal),
                 remainingAmount: 0,
                 paidBy: currentUser.username,
                 cashierName: currentUser.username,
+                paymentMethod: $scope.paymentMethod || 'cash',
                 roomCharge: Number((sourceBill && sourceBill.roomCharge) || 0),
                 foodTotal: Number((sourceBill && sourceBill.foodTotal) || 0),
-                paymentMethod: $scope.paymentMethod || 'cash',
+                startTime: toIsoStringOrNull(sourceBill && sourceBill.startTime),
+                printedAt: sourceBill && sourceBill.printedAt ? sourceBill.printedAt : null,
                 items: sourceItems.map(function(item) {
                     var quantity = Number(item.quantity || 0);
                     var price = Number(item.price != null ? item.price : (item.unitPrice || 0));
                     var mapped = {
                         productId: item.productId || item.itemId,
+                        itemId: item.itemId,
                         name: item.name,
                         quantity: quantity,
                         unit: item.unit || 'phần',
@@ -2403,55 +2360,37 @@ angular.module('karaApp').controller('CashierController',
                         if (tEnd) mapped.endTime = toIsoStringOrNull(tEnd);
                     }
                     return mapped;
-                }),
-                createdAt: new Date(),
-                updatedAt: new Date()
+                })
             };
-            
-            // Create invoice via API
-            ApiService.create('invoices', billData).then(function(invoice) {
-                console.log('✓ Invoice created:', invoice.invoiceNumber || invoice.id);
-                
-                // Update SaleOrder status to completed
-                if (saleOrder && saleOrder.id) {
-                    ApiService.update('saleorders', saleOrder.id, {
-                        status: 'completed',
-                        paidAmount: sourceTotal,
-                        total: sourceTotal,
-                        updatedAt: new Date()
-                    });
+
+            ApiService.callPostMethod('Rooms', roomId + '/finalize-payment', paymentPayload).then(function(result) {
+                var invoice = result && result.invoice ? result.invoice : null;
+                var invoiceNum = invoice ? (invoice.invoiceNumber || invoice.id) : 'N/A';
+
+                // Backend đã cập nhật xong Room + SaleOrder + Invoice; đồng bộ local room state để UI phản ánh tức thì.
+                if ($scope.selectedRoom) {
+                    $scope.selectedRoom.status = 'cleaning';
+                    $scope.selectedRoom.saleOrderId = null;
+                    $scope.selectedRoom.startTime = null;
+                    $scope.selectedRoom.customerInfo = null;
+                    $scope.selectedRoom.updatedAt = new Date();
+                    RoomService.saveRooms();
                 }
-                
-                // Deduct stock for all items
-                sourceItems.forEach(function(item) {
-                    var productId = item.itemId || item.productId;
-                    if (item.isCombo && item.bomItems) {
-                        item.bomItems.forEach(function(bomItem) {
-                            MenuService.updateStock(bomItem.itemId, -bomItem.quantity * item.quantity);
-                        });
-                    } else {
-                        MenuService.updateStock(productId, -item.quantity);
-                    }
-                });
-                
-                // Check out room
-                RoomService.checkOut($scope.selectedRoom);
-                
+
                 // Refresh rooms list to update UI immediately
                 $scope.rooms = RoomService.getRooms();
-                
+
                 // Clear selection
-                var invoiceNum = invoice.invoiceNumber || invoice.id;
                 $scope.selectedRoom = null;
                 $scope.cart = [];
                 $scope.closePaymentModal();
-                
+
                 alert('Thanh toán thành công!\nHóa đơn: ' + invoiceNum + '\nTổng: ' + sourceTotal.toLocaleString() + 'đ');
             }).catch(function(error) {
-                console.error('Failed to create invoice:', error);
-                alert('Lỗi tạo hóa đơn! Vui lòng thử lại.');
+                console.error('Finalize payment failed:', error);
+                alert('Thanh toán thất bại. Vui lòng thử lại hoặc kiểm tra kết nối.');
             });
-        }  // end _doCreateInvoice
+        }
         
         // ── Private: chuẩn hoá bill rồi mở cửa sổ in ─────────────────
         function _openPrintWindow(bill) {
@@ -2502,19 +2441,19 @@ angular.module('karaApp').controller('CashierController',
 
             var printWindow = window.open('', '_blank', 'width=440,height=650');
             var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Phiếu tính tiền</title><style>' +
-                'body{font-family:Arial,"Helvetica Neue",sans-serif;font-size:12px;line-height:1.2;margin:0;padding:8px;max-width:420px;background:white}' +
+                'body{font-family:Arial,"Helvetica Neue",sans-serif;font-size:12px;line-height:1.2;margin:0;padding:8px 0;max-width:420px;background:white}' +
                 '.center{text-align:center}.bold{font-weight:bold}' +
                 '.divider{border-top:1px dashed #000;margin:4px 0}' +
                 '.double-divider{border-top:2px solid #000;margin:4px 0}' +
                 '.item-header{display:flex;justify-content:space-between;font-weight:bold;font-size:11px}' +
                 '.item-header .col-name{flex:1}.item-header .col-qty{width:30px;text-align:center}' +
-                '.item-header .col-price{width:60px;text-align:right}.item-header .col-total{width:65px;text-align:right}' +
+                '.item-header .col-price{width:50px;text-align:right}.item-header .col-total{width:60px;text-align:right}' +
                 '.item-block{margin:2px 0}' +
                 '.item-line{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}' +
                 '.item-line .col-name{flex:1;word-break:break-word;padding-right:4px}' +
                 '.item-line .col-qty{width:30px;text-align:center;white-space:nowrap}' +
-                '.item-line .col-price{width:60px;text-align:right;white-space:nowrap}' +
-                '.item-line .col-total{width:65px;text-align:right;white-space:nowrap;font-weight:bold}' +
+                '.item-line .col-price{width:50px;text-align:right;white-space:nowrap}' +
+                '.item-line .col-total{width:60px;text-align:right;white-space:nowrap;font-weight:bold}' +
                 '.note{font-size:11px;font-style:italic;color:#444;margin:0 0 2px 6px}' +
                 '.total-row{display:flex;justify-content:space-between;margin:2px 0;font-size:12px}' +
                 '.total-final{font-size:14px;font-weight:bold;border-top:1px solid #000;padding-top:4px;margin-top:4px}' +

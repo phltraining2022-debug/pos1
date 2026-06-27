@@ -238,6 +238,13 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
   const [noteModal, setNoteModal] = useState<{ show: boolean; item: CartItem | null; text: string }>({
     show: false, item: null, text: ''
   })
+
+  const resetDiscountState = useCallback(() => {
+    setDiscount(0)
+    setDiscountPct(0)
+    setDiscountMode('amount')
+    setDiscountInput('')
+  }, [])
   const [editTimeModal, setEditTimeModal] = useState<{
     show: boolean; item: CartItem | null
     startHH: string; startMM: string; startDate: string; showDatePick: boolean
@@ -322,6 +329,10 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
         const savedPct = saleOrder.discountPct ?? 0
         setDiscount(savedDiscount)
         setDiscountPct(savedPct)
+        setDiscountMode(savedPct > 0 ? 'percent' : 'amount')
+        setDiscountInput('')
+      } else {
+        resetDiscountState()
       }
       // Group by productId+note (như AngularJS loadItemsIntoCart)
       // Nếu server có duplicate records cho cùng 1 món → gộp lại thành 1 row
@@ -495,8 +506,7 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
   // ── Chọn phòng ────────────────────────────────────────────────────────────
   const selectRoom = (room: Room) => {
     setSelectedRoom(room)
-    setDiscount(0)
-    setDiscountPct(0)
+    resetDiscountState()
     if (room.status === 'occupied') {
       loadExistingItems(room)
     } else {
@@ -511,6 +521,7 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
     if (!room) return
     setActionLoading(true)
     try {
+      resetDiscountState()
       await api.checkIn(room.id, guestName || 'Khách lẻ', guestPhone || undefined)
       api.invalidateCache(['rooms']) // Clear rooms cache after check-in
       const apiRooms = await api.getRooms()
@@ -519,6 +530,7 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
       const updatedRoom = mapped.find(r => r.id === room.id) ?? null
       setSelectedRoom(updatedRoom)
       setCart([])
+      resetDiscountState()
       setCheckInModal({ show: false, room: null })
       setGuestName('')
       setGuestPhone('')
@@ -528,7 +540,7 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
     } finally {
       setActionLoading(false)
     }
-  }, [checkInModal.room, guestName, guestPhone])
+  }, [checkInModal.room, guestName, guestPhone, resetDiscountState])
 
   const addToCart = useCallback((item: MenuItem) => {
     if (item.isTimeBased) {
@@ -684,8 +696,7 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
       api.invalidateCache(['rooms']) // Clear rooms cache after checkout
       Alert.alert('Thanh toán thành công ✓', `${fmtVnd(total)} — ${selectedPayMethod}\nPhòng ${selectedRoom.name} chuyển sang dọn dẹp`)
       setCart([])
-      setDiscount(0)
-      setDiscountPct(0)
+      resetDiscountState()
       setPayModal(false)
       // 3. Refresh rooms
       const apiRooms = await api.getRooms()
@@ -698,7 +709,7 @@ export default function CashierScreen({ onBack, onInventory, isWaiterMode = fals
     } finally {
       setActionLoading(false)
     }
-  }, [selectedRoom, cart, newCartItems, total, selectedPayMethod, discount])
+  }, [selectedRoom, cart, newCartItems, total, selectedPayMethod, discount, resetDiscountState])
 
   const handleLogout = async () => {
     try { await api.logout() } catch {}

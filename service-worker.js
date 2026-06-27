@@ -1,7 +1,7 @@
 // CACHE_NAME is updated automatically by build.js (node build.js) on each release.
 // Changing this value forces the activate handler to delete the old cache bucket,
 // so users always receive fresh HTML/JS after a deployment.
-const CACHE_NAME = 'kara-pos-v1.1.02';
+const CACHE_NAME = 'kara-pos-v1.1.05';
 const BASE_PATH = '/builder-1/kara2';
 
 // Install event — skip waiting so the new SW activates immediately
