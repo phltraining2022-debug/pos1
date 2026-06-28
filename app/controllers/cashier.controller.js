@@ -286,6 +286,11 @@ angular.module('karaApp').controller('CashierController',
                 if (!Array.isArray(printedSnapshot.items)) {
                     printedSnapshot.items = [];
                 }
+                if ($scope.selectedRoom) {
+                    printedSnapshot.roomId = $scope.selectedRoom.id;
+                    printedSnapshot.roomName = $scope.selectedRoom.name;
+                    printedSnapshot.saleOrderId = $scope.selectedRoom.saleOrderId || printedSnapshot.saleOrderId || null;
+                }
                 return {
                     source: 'snapshot',
                     bill: printedSnapshot

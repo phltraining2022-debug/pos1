@@ -17,6 +17,63 @@ angular.module('karaApp').service('RoomService', ['StorageService', '$http', 'Ap
             clearRoomsCache();
             return true;
         }
+
+        function buildSaleOrderRoomTransferPatch(saleOrder, fromRoom, toRoom, updatedAt) {
+            var patch = {
+                roomId: toRoom.id,
+                note: 'Chuyển từ ' + fromRoom.name + ' sang ' + toRoom.name,
+                updatedAt: updatedAt
+            };
+
+            if (saleOrder && saleOrder.printedBillSnapshot) {
+                patch.printedBillSnapshot = angular.copy(saleOrder.printedBillSnapshot);
+                patch.printedBillSnapshot.roomId = toRoom.id;
+                patch.printedBillSnapshot.roomName = toRoom.name;
+            }
+
+            return patch;
+        }
+
+        function syncSaleOrderRoomTransfer(saleOrderId, fromRoom, toRoom) {
+            if (!saleOrderId || !fromRoom || !toRoom) return;
+
+            var updatedAt = new Date();
+            var saleOrders = StorageService.get('saleorders') || [];
+            var orderIndex = saleOrders.findIndex(function(order) {
+                return String(order.id) === String(saleOrderId);
+            });
+            var localOrder = orderIndex >= 0 ? saleOrders[orderIndex] : null;
+            var saleOrderPatch = buildSaleOrderRoomTransferPatch(localOrder, fromRoom, toRoom, updatedAt);
+
+            if (localOrder) {
+                angular.extend(localOrder, angular.copy(saleOrderPatch));
+                StorageService.set('saleorders', saleOrders);
+            }
+
+            var saleOrderIdStr = String(saleOrderId || '');
+            var isLocalSaleOrder = saleOrderIdStr.startsWith('temp-') || saleOrderIdStr.startsWith('local-');
+            if (isLocalSaleOrder) {
+                var pendingCreate = (SyncService.getSyncQueue() || []).find(function(queueItem) {
+                    return queueItem.action === 'create' &&
+                           queueItem.model === 'saleorders' &&
+                           queueItem.status === 'pending' &&
+                           queueItem.data &&
+                           String(queueItem.data.roomId) === String(fromRoom.id);
+                });
+
+                if (pendingCreate && pendingCreate.data) {
+                    angular.extend(pendingCreate.data, angular.copy(saleOrderPatch));
+                    SyncService.saveSyncQueue();
+                } else {
+                    console.warn('⚠ Pending create for local SaleOrder not found while transferring room:', saleOrderId);
+                }
+                return;
+            }
+
+            SyncService.addToQueue('update', 'saleorders', angular.extend({
+                id: saleOrderId
+            }, saleOrderPatch));
+        }
         
         // Initialize rooms
         this.initRooms = function() {
@@ -210,6 +267,7 @@ angular.module('karaApp').service('RoomService', ['StorageService', '$http', 'Ap
                 if (saleOrderId && !saleOrderId.startsWith('temp-')) {
                     SyncService.addToQueue('update', 'saleorders', {
                         id: saleOrderId,
+                        roomId: room.id,
                         status: 'completed',
                         updatedAt: new Date()
                     });
@@ -251,15 +309,10 @@ angular.module('karaApp').service('RoomService', ['StorageService', '$http', 'Ap
                 fromRoom.updatedAt = new Date();
                 
                 this.saveRooms();
-                
-                // 2. Queue SaleOrder update
+
+                // 2. Keep SaleOrder room association in sync immediately, then queue it for server sync.
                 if (saleOrderId) {
-                    SyncService.addToQueue('update', 'saleorders', {
-                        id: saleOrderId,
-                        roomId: toRoomId,
-                        note: 'Chuyển từ ' + fromRoom.name + ' sang ' + toRoom.name,
-                        updatedAt: new Date()
-                    });
+                    syncSaleOrderRoomTransfer(saleOrderId, fromRoom, toRoom);
                 }
                 
                 // 3. Queue room updates

@@ -154,6 +154,7 @@ module.exports = function(Room) {
     }
 
     const previousSaleOrderData = {
+      roomId: saleOrder.roomId,
       status: saleOrder.status,
       paymentMethod: saleOrder.paymentMethod,
       paidAmount: saleOrder.paidAmount,
@@ -163,8 +164,19 @@ module.exports = function(Room) {
     };
 
     let saleOrderUpdated = false;
-    if (saleOrder.status !== 'completed') {
+    const normalizedRoomId = String(id);
+    const saleOrderRoomId = saleOrder.roomId ? String(saleOrder.roomId) : null;
+    const saleOrderNeedsUpdate =
+      saleOrder.status !== 'completed' ||
+      saleOrder.paymentMethod !== paymentMethod ||
+      toNumber(saleOrder.paidAmount, 0) !== totalAmount ||
+      toNumber(saleOrder.total, 0) !== totalAmount ||
+      toNumber(saleOrder.discount, 0) !== discount ||
+      saleOrderRoomId !== normalizedRoomId;
+
+    if (saleOrderNeedsUpdate) {
       await saleOrder.updateAttributes({
+        roomId: normalizedRoomId,
         status:        'completed',
         paymentMethod: paymentMethod,
         // totalAmount từ client là số tiền cuối cùng sau giảm giá.
@@ -258,10 +270,6 @@ module.exports = function(Room) {
         throw makeHttpError('Đơn hàng không tồn tại', 404, 'SALE_ORDER_NOT_FOUND');
       }
 
-      if (saleOrder.roomId && String(saleOrder.roomId) !== String(id)) {
-        throw makeHttpError('Đơn hàng không thuộc phòng này', 409, 'SALE_ORDER_ROOM_MISMATCH');
-      }
-
       let existingInvoice = await Invoice.findOne({ where: { saleOrderId: saleOrderId } });
       const invoiceAlreadyExisted = !!existingInvoice;
 
@@ -277,6 +285,8 @@ module.exports = function(Room) {
       const invoiceDiscount = existingInvoice
         ? toNumber(existingInvoice.discount, discount)
         : discount;
+      const normalizedRoomId = String(id);
+      const saleOrderRoomId = saleOrder.roomId ? String(saleOrder.roomId) : null;
 
       if (!existingInvoice) {
         const customerId = data.customerId != null ? data.customerId : (saleOrder.customerId || 0);
@@ -310,6 +320,7 @@ module.exports = function(Room) {
       }
 
       const saleOrderNeedsUpdate =
+        saleOrderRoomId !== normalizedRoomId ||
         saleOrder.status !== 'completed' ||
         saleOrder.paymentMethod !== paymentMethod ||
         toNumber(saleOrder.paidAmount, 0) !== invoiceTotal ||
@@ -318,6 +329,7 @@ module.exports = function(Room) {
 
       if (saleOrderNeedsUpdate) {
         await saleOrder.updateAttributes({
+          roomId: normalizedRoomId,
           status: 'completed',
           paymentMethod: paymentMethod,
           paidAmount: invoiceTotal,
