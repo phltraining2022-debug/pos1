@@ -7,6 +7,14 @@ angular.module('karaApp').controller('CashierController',
             $location.path('/login');
             return;
         }
+
+        function handleAuthError(error, source) {
+            if (ApiService.isAuthError && ApiService.isAuthError(error)) {
+                ApiService.reportAuthExpired(error, source || 'cashier-controller');
+                return true;
+            }
+            return false;
+        }
         
         // Make currentUser available to view
         $scope.currentUser = currentUser;
@@ -807,7 +815,10 @@ angular.module('karaApp').controller('CashierController',
                 StorageService.set('rooms', rooms);
                 $scope.rooms = RoomService.getRooms();
                 _applyRoomLogic(serverRoom);
-            }).catch(function() {
+            }).catch(function(error) {
+                if (handleAuthError(error, 'cashier-select-room')) {
+                    return;
+                }
                 console.warn('Could not reach server, using local room data');
                 _applyRoomLogic(room);
             });
@@ -859,7 +870,10 @@ angular.module('karaApp').controller('CashierController',
                             $scope.selectedRoom = r;
                             $scope.mobileTab = 'bill';
                             loadSaleOrderItems(r.saleOrderId);
-                        }).catch(function() {
+                        }).catch(function(error) {
+                            if (handleAuthError(error, 'cashier-select-room-saleorder')) {
+                                return;
+                            }
                             $scope.selectedRoom = r;
                             $scope.mobileTab = 'bill';
                             loadSaleOrderItems(r.saleOrderId);
@@ -1023,6 +1037,9 @@ angular.module('karaApp').controller('CashierController',
                     $scope.calculateTotal();
                 }
             }).catch(function(error) {
+                if (handleAuthError(error, 'cashier-load-saleorderitems')) {
+                    return;
+                }
                 console.warn('⚠️ Failed to load server SaleOrderItems (offline?):', error);
                 
                 // Fallback to localStorage when offline
@@ -2294,6 +2311,9 @@ angular.module('karaApp').controller('CashierController',
                 ApiService.getById('saleorders', $scope.selectedRoom.saleOrderId).then(function(saleOrder) {
                     completePay(saleOrder);
                 }).catch(function(error) {
+                    if (handleAuthError(error, 'cashier-process-payment-saleorder')) {
+                        return;
+                    }
                     console.warn('Failed to get SaleOrder, using local data:', error);
                     completePay(null);
                 });
@@ -2387,6 +2407,9 @@ angular.module('karaApp').controller('CashierController',
 
                 alert('Thanh toán thành công!\nHóa đơn: ' + invoiceNum + '\nTổng: ' + sourceTotal.toLocaleString() + 'đ');
             }).catch(function(error) {
+                if (handleAuthError(error, 'cashier-finalize-payment')) {
+                    return;
+                }
                 console.error('Finalize payment failed:', error);
                 alert('Thanh toán thất bại. Vui lòng thử lại hoặc kiểm tra kết nối.');
             });

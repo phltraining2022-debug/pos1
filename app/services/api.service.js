@@ -5,12 +5,23 @@ const API_BASE_URL = 'https://kara.test.live1.vn/api/';
 angular.module('karaApp') // Or your actual application module name
   .config(function ($provide, $httpProvider) {
 
-    $provide.factory('httpInterceptor', ['$q', function ($q) {
+    $provide.factory('httpInterceptor', ['$q', '$injector', function ($q, $injector) {
+      function reportAuthExpired(response, reason) {
+        try {
+          var apiService = $injector.get('ApiService');
+          if (apiService && typeof apiService.reportAuthExpired === 'function') {
+            apiService.reportAuthExpired(response, reason || '401');
+          }
+        } catch (e) {
+          console.warn('httpInterceptor reportAuthExpired failed:', e);
+        }
+      }
+
       return {
         // Intercept request
         request: function (config) {
-          // Don't add Authorization header for CDN uploads
-          if (!config.url.includes('cdn.live1.vn')) {
+          // Don't add Authorization header for CDN uploads or login requests
+          if (!config.url.includes('cdn.live1.vn') && !/\/login(\?|$)/.test(config.url)) {
             config.headers['Authorization'] = localStorage.getItem('$LoopBack$accessTokenId'); // Example header
           }
           return config;
@@ -33,6 +44,10 @@ angular.module('karaApp') // Or your actual application module name
           return response || $q.when(response);
         },
         responseError: function (response) {
+          var requestUrl = response && response.config && response.config.url ? response.config.url : '';
+          if (response && response.status === 401 && !/\/login(\?|$)/.test(requestUrl)) {
+            reportAuthExpired(response, 'http-interceptor-401');
+          }
           return $q.reject(response);
         }
       };
@@ -40,7 +55,7 @@ angular.module('karaApp') // Or your actual application module name
 
     $httpProvider.interceptors.push('httpInterceptor');
   })
-  .factory('ApiService', ['$http', '$q', function ($http, $q) {
+  .factory('ApiService', ['$http', '$q', '$rootScope', 'SocketService', function ($http, $q, $rootScope, SocketService) {
     // --- Pre-loaded Data Stores ---
     let _cfgData = null; // Populated by loadAllCfgInternal() at startup
     let _modelSchemas = null; // Populated by loadModelSchemasInternal() at startup
@@ -104,6 +119,64 @@ angular.module('karaApp') // Or your actual application module name
       }
 
       return config;
+    }
+
+    function getTokenExpiry() {
+      var raw = localStorage.getItem('$LoopBack$tokenExpiry');
+      if (!raw) {
+        return null;
+      }
+
+      var expiry = Number(raw);
+      return isNaN(expiry) ? null : expiry;
+    }
+
+    function clearStoredSession() {
+      [
+        '$LoopBack$accessTokenId',
+        '$LoopBack$tokenExpiry',
+        '$LoopBack$user',
+        '$LoopBack$rememberModel',
+        '$LoopBack$rememberCreds',
+        'userProfile',
+        'currentUser'
+      ].forEach(function(key) {
+        localStorage.removeItem(key);
+      });
+    }
+
+    function normalizeAuthError(error) {
+      var statusCode = null;
+      var message = '';
+
+      if (typeof error === 'string') {
+        message = error;
+      } else if (error && typeof error === 'object') {
+        statusCode = error.statusCode || error.status || (error.data && error.data.error && error.data.error.statusCode) || null;
+        if (error.data && error.data.error && error.data.error.message) {
+          message = error.data.error.message;
+        } else if (error.message) {
+          message = error.message;
+        } else if (error.statusText) {
+          message = error.statusText;
+        }
+      }
+
+      return {
+        statusCode: statusCode ? Number(statusCode) : null,
+        message: message || ''
+      };
+    }
+
+    function isAuthError(error) {
+      var info = normalizeAuthError(error);
+      var normalizedMessage = (info.message || '').toLowerCase();
+      return info.statusCode === 401 ||
+        normalizedMessage.indexOf('invalid or expired access token') >= 0 ||
+        normalizedMessage.indexOf('access token required') >= 0 ||
+        normalizedMessage.indexOf('unauthorized') >= 0 ||
+        normalizedMessage.indexOf('token expired') >= 0 ||
+        normalizedMessage.indexOf('session expired') >= 0;
     }
 
     // --- Internal Loading Functions for Startup ---
@@ -359,6 +432,75 @@ angular.module('karaApp') // Or your actual application module name
         } catch(e) {}
       },
 
+      isSessionExpired: function() {
+        var expiry = getTokenExpiry();
+        return expiry !== null && Date.now() >= expiry;
+      },
+
+      isAuthError: isAuthError,
+
+      reportAuthExpired: function(error, reason) {
+        var info = normalizeAuthError(error);
+        var message = info.message || 'Phiên đăng nhập đã hết hạn';
+        var payload = {
+          visible: true,
+          message: message,
+          reason: reason || 'auth-expired',
+          statusCode: info.statusCode || 401
+        };
+
+        if ($rootScope.authSessionAlert && $rootScope.authSessionAlert.visible) {
+          return info;
+        }
+
+        $rootScope.authSessionAlert = payload;
+        if (typeof $rootScope.$broadcast === 'function') {
+          $rootScope.$broadcast('kara:auth-expired', payload);
+        }
+
+        return info;
+      },
+
+      hasValidSession: function() {
+        var token = localStorage.getItem('$LoopBack$accessTokenId');
+        var userData = localStorage.getItem('$LoopBack$user');
+
+        if (!token || !userData) {
+          return false;
+        }
+
+        return !this.isSessionExpired();
+      },
+
+      forceLogout: function(reason) {
+        console.warn('Forcing logout:', reason || 'unknown');
+        this.clearCache();
+        clearStoredSession();
+
+        $rootScope.authSessionAlert = {
+          visible: false,
+          message: '',
+          reason: reason || 'logout',
+          statusCode: null
+        };
+
+        try {
+          if (SocketService && typeof SocketService.disconnect === 'function') {
+            SocketService.disconnect();
+          }
+        } catch (e) {
+          console.warn('ApiService.forceLogout: failed to disconnect socket', e);
+        }
+
+        try {
+          if (typeof $rootScope.$broadcast === 'function') {
+            $rootScope.$broadcast('kara:auth-cleared', { reason: reason || 'logout' });
+          }
+        } catch (e) {}
+
+        return true;
+      },
+
       clearRememberMe: function() {
         localStorage.removeItem('$LoopBack$rememberModel');
         localStorage.removeItem('$LoopBack$rememberCreds');
@@ -375,8 +517,8 @@ angular.module('karaApp') // Or your actual application module name
           self.login(model, creds).then(function(user) {
             deferred.resolve(user);
           }).catch(function(err) {
-            // credentials sai / server lỗi → xóa để tránh loop
-            self.clearRememberMe();
+            // credentials sai / server lỗi → hard logout để tránh giữ session nửa sống nửa chết
+            self.forceLogout('restore-session-failed');
             deferred.reject(err);
           });
         } catch(e) { deferred.reject(e); }
@@ -795,7 +937,7 @@ angular.module('karaApp') // Or your actual application module name
   }])
 
   // Service mới để handle authenticated requests cho các API tối ưu
-  .factory('AuthenticatedHttpService', ['$http', '$q', function ($http, $q) {
+  .factory('AuthenticatedHttpService', ['$http', '$q', 'ApiService', function ($http, $q, ApiService) {
 
     /**
      * Helper function to make authenticated API calls
@@ -854,32 +996,7 @@ angular.module('karaApp') // Or your actual application module name
 
         // If 401, try silent re-login trước khi xóa session
         if (error.status === 401) {
-          var savedModel = localStorage.getItem('$LoopBack$rememberModel');
-          var savedCreds = localStorage.getItem('$LoopBack$rememberCreds');
-          if (savedModel && savedCreds) {
-            try {
-              var creds = JSON.parse(savedCreds);
-              return $http.post(API_BASE_URL + savedModel + '/login?include=user', angular.extend({ ttl: 2592000 }, creds))
-                .then(function(resp) {
-                  if (resp.data && resp.data.id) {
-                    localStorage.setItem('$LoopBack$accessTokenId', resp.data.id);
-                    localStorage.setItem('$LoopBack$tokenExpiry', Date.now() + 2592000 * 1000);
-                    if (resp.data.user) { localStorage.setItem('$LoopBack$user', JSON.stringify(resp.data.user)); }
-                    // Retry original request với token mới
-                    config.headers['Authorization'] = resp.data.id;
-                    return $http(config);
-                  }
-                  return $q.reject(error);
-                })
-                .catch(function() {
-                  localStorage.removeItem('$LoopBack$accessTokenId');
-                  localStorage.removeItem('$LoopBack$user');
-                  return $q.reject(error);
-                });
-            } catch(e) {}
-          }
-          localStorage.removeItem('$LoopBack$accessTokenId');
-          localStorage.removeItem('$LoopBack$user');
+          ApiService.reportAuthExpired(error, 'authenticated-http-401');
         }
 
         return $q.reject(error);

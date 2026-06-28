@@ -2,6 +2,21 @@
 angular.module('karaApp').service('RoomService', ['StorageService', '$http', 'ApiService', 'SyncService',
     function(StorageService, $http, ApiService, SyncService) {
         var rooms = [];
+
+        function clearRoomsCache() {
+            rooms.length = 0;
+            StorageService.set('rooms', []);
+        }
+
+        function handleAuthError(error, source) {
+            if (!ApiService.isAuthError || !ApiService.isAuthError(error)) {
+                return false;
+            }
+
+            ApiService.reportAuthExpired(error, source || 'room-service');
+            clearRoomsCache();
+            return true;
+        }
         
         // Initialize rooms
         this.initRooms = function() {
@@ -51,6 +66,9 @@ angular.module('karaApp').service('RoomService', ['StorageService', '$http', 'Ap
                     console.log('✓ Rooms loaded from server:', rooms.length);
                 }
             }).catch(function(error) {
+                if (handleAuthError(error, 'room-service-init')) {
+                    return;
+                }
                 console.warn('⚠ Failed to load rooms from server:', error);
             });
 
@@ -406,6 +424,9 @@ angular.module('karaApp').service('RoomService', ['StorageService', '$http', 'Ap
                     items: items
                 };
             }).catch(function(error) {
+                if (handleAuthError(error, 'room-service-get-saleorder-with-items')) {
+                    return null;
+                }
                 console.warn('⚠ Failed to get sale order with items for room', roomId, error);
                 return null;
             });

@@ -1,11 +1,19 @@
 // Waiter/Staff Controller
 angular.module('karaApp').controller('WaiterController', 
-    ['$scope', '$interval', '$timeout', '$location', 'ApiService', 'RoomService', 'MenuService', 'OrderService', 'StaffService', 'SocketService', 'StorageService', 'SyncService', 'TimeBasedService', 'AttendanceService', 'StaffPanelService',
-    function($scope, $interval, $timeout, $location, ApiService, RoomService, MenuService, OrderService, StaffService, SocketService, StorageService, SyncService, TimeBasedService, AttendanceService, StaffPanelService) {
+    ['$scope', '$interval', '$timeout', '$q', '$location', 'ApiService', 'RoomService', 'MenuService', 'StaffService', 'SocketService', 'StorageService', 'TimeBasedService', 'AttendanceService', 'StaffPanelService',
+    function($scope, $interval, $timeout, $q, $location, ApiService, RoomService, MenuService, StaffService, SocketService, StorageService, TimeBasedService, AttendanceService, StaffPanelService) {
         var currentUser = ApiService.getCurrentUser();
         if (!currentUser) {
             $location.path('/login');
             return;
+        }
+
+        function handleAuthError(error, source) {
+            if (ApiService.isAuthError && ApiService.isAuthError(error)) {
+                ApiService.reportAuthExpired(error, source || 'waiter-controller');
+                return true;
+            }
+            return false;
         }
 
         // Timer for real-time time-based quantity updates
@@ -26,6 +34,143 @@ angular.module('karaApp').controller('WaiterController',
             }
         }
 
+        function upsertRoomCache(roomData) {
+            if (!roomData || !roomData.id) return roomData;
+
+            var mergedRoom = angular.copy(roomData);
+            var serviceRooms = RoomService.getRooms() || [];
+            var serviceIdx = serviceRooms.findIndex(function(r) { return r.id === mergedRoom.id; });
+            if (serviceIdx >= 0) {
+                Object.assign(serviceRooms[serviceIdx], mergedRoom);
+            } else {
+                serviceRooms.push(mergedRoom);
+            }
+
+            var storedRooms = StorageService.get('rooms') || [];
+            var storedIdx = storedRooms.findIndex(function(r) { return r.id === mergedRoom.id; });
+            if (storedIdx >= 0) {
+                storedRooms[storedIdx] = Object.assign({}, storedRooms[storedIdx], mergedRoom);
+            } else {
+                storedRooms.push(angular.copy(mergedRoom));
+            }
+            StorageService.set('rooms', storedRooms);
+            $scope.rooms = serviceRooms;
+            if ($scope.selectedRoom && String($scope.selectedRoom.id) === String(mergedRoom.id)) {
+                Object.assign($scope.selectedRoom, mergedRoom);
+            }
+            return mergedRoom;
+        }
+
+        function upsertSaleOrderCache(saleOrderData) {
+            if (!saleOrderData || !saleOrderData.id) return saleOrderData;
+
+            var saleOrders = StorageService.get('saleorders') || [];
+            var idx = saleOrders.findIndex(function(o) { return o.id === saleOrderData.id; });
+            if (idx >= 0) {
+                saleOrders[idx] = Object.assign({}, saleOrders[idx], saleOrderData);
+            } else {
+                saleOrders.push(angular.copy(saleOrderData));
+            }
+            StorageService.set('saleorders', saleOrders);
+            return saleOrderData;
+        }
+
+        function upsertSaleOrderItemCache(itemData) {
+            if (!itemData || !itemData.id) return itemData;
+
+            var allItems = StorageService.get('saleorderitems') || [];
+            var idx = allItems.findIndex(function(item) {
+                return item.id === itemData.id;
+            });
+            if (idx >= 0) {
+                allItems[idx] = Object.assign({}, allItems[idx], itemData);
+            } else {
+                allItems.push(angular.copy(itemData));
+            }
+            StorageService.set('saleorderitems', allItems);
+            return itemData;
+        }
+
+        function removeSaleOrderItemCache(itemId) {
+            if (!itemId) return;
+
+            var allItems = StorageService.get('saleorderitems') || [];
+            var before = allItems.length;
+            allItems = allItems.filter(function(item) {
+                return item.id !== itemId;
+            });
+            if (allItems.length !== before) {
+                StorageService.set('saleorderitems', allItems);
+            }
+        }
+
+        function buildSaleOrderItemPayload(cartItem, saleOrderId) {
+            var now = new Date();
+            return {
+                saleOrderId: saleOrderId,
+                productId: cartItem.itemId,
+                name: cartItem.name,
+                quantity: Number(cartItem.quantity || 0),
+                unitPrice: Number(cartItem.price || 0),
+                unit: cartItem.unit || 'phần',
+                discount: 0,
+                subtotal: Number(cartItem.quantity || 0) * Number(cartItem.price || 0),
+                note: cartItem.note || '',
+                isTimeBased: !!cartItem.isTimeBased,
+                startTime: cartItem.isTimeBased
+                    ? (cartItem.startTime || cartItem.createdAt || now)
+                    : undefined,
+                timeBasedConfig: cartItem.isTimeBased ? (cartItem.timeBasedConfig || null) : undefined,
+                createdAt: cartItem.createdAt ? new Date(cartItem.createdAt).toISOString() : now.toISOString(),
+                updatedAt: now.toISOString()
+            };
+        }
+
+        function buildWaiterCheckInSaleOrderData(room, startTime, customerInfo) {
+            var now = startTime || new Date();
+            return {
+                roomId: room.id,
+                orderDate: now,
+                deliveryDate: now,
+                type: 'W',
+                status: 'pending',
+                customerId: customerInfo.customerId || '69560638fb714a3aabb94714',
+                deposit: 0,
+                paidAmount: 0,
+                discount: 0,
+                total: 0,
+                note: 'Check-in: ' + room.name + (customerInfo.name ? ' - ' + customerInfo.name : ''),
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+        }
+
+        function syncSaleOrderTotal(saleOrderId, total) {
+            if (!saleOrderId) return $q.when(null);
+
+            var updatedAt = new Date().toISOString();
+            var saleOrders = StorageService.get('saleorders') || [];
+            var orderIndex = saleOrders.findIndex(function(o) {
+                return o.id === saleOrderId;
+            });
+            if (orderIndex >= 0) {
+                saleOrders[orderIndex].total = total;
+                saleOrders[orderIndex].updatedAt = updatedAt;
+                StorageService.set('saleorders', saleOrders);
+            }
+
+            return ApiService.update('saleorders', saleOrderId, {
+                id: saleOrderId,
+                total: total,
+                updatedAt: updatedAt
+            }).then(function(serverOrder) {
+                if (serverOrder && serverOrder.id) {
+                    upsertSaleOrderCache(serverOrder);
+                }
+                return serverOrder;
+            });
+        }
+
         // --- Room status polling & foreground recovery ---
         var roomStatusPollTimer = null;
 
@@ -33,6 +178,7 @@ angular.module('karaApp').controller('WaiterController',
             ApiService.getAll('Rooms', null, true).then(function(serverRooms) {
                 if (!serverRooms || !serverRooms.length) return;
                 var localRooms = StorageService.get('rooms') || [];
+                var serviceRooms = RoomService.getRooms() || [];
                 var anyChanged = false;
                 serverRooms.forEach(function(serverRoom) {
                     var idx = localRooms.findIndex(function(r) { return r.id === serverRoom.id; });
@@ -43,17 +189,29 @@ angular.module('karaApp').controller('WaiterController',
                         localRooms.push(serverRoom);
                         anyChanged = true;
                     }
+
+                    var serviceIdx = serviceRooms.findIndex(function(r) { return r.id === serverRoom.id; });
+                    if (serviceIdx >= 0) {
+                        Object.assign(serviceRooms[serviceIdx], serverRoom);
+                    } else {
+                        serviceRooms.push(angular.copy(serverRoom));
+                    }
                 });
                 StorageService.set('rooms', localRooms);
                 if (anyChanged) {
-                    $scope.rooms = localRooms;
+                    $scope.rooms = serviceRooms;
                     // Keep selectedRoom in sync if its status changed
                     if ($scope.selectedRoom) {
-                        var fresh = localRooms.find(function(r) { return r.id === $scope.selectedRoom.id; });
+                        var fresh = serviceRooms.find(function(r) { return r.id === $scope.selectedRoom.id; });
                         if (fresh) { Object.assign($scope.selectedRoom, fresh); }
                     }
                 }
-            }).catch(function() { /* silent – offline */ });
+            }).catch(function(error) {
+                if (handleAuthError(error, 'waiter-room-status-sync')) {
+                    return;
+                }
+                /* silent – offline */
+            });
         }
 
         roomStatusPollTimer = $interval(syncRoomStatusFromServer, 30000);
@@ -85,6 +243,7 @@ angular.module('karaApp').controller('WaiterController',
         $scope.checklist = null;
         $scope.cartAnimation = false; // For cart button animation
         $scope.roomAnimations = {}; // Track room status animations
+        $scope.statusAnimations = {}; // Track item status animations
         $scope.previousReadyCounts = {}; // Track previous ready counts for rooms
         $scope.orderLocked = false; // True khi bill đã được in → không cho chỉnh sửa
 
@@ -114,14 +273,6 @@ angular.module('karaApp').controller('WaiterController',
                     ApiService.getAll('saleorderitems', { where: { saleOrderId: saleOrderId } }).then(function(serverItems) {
                         if (!serverItems) return;
                         var allLocalItems = StorageService.get('saleorderitems') || [];
-                        var pendingLocalIds = allLocalItems
-                            .filter(function(i) {
-                                return i.saleOrderId === saleOrderId && i.id && String(i.id).startsWith('local-');
-                            })
-                            .map(function(i) { return i.id; });
-                        pendingLocalIds.forEach(function(localId) {
-                            SyncService.cancelPendingCreate('saleorderitems', localId);
-                        });
                         // Xóa tất cả items của saleOrder này (kể cả local-)
                         allLocalItems = allLocalItems.filter(function(i) { return i.saleOrderId !== saleOrderId; });
                         // Lưu lại items mới nhất từ server
@@ -149,10 +300,18 @@ angular.module('karaApp').controller('WaiterController',
                             });
                         });
                         $scope.calculateTotal();
-                    }).catch(function() { /* silent – offline */ });
+                    }).catch(function(error) {
+                        if (handleAuthError(error, 'waiter-refresh-order-lock-items')) {
+                            return;
+                        }
+                        /* silent – offline */
+                    });
                 }
                 applyLock(so);
-            }).catch(function() {
+            }).catch(function(error) {
+                if (handleAuthError(error, 'waiter-refresh-order-lock')) {
+                    return;
+                }
                 // Offline fallback: dùng localStorage
                 var saleOrders = StorageService.get('saleorders') || [];
                 var so = saleOrders.find(function(o) { return o.id === saleOrderId; });
@@ -493,35 +652,83 @@ angular.module('karaApp').controller('WaiterController',
                     Object.assign(room, serverRoom);
                 }
                 proceed();
-            }).catch(function() { proceed(); });
+            }).catch(function(error) {
+                if (handleAuthError(error, 'waiter-select-room-checkin')) {
+                    return;
+                }
+                proceed();
+            });
         };
 
         $scope.confirmWaiterCheckIn = function() {
             var modal = $scope.waiterCheckInModal;
-            var checkedInRoom = RoomService.checkIn(
-                modal.room.id,
-                new Date(),
-                {
-                    name: modal.customerName || 'Khách lẻ',
-                    phone: modal.customerPhone || '',
-                    guests: modal.guests || 1
-                }
-            );
-            if (checkedInRoom) {
-                $scope.rooms = RoomService.getRooms();
-                modal.show = false;
-                $scope.selectedRoom = checkedInRoom;
-                $scope.cart = [];
-                $scope.view = 'cart';
-                if (checkedInRoom.saleOrderId) {
-                    loadRoomCart(checkedInRoom.saleOrderId);
-                }
-                if ($scope.categories.length > 0) {
-                    $scope.selectCategory($scope.categories[0]);
-                }
-            } else {
-                alert('Không thể mở phòng, vui lòng thử lại!');
+            var customerInfo = {
+                name: modal.customerName || 'Khách lẻ',
+                phone: modal.customerPhone || '',
+                guests: modal.guests || 1
+            };
+            var startTime = new Date();
+            var room = modal.room;
+            if (!room || !room.id) {
+                alert('Không tìm thấy phòng để check-in!');
+                return;
             }
+
+            var saleOrderData = buildWaiterCheckInSaleOrderData(room, startTime, customerInfo);
+
+            ApiService.create('saleorders', saleOrderData).then(function(serverOrder) {
+                var realOrderId = serverOrder.id || serverOrder._id;
+                return ApiService.update('Rooms', room.id, {
+                    id: room.id,
+                    status: 'occupied',
+                    saleOrderId: realOrderId,
+                    startTime: startTime.toISOString(),
+                    customerInfo: customerInfo,
+                    updatedAt: new Date().toISOString()
+                }).then(function(updatedRoom) {
+                    var roomCache = Object.assign({}, room, updatedRoom || {}, {
+                        status: 'occupied',
+                        saleOrderId: realOrderId,
+                        startTime: startTime,
+                        customerInfo: customerInfo
+                    });
+                    upsertRoomCache(roomCache);
+                    upsertSaleOrderCache(Object.assign({}, serverOrder, {
+                        id: realOrderId,
+                        roomId: room.id,
+                        status: 'pending',
+                        total: 0,
+                        paidAmount: 0,
+                        discount: 0
+                    }));
+
+                    modal.show = false;
+                    $scope.selectedRoom = roomCache;
+                    $scope.cart = [];
+                    $scope.view = 'cart';
+                    if (realOrderId) {
+                        loadRoomCart(realOrderId);
+                    }
+                    if ($scope.categories.length > 0) {
+                        $scope.selectCategory($scope.categories[0]);
+                    }
+                }).catch(function(roomErr) {
+                    if (handleAuthError(roomErr, 'waiter-confirm-checkin-room-update')) {
+                        return;
+                    }
+                    return ApiService.delete('saleorders', realOrderId).catch(function() {
+                        return null;
+                    }).then(function() {
+                        throw roomErr;
+                    });
+                });
+            }).catch(function(error) {
+                if (handleAuthError(error, 'waiter-confirm-checkin')) {
+                    return;
+                }
+                console.error('❌ Waiter check-in failed:', error);
+                alert('Không thể mở phòng, vui lòng thử lại!');
+            });
         };
 
         // Room selection for ordering
@@ -565,7 +772,12 @@ angular.module('karaApp').controller('WaiterController',
                     Object.assign(room, serverRoom);
                 }
                 proceed();
-            }).catch(function() { proceed(); });
+            }).catch(function(error) {
+                if (handleAuthError(error, 'waiter-select-room-order')) {
+                    return;
+                }
+                proceed();
+            });
         };
         
 
@@ -764,18 +976,22 @@ angular.module('karaApp').controller('WaiterController',
                 allItems[itemIndex].status = 'served';
                 allItems[itemIndex].updatedAt = new Date().toISOString();
                 StorageService.set('saleorderitems', allItems);
-                
-                // Add to sync queue
-                SyncService.addToQueue('update', 'saleorderitems', allItems[itemIndex]);
-                
-                console.log('✅ Marked item as served:', item.name);
-                
-                // Trigger room animation if this affects room status
-                if ($scope.selectedRoom) {
-                    var currentReadyCount = $scope.getReadyItemsCount($scope.selectedRoom);
-                    $scope.previousReadyCounts[$scope.selectedRoom.id] = currentReadyCount;
-                    $scope.triggerRoomAnimation($scope.selectedRoom.id);
-                }
+
+                ApiService.update('saleorderitems', allItems[itemIndex].id, allItems[itemIndex]).then(function(serverItem) {
+                    if (serverItem && serverItem.id) {
+                        upsertSaleOrderItemCache(serverItem);
+                    }
+                    console.log('✅ Marked item as served:', item.name);
+
+                    // Trigger room animation if this affects room status
+                    if ($scope.selectedRoom) {
+                        var currentReadyCount = $scope.getReadyItemsCount($scope.selectedRoom);
+                        $scope.previousReadyCounts[$scope.selectedRoom.id] = currentReadyCount;
+                        $scope.triggerRoomAnimation($scope.selectedRoom.id);
+                    }
+                }).catch(function(err) {
+                    console.error('❌ markAsServed update failed:', err);
+                });
             }
         };
         
@@ -798,18 +1014,27 @@ angular.module('karaApp').controller('WaiterController',
                 var idx = $scope.cart.indexOf(item);
                 if (idx >= 0) $scope.cart.splice(idx, 1);
 
-                // Remove from localStorage + queue delete/cancel create
+                // Remove from localStorage and delete directly when the item already exists on server
                 var allItems = StorageService.get('saleorderitems') || [];
                 var localIdx = allItems.findIndex(function(i) { return i.id === item.id; });
                 if (localIdx >= 0) {
                     var stored = allItems[localIdx];
                     if (stored.id && !String(stored.id).startsWith('local-')) {
-                        SyncService.addToQueue('delete', 'saleorderitems', { id: stored.id });
+                        ApiService.hardDelete('SaleOrderItem', null, { id: stored.id }).then(function() {
+                            autoSaveOrder();
+                        }).catch(function(err) {
+                            console.warn('❌ removeItem delete failed:', err);
+                            alert('Không xóa được món trên server, vui lòng thử lại!');
+                        });
                     } else if (stored.id) {
-                        SyncService.cancelPendingCreate('saleorderitems', stored.id);
+                        removeSaleOrderItemCache(stored.id);
+                        autoSaveOrder();
                     }
                     allItems.splice(localIdx, 1);
                     StorageService.set('saleorderitems', allItems);
+                    if (stored.id && String(stored.id).startsWith('local-')) {
+                        autoSaveOrder();
+                    }
                 }
             } else {
                 if (_updateQtyTimer) $timeout.cancel(_updateQtyTimer);
@@ -841,16 +1066,17 @@ angular.module('karaApp').controller('WaiterController',
                                     saleOrders[oi].total = total;
                                     saleOrders[oi].updatedAt = new Date().toISOString();
                                     StorageService.set('saleorders', saleOrders);
-                                    SyncService.addToQueue('update', 'saleorders', saleOrders[oi]);
+                                    syncSaleOrderTotal($scope.selectedRoom.saleOrderId, total).catch(function(err) {
+                                        console.error('❌ Failed to sync saleorder total:', err);
+                                    });
                                 }
                             }
                         }).catch(function(err) {
                             console.error('❌ updateQuantity API failed:', err);
-                            // Fallback to queue-based save
                             autoSaveOrder();
                         });
                     } else {
-                        // Item not yet on server — use queue-based save
+                        // Item not yet on server — save directly from the local snapshot
                         autoSaveOrder();
                     }
                     _updateQtyTimer = null;
@@ -900,12 +1126,14 @@ angular.module('karaApp').controller('WaiterController',
                                 saleOrders[oi].total = total;
                                 saleOrders[oi].updatedAt = new Date().toISOString();
                                 StorageService.set('saleorders', saleOrders);
-                                SyncService.addToQueue('update', 'saleorders', saleOrders[oi]);
+                                syncSaleOrderTotal($scope.selectedRoom.saleOrderId, total).catch(function(err) {
+                                    console.error('❌ Failed to sync saleorder total:', err);
+                                });
                             }
                         }
-                    }).catch(function(err) {
-                        console.error('❌ setQuantity update failed:', err);
-                    });
+                }).catch(function(err) {
+                    console.error('❌ setQuantity update failed:', err);
+                });
                 } else {
                     // Item chưa có server ID → dùng autoSaveOrder như bình thường
                     autoSaveOrder();
@@ -923,16 +1151,18 @@ angular.module('karaApp').controller('WaiterController',
             if (localIdx >= 0) {
                 var stored = allItems[localIdx];
                 if (stored.id && !String(stored.id).startsWith('local-')) {
-                    if (SyncService.isOnline()) {
-                        ApiService.hardDelete('SaleOrderItem', null, { id: stored.id }).catch(function(err) {
-                            console.warn('❌ removeItem delete failed, queuing for retry:', err);
-                            SyncService.addToQueue('delete', 'saleorderitems', { id: stored.id });
-                        });
-                    } else {
-                        SyncService.addToQueue('delete', 'saleorderitems', { id: stored.id });
-                    }
+                    ApiService.hardDelete('SaleOrderItem', null, { id: stored.id }).then(function() {
+                        autoSaveOrder();
+                    }).catch(function(err) {
+                        console.warn('❌ removeItem delete failed:', err);
+                        alert('Không xóa được món trên server, vui lòng thử lại!');
+                    });
                 } else if (stored.id) {
-                    SyncService.cancelPendingCreate('saleorderitems', stored.id);
+                    if (item._syncStatus === 'creating') {
+                        item._deletedWhileCreating = true;
+                    }
+                    removeSaleOrderItemCache(stored.id);
+                    autoSaveOrder();
                 }
                 allItems.splice(localIdx, 1);
                 StorageService.set('saleorderitems', allItems);
@@ -1120,6 +1350,9 @@ angular.module('karaApp').controller('WaiterController',
                         refreshOrderLock();
                     }
                 }).catch(function(error) {
+                    if (handleAuthError(error, 'waiter-load-saleorderitems')) {
+                        return;
+                    }
                     console.warn('⚠️ Failed to load server SaleOrderItems:', error);
                 });
             }
@@ -1130,134 +1363,228 @@ angular.module('karaApp').controller('WaiterController',
         
         // Auto-save order when cart changes
         function autoSaveOrder() {
-            if ($scope.selectedRoom && $scope.selectedRoom.saleOrderId) {
-                // Create/update SaleOrderItems for each cart item - LOCAL FIRST
-                var saleOrderId = $scope.selectedRoom.saleOrderId;
-                
-                // Load existing items from localStorage
-                var allItems = StorageService.get('saleorderitems') || [];
-                var existingItems = allItems.filter(function(item) {
-                    return item.saleOrderId === saleOrderId;
-                });
-                
-                console.log('Existing SaleOrderItems in localStorage:', existingItems.length);
-                
-                // Process each cart item
-                $scope.cart.forEach(function(cartItem) {
-                    // Check if item already exists in localStorage
-                    var existing;
-                    if (cartItem._saleOrderItemId) {
-                        // Match by stored ID first — handles note edits correctly
-                        existing = existingItems.find(function(item) {
-                            return item.id === cartItem._saleOrderItemId;
-                        });
-                    }
-                    if (!existing) {
-                        // Fallback: match by productId + old note (_prevNote) if note was just edited
-                        var lookupNote = (cartItem._prevNote !== undefined) ? cartItem._prevNote : (cartItem.note || '');
-                        existing = existingItems.find(function(item) {
-                            return item.productId === cartItem.itemId &&
-                                   (item.note || '') === lookupNote;
-                        });
-                        // If still not found and note was edited, try new note too
-                        if (!existing && cartItem._prevNote !== undefined) {
-                            existing = existingItems.find(function(item) {
-                                return item.productId === cartItem.itemId &&
-                                       (item.note || '') === (cartItem.note || '');
-                            });
-                        }
-                    }
-                    
-                    var itemData = {
-                        saleOrderId: saleOrderId,
-                        productId: cartItem.itemId,
-                        name: cartItem.name,
-                        quantity: cartItem.quantity,
-                        unitPrice: cartItem.price,
-                        unit: cartItem.unit || 'phần',
-                        discount: 0,
-                        subtotal: cartItem.quantity * cartItem.price,
-                        note: cartItem.note || '',
-                        isTimeBased: cartItem.isTimeBased || false,
-                        startTime: cartItem.isTimeBased ? (cartItem.startTime || cartItem.createdAt || new Date()).toISOString ? new Date(cartItem.startTime || cartItem.createdAt).toISOString() : cartItem.startTime : undefined,
-                        timeBasedConfig: cartItem.isTimeBased ? (cartItem.timeBasedConfig || null) : undefined,
-                        createdAt: cartItem.createdAt ? new Date(cartItem.createdAt).toISOString() : new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
+            if (!$scope.selectedRoom) return;
+
+            if (!$scope.selectedRoom.saleOrderId) {
+                if ($scope.cart.length > 0) {
+                    var localOrders = StorageService.get('orders') || [];
+                    var localOrder = {
+                        id: 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                        roomId: $scope.selectedRoom.id,
+                        billId: $scope.selectedRoom.billId,
+                        items: angular.copy($scope.cart),
+                        totalAmount: $scope.cart.reduce(function(sum, item) {
+                            return sum + (item.quantity * item.price);
+                        }, 0),
+                        note: 'Auto-saved',
+                        status: 'pending',
+                        orderedBy: currentUser.username,
+                        orderedAt: new Date(),
+                        syncStatus: 'local-only'
                     };
-                    
-                    if (existing) {
-                        // Update existing item in localStorage
-                        itemData.id = existing.id;
-                        itemData.createdAt = existing.createdAt;
-
-                        // Stamp cart item so future saves match by ID
-                        cartItem._saleOrderItemId = existing.id;
-                        
-                        // Update in array
-                        var index = allItems.findIndex(function(item) {
-                            return item.id === existing.id;
-                        });
-                        if (index >= 0) {
-                            allItems[index] = itemData;
-                        }
-                        
-                        // Add to sync queue
-                        SyncService.addToQueue('update', 'saleorderitems', itemData);
-                    } else {
-                        // Create new item in localStorage
-                        itemData.id = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                        itemData.createdAt = new Date().toISOString();
-                        itemData._localOnly = true;
-
-                        // Stamp cart item ID for future saves
-                        cartItem._saleOrderItemId = itemData.id;
-                        cartItem.id = itemData.id;
-                        
-                        // Add to array
-                        allItems.push(itemData);
-                        
-                        // Add to sync queue
-                        SyncService.addToQueue('create', 'saleorderitems', itemData);
-                    }
-                });
-                
-                // Save back to localStorage
-                StorageService.set('saleorderitems', allItems);
-                console.log('✓ SaleOrderItems saved to localStorage:', allItems.length);
-                
-                // Update SaleOrder total in localStorage
-                var total = $scope.cart.reduce(function(sum, item) {
-                    return sum + (item.quantity * item.price);
-                }, 0);
-                
-                var saleOrders = StorageService.get('saleorders') || [];
-                var orderIndex = saleOrders.findIndex(function(o) {
-                    return o.id === saleOrderId;
-                });
-                
-                if (orderIndex >= 0) {
-                    saleOrders[orderIndex].total = total;
-                    saleOrders[orderIndex].updatedAt = new Date().toISOString();
-                    StorageService.set('saleorders', saleOrders);
-                    
-                    // Add to sync queue
-                    SyncService.addToQueue('update', 'saleorders', saleOrders[orderIndex]);
+                    localOrders.push(localOrder);
+                    StorageService.set('orders', localOrders);
+                    console.warn('⚠️ Waiter autoSaveOrder: no saleOrderId, saved local-only order snapshot.');
                 }
-            } else if ($scope.cart.length > 0 && $scope.selectedRoom) {
-                // Fallback: tạo order local nếu chưa có SaleOrder
-                var order = OrderService.createOrder(
-                    $scope.selectedRoom.id,
-                    $scope.selectedRoom.billId,
-                    angular.copy($scope.cart),
-                    'Auto-saved',
-                    currentUser.username
-                );
-                
-                // Sync lên server qua ApiService
-                if (order) {
-                    // Order đã được lưu local, sync sẽ được xử lý bởi queue
+                return;
+            }
+
+            var saleOrderId = $scope.selectedRoom.saleOrderId;
+            var allItems = StorageService.get('saleorderitems') || [];
+            var savePromises = [];
+
+            function saveAllItems() {
+                StorageService.set('saleorderitems', allItems);
+            }
+
+            function replaceLocalItem(itemId, nextItem) {
+                var index = allItems.findIndex(function(item) {
+                    return item.id === itemId;
+                });
+                if (index >= 0) {
+                    allItems[index] = nextItem;
+                } else {
+                    allItems.push(nextItem);
+                }
+                saveAllItems();
+            }
+
+            function removeLocalItem(itemId) {
+                var before = allItems.length;
+                allItems = allItems.filter(function(item) {
+                    return item.id !== itemId;
+                });
+                if (allItems.length !== before) {
+                    saveAllItems();
                 }
             }
+
+            function findExistingCartItem(cartItem) {
+                var existing = null;
+
+                if (cartItem._saleOrderItemId) {
+                    existing = allItems.find(function(item) {
+                        return item.id === cartItem._saleOrderItemId;
+                    }) || null;
+                }
+
+                if (!existing) {
+                    var lookupNote = (cartItem._prevNote !== undefined) ? cartItem._prevNote : (cartItem.note || '');
+                    existing = allItems.find(function(item) {
+                        return item.saleOrderId === saleOrderId &&
+                               item.productId === cartItem.itemId &&
+                               (item.note || '') === lookupNote;
+                    }) || null;
+                }
+
+                if (!existing && cartItem._prevNote !== undefined) {
+                    existing = allItems.find(function(item) {
+                        return item.saleOrderId === saleOrderId &&
+                               item.productId === cartItem.itemId &&
+                               (item.note || '') === (cartItem.note || '');
+                    }) || null;
+                }
+
+                return existing;
+            }
+
+            function saveCartItem(cartItem) {
+                var existing = findExistingCartItem(cartItem);
+                var payload = buildSaleOrderItemPayload(cartItem, saleOrderId);
+
+                if (existing && existing.id && !String(existing.id).startsWith('local-')) {
+                    payload.id = existing.id;
+                    payload.createdAt = existing.createdAt;
+
+                    return ApiService.update('saleorderitems', existing.id, payload).then(function(serverItem) {
+                        var savedItem = Object.assign({}, existing, payload, serverItem || {}, {
+                            id: existing.id,
+                            saleOrderId: saleOrderId
+                        });
+                        delete savedItem._localOnly;
+                        replaceLocalItem(existing.id, savedItem);
+                        cartItem._saleOrderItemId = existing.id;
+                        cartItem.id = existing.id;
+                        return savedItem;
+                    }).catch(function(err) {
+                        console.error('❌ saveCartItem update failed:', err);
+                        throw err;
+                    });
+                }
+
+                var tempId = existing && existing.id ? existing.id : ('local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+
+                if (cartItem._syncStatus === 'creating') {
+                    replaceLocalItem(tempId, Object.assign({}, existing || {}, payload, {
+                        id: tempId,
+                        saleOrderId: saleOrderId,
+                        _localOnly: true
+                    }));
+                    return $q.when(tempId);
+                }
+
+                cartItem._syncStatus = 'creating';
+                cartItem._saleOrderItemId = tempId;
+                cartItem.id = tempId;
+
+                var localItem = Object.assign({}, existing || {}, payload, {
+                    id: tempId,
+                    saleOrderId: saleOrderId,
+                    _localOnly: true
+                });
+                replaceLocalItem(tempId, localItem);
+
+                return ApiService.create('SaleOrderItem', angular.copy(payload)).then(function(serverItem) {
+                    var realId = serverItem && (serverItem.id || serverItem._id);
+                    if (!realId) {
+                        throw new Error('Missing sale order item id');
+                    }
+
+                    if (cartItem._deletedWhileCreating) {
+                        removeLocalItem(tempId);
+                        cartItem._syncStatus = null;
+                        cartItem._saleOrderItemId = null;
+                        cartItem.id = null;
+                        return ApiService.hardDelete('SaleOrderItem', null, { id: realId }).catch(function(deleteErr) {
+                            console.warn('❌ cleanup delete after create failed:', deleteErr);
+                            return null;
+                        });
+                    }
+
+                    var savedItem = Object.assign({}, localItem, serverItem, {
+                        id: realId,
+                        saleOrderId: saleOrderId
+                    });
+                    delete savedItem._localOnly;
+                    replaceLocalItem(tempId, savedItem);
+                    cartItem._saleOrderItemId = realId;
+                    cartItem.id = realId;
+                    cartItem._syncStatus = null;
+
+                    var latestPayload = buildSaleOrderItemPayload(cartItem, saleOrderId);
+                    if (latestPayload.quantity !== payload.quantity ||
+                        latestPayload.note !== payload.note ||
+                        latestPayload.unitPrice !== payload.unitPrice ||
+                        latestPayload.unit !== payload.unit ||
+                        latestPayload.isTimeBased !== payload.isTimeBased) {
+                        latestPayload.id = realId;
+                        latestPayload.createdAt = savedItem.createdAt;
+                        cartItem._syncStatus = 'updating';
+                        return ApiService.update('SaleOrderItem', realId, latestPayload).then(function(updatedItem) {
+                            var finalItem = Object.assign({}, savedItem, latestPayload, updatedItem || {}, {
+                                id: realId,
+                                saleOrderId: saleOrderId
+                            });
+                            delete finalItem._localOnly;
+                            replaceLocalItem(realId, finalItem);
+                            cartItem._syncStatus = null;
+                            return finalItem;
+                        }).catch(function(updateErr) {
+                            cartItem._syncStatus = null;
+                            console.error('❌ saveCartItem post-create update failed:', updateErr);
+                            throw updateErr;
+                        });
+                    }
+
+                    return savedItem;
+                }).catch(function(err) {
+                    cartItem._syncStatus = null;
+                    console.error('❌ saveCartItem create failed:', err);
+                    throw err;
+                });
+            }
+
+            $scope.cart.forEach(function(cartItem) {
+                savePromises.push(saveCartItem(cartItem));
+            });
+
+            saveAllItems();
+            console.log('✓ SaleOrderItems saved to localStorage:', allItems.length);
+
+            var total = $scope.cart.reduce(function(sum, item) {
+                return sum + (item.quantity * item.price);
+            }, 0);
+
+            var saleOrders = StorageService.get('saleorders') || [];
+            var orderIndex = saleOrders.findIndex(function(o) {
+                return o.id === saleOrderId;
+            });
+
+            if (orderIndex >= 0) {
+                saleOrders[orderIndex].total = total;
+                saleOrders[orderIndex].updatedAt = new Date().toISOString();
+                StorageService.set('saleorders', saleOrders);
+            }
+
+            $q.all(savePromises.map(function(promise) {
+                return promise.catch(function(err) {
+                    return null;
+                });
+            })).then(function() {
+                return syncSaleOrderTotal(saleOrderId, total);
+            }).catch(function(err) {
+                console.error('❌ autoSaveOrder failed:', err);
+            });
         }
         
         // Calculate total for display
@@ -1326,15 +1653,34 @@ angular.module('karaApp').controller('WaiterController',
             var completed = StaffService.completeCleaning($scope.cleaningRoom.id, currentUser.username);
             if (completed) {
                 // Update room status to available, record who cleaned
-                RoomService.updateRoomStatus($scope.cleaningRoom.id, 'available', {
+                var cleanedAt = new Date().toISOString();
+                ApiService.update('Rooms', $scope.cleaningRoom.id, {
+                    id: $scope.cleaningRoom.id,
+                    status: 'available',
+                    saleOrderId: null,
+                    startTime: null,
+                    customerInfo: null,
                     cleanedById: currentUser.id,
-                    cleanedAt: new Date().toISOString()
+                    cleanedAt: cleanedAt,
+                    updatedAt: cleanedAt
+                }).then(function(updatedRoom) {
+                    upsertRoomCache(Object.assign({}, $scope.cleaningRoom, updatedRoom || {}, {
+                        status: 'available',
+                        saleOrderId: null,
+                        startTime: null,
+                        customerInfo: null,
+                        cleanedById: currentUser.id,
+                        cleanedAt: cleanedAt
+                    }));
+
+                    alert('Đã hoàn tất dọn phòng ' + $scope.cleaningRoom.name + '!\nThời gian: ' + completed.duration + ' phút');
+                    $scope.cleaningRoom = null;
+                    $scope.checklist = null;
+                    $scope.switchView('rooms');
+                }).catch(function(err) {
+                    console.error('❌ completeCleaning update failed:', err);
+                    alert('Không cập nhật được trạng thái phòng, vui lòng thử lại!');
                 });
-                
-                alert('Đã hoàn tất dọn phòng ' + $scope.cleaningRoom.name + '!\nThời gian: ' + completed.duration + ' phút');
-                $scope.cleaningRoom = null;
-                $scope.checklist = null;
-                $scope.switchView('rooms');
             }
         };
         

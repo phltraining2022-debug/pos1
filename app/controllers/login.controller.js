@@ -6,8 +6,13 @@ angular.module('karaApp').controller('LoginController', ['$scope', '$location', 
         // iOS PWA: khi mở lại app, URL về / → otherwise → /login
         // Nếu đã có token/user trong localStorage thì redirect luôn, không cần login lại
         (function checkExistingSession() {
+            if (ApiService.isSessionExpired()) {
+                ApiService.forceLogout('session-expired-on-login-page');
+                return;
+            }
+
             var existingUser = ApiService.getCurrentUser(); // đọc từ $LoopBack$user
-            if (existingUser) {
+            if (existingUser && ApiService.hasValidSession()) {
                 var saved = StorageService.get('currentUser');
                 var role = (saved && saved.role) || existingUser.role || 'user';
                 var dest = _roleToRoute(role);
@@ -25,7 +30,11 @@ angular.module('karaApp').controller('LoginController', ['$scope', '$location', 
                     // Socket init() chạy trước khi currentUser được set → cần resubscribe lại
                     SocketService.resubscribe();
                     $location.path(_roleToRoute(role));
-                }).catch(function() { /* credentials cũ/lỗi → ở lại login */ });
+                }).catch(function() {
+                    ApiService.forceLogout('restore-session-failed-on-login-page');
+                });
+            } else if (existingUser) {
+                ApiService.forceLogout('invalid-session-on-login-page');
             }
         })();
 

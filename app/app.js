@@ -1,9 +1,68 @@
 // Main AngularJS Application Module
-var APP_VERSION = '1.1.05'; // Bump this value to clear localStorage on next load
+var APP_VERSION = '1.1.08'; // Bump this value to clear localStorage on next load
 
 angular.module('karaApp', ['ngRoute', 'ngAnimate'])
-    .run(['$rootScope', '$location', 'ApiService', 'SocketService', function($rootScope, $location, ApiService, SocketService) {
+    .run(['$rootScope', '$location', '$timeout', 'ApiService', 'SocketService', function($rootScope, $location, $timeout, ApiService, SocketService) {
         console.log('karaApp running...');
+
+        var authLogoutTimer = null;
+
+        $rootScope.authSessionAlert = {
+            visible: false,
+            message: '',
+            reason: '',
+            statusCode: null
+        };
+
+        function redirectToLogin() {
+            if ($location.path() !== '/login') {
+                $location.path('/login');
+            }
+        }
+
+        function clearAuthAlert() {
+            if (authLogoutTimer) {
+                $timeout.cancel(authLogoutTimer);
+                authLogoutTimer = null;
+            }
+
+            $rootScope.authSessionAlert = {
+                visible: false,
+                message: '',
+                reason: '',
+                statusCode: null
+            };
+        }
+
+        function scheduleAuthLogout(payload) {
+            payload = payload || {};
+
+            if (authLogoutTimer) {
+                $timeout.cancel(authLogoutTimer);
+                authLogoutTimer = null;
+            }
+
+            $rootScope.authSessionAlert = {
+                visible: true,
+                message: payload.message || 'Phiên đăng nhập đã hết hạn.',
+                reason: payload.reason || 'auth-expired',
+                statusCode: payload.statusCode || 401
+            };
+
+            authLogoutTimer = $timeout(function() {
+                authLogoutTimer = null;
+                ApiService.forceLogout(payload.reason || 'auth-expired');
+                redirectToLogin();
+            }, payload.delayMs || 3500);
+        }
+
+        function hardLogoutAndRedirect(reason, event) {
+            if (event && typeof event.preventDefault === 'function') {
+                event.preventDefault();
+            }
+            ApiService.forceLogout(reason || 'session-invalid');
+            redirectToLogin();
+        }
 
         // Clear localStorage when app version changes, but keep auth keys so user stays logged in
         var storedVersion = localStorage.getItem('appVersion');
@@ -29,6 +88,20 @@ angular.module('karaApp', ['ngRoute', 'ngAnimate'])
             Object.keys(saved).forEach(function(k) { localStorage.setItem(k, saved[k]); });
             localStorage.setItem('appVersion', APP_VERSION);
             console.log('✅ localStorage cleared (auth keys preserved)');
+        }
+        $rootScope.$on('kara:auth-expired', function(event, payload) {
+            if (event && typeof event.preventDefault === 'function') {
+                event.preventDefault();
+            }
+            scheduleAuthLogout(payload || {});
+        });
+
+        $rootScope.$on('kara:auth-cleared', function() {
+            clearAuthAlert();
+        });
+
+        if (ApiService.isSessionExpired()) {
+            hardLogoutAndRedirect('session-expired-on-load');
         }
         // Expose version to all views
         $rootScope.appVersion = APP_VERSION;        
@@ -67,8 +140,13 @@ angular.module('karaApp', ['ngRoute', 'ngAnimate'])
         
         // Check authentication and authorization on route change
         $rootScope.$on('$routeChangeStart', function(event, next) {
+            if (ApiService.isSessionExpired()) {
+                hardLogoutAndRedirect('session-expired', event);
+                return;
+            }
+
             // Check authentication first
-            if (next.requireAuth && !ApiService.getCurrentUser()) {
+            if (next.requireAuth && !ApiService.hasValidSession()) {
                 // Thử restore session từ credentials đã lưu (iOS PWA mất token)
                 if (localStorage.getItem('$LoopBack$rememberCreds')) {
                     event.preventDefault();
@@ -77,12 +155,11 @@ angular.module('karaApp', ['ngRoute', 'ngAnimate'])
                         // Tiếp tục navigate đến route ban đầu
                         if (next.originalPath) { $location.path(next.originalPath); }
                     }).catch(function() {
-                        $location.path('/login');
+                        hardLogoutAndRedirect('restore-session-failed');
                     });
                     return;
                 }
-                event.preventDefault();
-                $location.path('/login');
+                hardLogoutAndRedirect('missing-session', event);
                 return;
             }
             
