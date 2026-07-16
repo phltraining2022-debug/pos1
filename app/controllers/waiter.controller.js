@@ -1,7 +1,7 @@
 // Waiter/Staff Controller
 angular.module('karaApp').controller('WaiterController', 
-    ['$scope', '$interval', '$timeout', '$q', '$location', 'ApiService', 'RoomService', 'MenuService', 'StaffService', 'SocketService', 'StorageService', 'TimeBasedService', 'AttendanceService', 'StaffPanelService',
-    function($scope, $interval, $timeout, $q, $location, ApiService, RoomService, MenuService, StaffService, SocketService, StorageService, TimeBasedService, AttendanceService, StaffPanelService) {
+    ['$scope', '$interval', '$timeout', '$q', '$location', 'ApiService', 'RoomService', 'MenuService', 'StaffService', 'SocketService', 'StorageService', 'TimeBasedService', 'AttendanceService', 'StaffPanelService', 'SyncService',
+    function($scope, $interval, $timeout, $q, $location, ApiService, RoomService, MenuService, StaffService, SocketService, StorageService, TimeBasedService, AttendanceService, StaffPanelService, SyncService) {
         var currentUser = ApiService.getCurrentUser();
         if (!currentUser) {
             $location.path('/login');
@@ -89,19 +89,6 @@ angular.module('karaApp').controller('WaiterController',
             }
             StorageService.set('saleorderitems', allItems);
             return itemData;
-        }
-
-        function removeSaleOrderItemCache(itemId) {
-            if (!itemId) return;
-
-            var allItems = StorageService.get('saleorderitems') || [];
-            var before = allItems.length;
-            allItems = allItems.filter(function(item) {
-                return item.id !== itemId;
-            });
-            if (allItems.length !== before) {
-                StorageService.set('saleorderitems', allItems);
-            }
         }
 
         function buildSaleOrderItemPayload(cartItem, saleOrderId) {
@@ -674,61 +661,31 @@ angular.module('karaApp').controller('WaiterController',
                 return;
             }
 
-            var saleOrderData = buildWaiterCheckInSaleOrderData(room, startTime, customerInfo);
+            // Offline-first: same path cashier uses. Sets room status/saleOrderId
+            // (temp- id) synchronously and queues the real SaleOrder create via
+            // SyncService — works immediately even with no network, and retries
+            // in the background (on reconnect, and every 30s) instead of failing
+            // the whole check-in outright.
+            var checkedInRoom = RoomService.checkIn(room.id, startTime, customerInfo);
+            if (!checkedInRoom) {
+                alert('Không thể mở phòng — phòng có thể đã được mở bởi người khác, vui lòng tải lại!');
+                return;
+            }
 
-            ApiService.create('saleorders', saleOrderData).then(function(serverOrder) {
-                var realOrderId = serverOrder.id || serverOrder._id;
-                return ApiService.update('Rooms', room.id, {
-                    id: room.id,
-                    status: 'occupied',
-                    saleOrderId: realOrderId,
-                    startTime: startTime.toISOString(),
-                    customerInfo: customerInfo,
-                    updatedAt: new Date().toISOString()
-                }).then(function(updatedRoom) {
-                    var roomCache = Object.assign({}, room, updatedRoom || {}, {
-                        status: 'occupied',
-                        saleOrderId: realOrderId,
-                        startTime: startTime,
-                        customerInfo: customerInfo
-                    });
-                    upsertRoomCache(roomCache);
-                    upsertSaleOrderCache(Object.assign({}, serverOrder, {
-                        id: realOrderId,
-                        roomId: room.id,
-                        status: 'pending',
-                        total: 0,
-                        paidAmount: 0,
-                        discount: 0
-                    }));
+            upsertRoomCache(checkedInRoom);
 
-                    modal.show = false;
-                    $scope.selectedRoom = roomCache;
-                    $scope.cart = [];
-                    $scope.view = 'cart';
-                    if (realOrderId) {
-                        loadRoomCart(realOrderId);
-                    }
-                    if ($scope.categories.length > 0) {
-                        $scope.selectCategory($scope.categories[0]);
-                    }
-                }).catch(function(roomErr) {
-                    if (handleAuthError(roomErr, 'waiter-confirm-checkin-room-update')) {
-                        return;
-                    }
-                    return ApiService.delete('saleorders', realOrderId).catch(function() {
-                        return null;
-                    }).then(function() {
-                        throw roomErr;
-                    });
-                });
-            }).catch(function(error) {
-                if (handleAuthError(error, 'waiter-confirm-checkin')) {
-                    return;
-                }
-                console.error('❌ Waiter check-in failed:', error);
-                alert('Không thể mở phòng, vui lòng thử lại!');
-            });
+            modal.show = false;
+            $scope.selectedRoom = checkedInRoom;
+            $scope.cart = [];
+            $scope.syncWarning = null;
+            $scope.view = 'cart';
+            if (checkedInRoom.saleOrderId) {
+                loadRoomCart(checkedInRoom.saleOrderId);
+            }
+            if ($scope.categories.length > 0) {
+                $scope.selectCategory($scope.categories[0]);
+            }
+            $scope.rooms = RoomService.getRooms();
         };
 
         // Room selection for ordering
@@ -1014,77 +971,37 @@ angular.module('karaApp').controller('WaiterController',
                 // Remove from cart — immediate, no debounce needed for deletes
                 var idx = $scope.cart.indexOf(item);
                 if (idx >= 0) $scope.cart.splice(idx, 1);
-
-                // Remove from localStorage and delete directly when the item already exists on server
-                var allItems = StorageService.get('saleorderitems') || [];
-                var localIdx = allItems.findIndex(function(i) { return i.id === item.id; });
-                if (localIdx >= 0) {
-                    var stored = allItems[localIdx];
-                    if (stored.id && !String(stored.id).startsWith('local-')) {
-                        ApiService.hardDelete('SaleOrderItem', null, { id: stored.id }).then(function() {
-                            autoSaveOrder();
-                        }).catch(function(err) {
-                            console.warn('❌ removeItem delete failed:', err);
-                            alert('Không xóa được món trên server, vui lòng thử lại!');
-                        });
-                    } else if (stored.id) {
-                        removeSaleOrderItemCache(stored.id);
-                        autoSaveOrder();
-                    }
-                    allItems.splice(localIdx, 1);
-                    StorageService.set('saleorderitems', allItems);
-                    if (stored.id && String(stored.id).startsWith('local-')) {
-                        autoSaveOrder();
-                    }
-                }
+                deleteCartItemFromServer(item);
             } else {
                 if (_updateQtyTimer) $timeout.cancel(_updateQtyTimer);
                 _updateQtyTimer = $timeout(function() {
-                    var itemId = item._saleOrderItemId || item.id;
-                    if (itemId && !String(itemId).startsWith('local-')) {
-                        // Item already on server — call API directly (same as setQuantity)
-                        ApiService.update('saleorderitems', itemId, {
-                            id: itemId,
-                            quantity: item.quantity,
-                            subtotal: item.quantity * item.price,
-                            updatedAt: new Date().toISOString()
-                        }).then(function() {
-                            // Keep localStorage in sync
-                            var allItems = StorageService.get('saleorderitems') || [];
-                            var idx = allItems.findIndex(function(i) { return i.id === itemId; });
-                            if (idx >= 0) {
-                                allItems[idx].quantity = item.quantity;
-                                allItems[idx].subtotal = item.quantity * item.price;
-                                allItems[idx].updatedAt = new Date().toISOString();
-                                StorageService.set('saleorderitems', allItems);
-                            }
-                            // Update SaleOrder total
-                            if ($scope.selectedRoom && $scope.selectedRoom.saleOrderId) {
-                                var total = $scope.cart.reduce(function(s, i) { return s + (i.quantity * i.price); }, 0);
-                                var saleOrders = StorageService.get('saleorders') || [];
-                                var oi = saleOrders.findIndex(function(o) { return o.id === $scope.selectedRoom.saleOrderId; });
-                                if (oi >= 0) {
-                                    saleOrders[oi].total = total;
-                                    saleOrders[oi].updatedAt = new Date().toISOString();
-                                    StorageService.set('saleorders', saleOrders);
-                                    syncSaleOrderTotal($scope.selectedRoom.saleOrderId, total).catch(function(err) {
-                                        console.error('❌ Failed to sync saleorder total:', err);
-                                    });
-                                }
-                            }
-                        }).catch(function(err) {
-                            console.error('❌ updateQuantity API failed:', err);
-                            autoSaveOrder();
-                        });
-                    } else {
-                        // Item not yet on server — save directly from the local snapshot
-                        autoSaveOrder();
-                    }
+                    autoSaveOrder();
                     _updateQtyTimer = null;
                 }, 1000);
             }
             $scope.calculateTotal();
         };
+
+        // Offline-first delete: local-only item just cancels its pending create
+        // (SyncService.cancelPendingCreate); a real server item gets queued for
+        // delete so it retries in the background instead of failing outright
+        // when offline — same pattern as cashier.controller.js's removeFromCart.
+        function deleteCartItemFromServer(item) {
+            var allItems = StorageService.get('saleorderitems') || [];
+            var localIdx = allItems.findIndex(function(i) { return i.id === item.id; });
+            if (localIdx < 0) return;
+
+            var stored = allItems[localIdx];
+            allItems.splice(localIdx, 1);
+            StorageService.set('saleorderitems', allItems);
+
+            var isLocalItem = stored.id && String(stored.id).startsWith('local-');
+            if (isLocalItem) {
+                SyncService.cancelPendingCreate('saleorderitems', stored.id);
+            } else if (stored.id) {
+                SyncService.addToQueue('delete', 'saleorderitems', { id: stored.id });
+            }
+        }
 
         var _setQtyTimer = null;
         $scope.setQuantity = function(item, newQty) {
@@ -1097,48 +1014,12 @@ angular.module('karaApp').controller('WaiterController',
             item.quantity = newQty;
             $scope.calculateTotal();
 
-            // Debounce: chờ 600ms sau lần gõ cuối mới update server
+            // Debounce: chờ 600ms sau lần gõ cuối mới lưu — autoSaveOrder() tự
+            // định tuyến qua SyncService (offline-first, tự retry) cho cả tạo
+            // mới lẫn cập nhật, nên không cần gọi API trực tiếp ở đây nữa.
             if (_setQtyTimer) clearTimeout(_setQtyTimer);
             _setQtyTimer = setTimeout(function() {
-                var itemId = item._saleOrderItemId || item.id;
-                if (itemId && !String(itemId).startsWith('local-')) {
-                    // Gọi API trực tiếp
-                    ApiService.update('saleorderitems', itemId, {
-                        id: itemId,
-                        quantity: item.quantity,
-                        subtotal: item.quantity * item.price,
-                        updatedAt: new Date().toISOString()
-                    }).then(function() {
-                        // Cập nhật localStorage
-                        var allItems = StorageService.get('saleorderitems') || [];
-                        var idx = allItems.findIndex(function(i) { return i.id === itemId; });
-                        if (idx >= 0) {
-                            allItems[idx].quantity = item.quantity;
-                            allItems[idx].subtotal = item.quantity * item.price;
-                            allItems[idx].updatedAt = new Date().toISOString();
-                            StorageService.set('saleorderitems', allItems);
-                        }
-                        // Cập nhật total trên SaleOrder
-                        if ($scope.selectedRoom && $scope.selectedRoom.saleOrderId) {
-                            var total = $scope.cart.reduce(function(sum, i) { return sum + (i.quantity * i.price); }, 0);
-                            var saleOrders = StorageService.get('saleorders') || [];
-                            var oi = saleOrders.findIndex(function(o) { return o.id === $scope.selectedRoom.saleOrderId; });
-                            if (oi >= 0) {
-                                saleOrders[oi].total = total;
-                                saleOrders[oi].updatedAt = new Date().toISOString();
-                                StorageService.set('saleorders', saleOrders);
-                                syncSaleOrderTotal($scope.selectedRoom.saleOrderId, total).catch(function(err) {
-                                    console.error('❌ Failed to sync saleorder total:', err);
-                                });
-                            }
-                        }
-                }).catch(function(err) {
-                    console.error('❌ setQuantity update failed:', err);
-                });
-                } else {
-                    // Item chưa có server ID → dùng autoSaveOrder như bình thường
-                    autoSaveOrder();
-                }
+                autoSaveOrder();
             }, 600);
         };
 
@@ -1147,27 +1028,7 @@ angular.module('karaApp').controller('WaiterController',
             if (!confirm('Xóa món ' + item.name + ' khỏi đơn?')) return;
             var idx = $scope.cart.indexOf(item);
             if (idx >= 0) $scope.cart.splice(idx, 1);
-            var allItems = StorageService.get('saleorderitems') || [];
-            var localIdx = allItems.findIndex(function(i) { return i.id === item.id; });
-            if (localIdx >= 0) {
-                var stored = allItems[localIdx];
-                if (stored.id && !String(stored.id).startsWith('local-')) {
-                    ApiService.hardDelete('SaleOrderItem', null, { id: stored.id }).then(function() {
-                        autoSaveOrder();
-                    }).catch(function(err) {
-                        console.warn('❌ removeItem delete failed:', err);
-                        alert('Không xóa được món trên server, vui lòng thử lại!');
-                    });
-                } else if (stored.id) {
-                    if (item._syncStatus === 'creating') {
-                        item._deletedWhileCreating = true;
-                    }
-                    removeSaleOrderItemCache(stored.id);
-                    autoSaveOrder();
-                }
-                allItems.splice(localIdx, 1);
-                StorageService.set('saleorderitems', allItems);
-            }
+            deleteCartItemFromServer(item);
             $scope.calculateTotal();
         };
 
@@ -1363,6 +1224,37 @@ angular.module('karaApp').controller('WaiterController',
         
         
         // Auto-save order when cart changes
+        // Reflects cart items' _syncFailed flags into the banner. Driven by the
+        // onSuccess/onError callbacks on each SyncService queue entry (below),
+        // not by polling — so it updates the moment a background retry succeeds
+        // or a create/update permanently fails.
+        function refreshSyncWarning() {
+            var failedItems = $scope.cart.filter(function(ci) { return ci._syncFailed; });
+            if (failedItems.length > 0) {
+                $scope.syncWarning = {
+                    visible: true,
+                    message: 'Chưa gửi được lên server: ' + failedItems.map(function(i) { return i.name; }).join(', ') + '. Sẽ tự thử lại khi có mạng — hoặc bấm "Thử lại" ngay.'
+                };
+            } else {
+                $scope.syncWarning = null;
+            }
+        }
+
+        function markCartItemSyncFailed(trackingId, failed) {
+            var target = $scope.cart.find(function(ci) {
+                return ci._saleOrderItemId === trackingId || ci.id === trackingId;
+            });
+            if (target) {
+                target._syncFailed = !!failed;
+            }
+            refreshSyncWarning();
+        }
+
+        // Auto-save order when cart changes — offline-first via SyncService,
+        // same architecture as cashier.controller.js: write local storage
+        // immediately (optimistic), queue the network call, let SyncService
+        // retry in the background (on reconnect + every 30s) instead of a
+        // single direct $http call that fails outright and is never retried.
         function autoSaveOrder() {
             if (!$scope.selectedRoom) return;
 
@@ -1392,182 +1284,98 @@ angular.module('karaApp').controller('WaiterController',
 
             var saleOrderId = $scope.selectedRoom.saleOrderId;
             var allItems = StorageService.get('saleorderitems') || [];
-            var savePromises = [];
-
-            function saveAllItems() {
-                StorageService.set('saleorderitems', allItems);
-            }
-
-            function replaceLocalItem(itemId, nextItem) {
-                var index = allItems.findIndex(function(item) {
-                    return item.id === itemId;
-                });
-                if (index >= 0) {
-                    allItems[index] = nextItem;
-                } else {
-                    allItems.push(nextItem);
-                }
-                saveAllItems();
-            }
-
-            function removeLocalItem(itemId) {
-                var before = allItems.length;
-                allItems = allItems.filter(function(item) {
-                    return item.id !== itemId;
-                });
-                if (allItems.length !== before) {
-                    saveAllItems();
-                }
-            }
-
-            function findExistingCartItem(cartItem) {
-                var existing = null;
-
-                if (cartItem._saleOrderItemId) {
-                    existing = allItems.find(function(item) {
-                        return item.id === cartItem._saleOrderItemId;
-                    }) || null;
-                }
-
-                if (!existing) {
-                    var lookupNote = (cartItem._prevNote !== undefined) ? cartItem._prevNote : (cartItem.note || '');
-                    existing = allItems.find(function(item) {
-                        return item.saleOrderId === saleOrderId &&
-                               item.productId === cartItem.itemId &&
-                               (item.note || '') === lookupNote;
-                    }) || null;
-                }
-
-                if (!existing && cartItem._prevNote !== undefined) {
-                    existing = allItems.find(function(item) {
-                        return item.saleOrderId === saleOrderId &&
-                               item.productId === cartItem.itemId &&
-                               (item.note || '') === (cartItem.note || '');
-                    }) || null;
-                }
-
-                return existing;
-            }
-
-            function saveCartItem(cartItem) {
-                var existing = findExistingCartItem(cartItem);
-                var payload = buildSaleOrderItemPayload(cartItem, saleOrderId);
-
-                if (existing && existing.id && !String(existing.id).startsWith('local-')) {
-                    payload.id = existing.id;
-                    payload.createdAt = existing.createdAt;
-
-                    return ApiService.update('saleorderitems', existing.id, payload).then(function(serverItem) {
-                        var savedItem = Object.assign({}, existing, payload, serverItem || {}, {
-                            id: existing.id,
-                            saleOrderId: saleOrderId
-                        });
-                        delete savedItem._localOnly;
-                        replaceLocalItem(existing.id, savedItem);
-                        cartItem._saleOrderItemId = existing.id;
-                        cartItem.id = existing.id;
-                        cartItem._syncFailed = false;
-                        return savedItem;
-                    }).catch(function(err) {
-                        console.error('❌ saveCartItem update failed:', err);
-                        cartItem._syncFailed = true;
-                        throw err;
-                    });
-                }
-
-                var tempId = existing && existing.id ? existing.id : ('local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
-
-                if (cartItem._syncStatus === 'creating') {
-                    replaceLocalItem(tempId, Object.assign({}, existing || {}, payload, {
-                        id: tempId,
-                        saleOrderId: saleOrderId,
-                        _localOnly: true
-                    }));
-                    return $q.when(tempId);
-                }
-
-                cartItem._syncStatus = 'creating';
-                cartItem._saleOrderItemId = tempId;
-                cartItem.id = tempId;
-
-                var localItem = Object.assign({}, existing || {}, payload, {
-                    id: tempId,
-                    saleOrderId: saleOrderId,
-                    _localOnly: true
-                });
-                replaceLocalItem(tempId, localItem);
-
-                return ApiService.create('SaleOrderItem', angular.copy(payload)).then(function(serverItem) {
-                    var realId = serverItem && (serverItem.id || serverItem._id);
-                    if (!realId) {
-                        throw new Error('Missing sale order item id');
-                    }
-
-                    if (cartItem._deletedWhileCreating) {
-                        removeLocalItem(tempId);
-                        cartItem._syncStatus = null;
-                        cartItem._saleOrderItemId = null;
-                        cartItem.id = null;
-                        return ApiService.hardDelete('SaleOrderItem', null, { id: realId }).catch(function(deleteErr) {
-                            console.warn('❌ cleanup delete after create failed:', deleteErr);
-                            return null;
-                        });
-                    }
-
-                    var savedItem = Object.assign({}, localItem, serverItem, {
-                        id: realId,
-                        saleOrderId: saleOrderId
-                    });
-                    delete savedItem._localOnly;
-                    replaceLocalItem(tempId, savedItem);
-                    cartItem._saleOrderItemId = realId;
-                    cartItem.id = realId;
-                    cartItem._syncStatus = null;
-                    cartItem._syncFailed = false;
-
-                    var latestPayload = buildSaleOrderItemPayload(cartItem, saleOrderId);
-                    if (latestPayload.quantity !== payload.quantity ||
-                        latestPayload.note !== payload.note ||
-                        latestPayload.unitPrice !== payload.unitPrice ||
-                        latestPayload.unit !== payload.unit ||
-                        latestPayload.isTimeBased !== payload.isTimeBased) {
-                        latestPayload.id = realId;
-                        latestPayload.createdAt = savedItem.createdAt;
-                        cartItem._syncStatus = 'updating';
-                        return ApiService.update('SaleOrderItem', realId, latestPayload).then(function(updatedItem) {
-                            var finalItem = Object.assign({}, savedItem, latestPayload, updatedItem || {}, {
-                                id: realId,
-                                saleOrderId: saleOrderId
-                            });
-                            delete finalItem._localOnly;
-                            replaceLocalItem(realId, finalItem);
-                            cartItem._syncStatus = null;
-                            cartItem._syncFailed = false;
-                            return finalItem;
-                        }).catch(function(updateErr) {
-                            cartItem._syncStatus = null;
-                            cartItem._syncFailed = true;
-                            console.error('❌ saveCartItem post-create update failed:', updateErr);
-                            throw updateErr;
-                        });
-                    }
-
-                    return savedItem;
-                }).catch(function(err) {
-                    cartItem._syncStatus = null;
-                    cartItem._syncFailed = true;
-                    console.error('❌ saveCartItem create failed:', err);
-                    throw err;
-                });
-            }
-
-            var itemsBeingSaved = [];
-            $scope.cart.forEach(function(cartItem) {
-                itemsBeingSaved.push(cartItem);
-                savePromises.push(saveCartItem(cartItem));
+            var existingItems = allItems.filter(function(item) {
+                return item.saleOrderId === saleOrderId;
             });
 
-            saveAllItems();
+            $scope.cart.forEach(function(cartItem) {
+                var existing;
+                if (cartItem.isTimeBased) {
+                    existing = existingItems.find(function(item) {
+                        return item.productId === cartItem.itemId && item.isTimeBased === true;
+                    });
+                } else if (cartItem._saleOrderItemId) {
+                    existing = existingItems.find(function(item) {
+                        return item.id === cartItem._saleOrderItemId;
+                    });
+                    if (!existing) {
+                        existing = existingItems.find(function(item) {
+                            return item.productId === cartItem.itemId && (item.note || '') === (cartItem.note || '');
+                        });
+                    }
+                } else {
+                    var lookupNote = (cartItem._prevNote !== undefined) ? cartItem._prevNote : (cartItem.note || '');
+                    existing = existingItems.find(function(item) {
+                        return item.productId === cartItem.itemId && (item.note || '') === lookupNote;
+                    });
+                    if (!existing && cartItem._prevNote !== undefined) {
+                        existing = existingItems.find(function(item) {
+                            return item.productId === cartItem.itemId && (item.note || '') === (cartItem.note || '');
+                        });
+                    }
+                }
+
+                var itemData = buildSaleOrderItemPayload(cartItem, saleOrderId);
+                if (cartItem.isTimeBased) {
+                    var tEnd = cartItem._manualEndTime || null;
+                    itemData.endTime = tEnd ? new Date(tEnd).toISOString() : null;
+                }
+
+                if (existing) {
+                    itemData.id = existing.id;
+                    itemData.createdAt = existing.createdAt;
+                    itemData._localOnly = String(existing.id).startsWith('local-');
+                    cartItem._saleOrderItemId = existing.id;
+                    cartItem.id = existing.id;
+
+                    var index = allItems.findIndex(function(item) { return item.id === existing.id; });
+                    if (index >= 0) { allItems[index] = itemData; }
+
+                    var isLocalId = String(itemData.id).startsWith('local-');
+                    var hasChanged = existing.quantity !== itemData.quantity ||
+                                     (existing.note || '') !== (itemData.note || '') ||
+                                     Number(existing.unitPrice) !== Number(itemData.unitPrice) ||
+                                     (cartItem.isTimeBased && (existing.endTime || null) !== (itemData.endTime || null));
+                    if (!isLocalId && hasChanged) {
+                        SyncService.addToQueue('update', 'saleorderitems', itemData, {
+                            onSuccess: function() { markCartItemSyncFailed(itemData.id, false); },
+                            onError: function(err, queueItem) {
+                                if (queueItem.retryCount >= queueItem.maxRetries) {
+                                    markCartItemSyncFailed(itemData.id, true);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    itemData.id = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                    itemData.createdAt = new Date().toISOString();
+                    itemData._localOnly = true;
+                    cartItem._saleOrderItemId = itemData.id;
+                    cartItem.id = itemData.id;
+
+                    allItems.push(itemData);
+                    SyncService.addToQueue('create', 'saleorderitems', itemData, {
+                        onSuccess: function(serverItem) {
+                            // SyncService already swaps the local- id for the real one in
+                            // localStorage; mirror that onto the live cart item too so
+                            // later edits/deletes target the right id.
+                            var realId = serverItem && (serverItem.id || serverItem._id);
+                            if (realId && cartItem._saleOrderItemId === itemData.id) {
+                                cartItem._saleOrderItemId = realId;
+                                cartItem.id = realId;
+                            }
+                            markCartItemSyncFailed(realId || itemData.id, false);
+                        },
+                        onError: function(err, queueItem) {
+                            if (queueItem.retryCount >= queueItem.maxRetries) {
+                                markCartItemSyncFailed(itemData.id, true);
+                            }
+                        }
+                    });
+                }
+            });
+
+            StorageService.set('saleorderitems', allItems);
             console.log('✓ SaleOrderItems saved to localStorage:', allItems.length);
 
             var total = $scope.cart.reduce(function(sum, item) {
@@ -1583,31 +1391,34 @@ angular.module('karaApp').controller('WaiterController',
                 saleOrders[orderIndex].total = total;
                 saleOrders[orderIndex].updatedAt = new Date().toISOString();
                 StorageService.set('saleorders', saleOrders);
+                var isLocalSaleOrder = String(saleOrderId).startsWith('temp-') || String(saleOrderId).startsWith('local-');
+                if (!isLocalSaleOrder) {
+                    SyncService.addToQueue('update', 'saleorders', saleOrders[orderIndex]);
+                }
             }
 
-            $q.all(savePromises.map(function(promise, idx) {
-                return promise.catch(function(err) {
-                    return { _failed: true, name: itemsBeingSaved[idx] && itemsBeingSaved[idx].name };
-                });
-            })).then(function(results) {
-                // Hiển thị cảnh báo nếu có món chưa gửi được lên server — trước đây
-                // lỗi này bị nuốt im lặng (chỉ console.error), waiter không hề biết
-                // món đã "thêm" trên máy nhưng chưa thực sự lên server.
-                var failedNames = results.filter(function(r) { return r && r._failed; })
-                    .map(function(r) { return r.name || 'món không tên'; });
-                if (failedNames.length > 0) {
-                    $scope.syncWarning = {
-                        visible: true,
-                        message: 'Chưa gửi được lên server: ' + failedNames.join(', ') + '. Kiểm tra mạng rồi bấm "Thử lại".'
-                    };
-                } else {
-                    $scope.syncWarning = null;
-                }
-                return syncSaleOrderTotal(saleOrderId, total);
-            }).catch(function(err) {
-                console.error('❌ autoSaveOrder failed:', err);
-            });
+            refreshSyncWarning();
         }
+
+        // "Thử lại": items that exhausted SyncService's automatic retries sit in
+        // status 'failed' forever (processSyncQueue skips them on purpose) — reset
+        // just this room's failed saleorderitems queue entries back to pending and
+        // kick the queue immediately, instead of waiting for the next 30s tick.
+        $scope.retrySyncNow = function() {
+            var saleOrderId = $scope.selectedRoom && $scope.selectedRoom.saleOrderId;
+            if (saleOrderId) {
+                var queue = SyncService.getSyncQueue();
+                queue.forEach(function(q) {
+                    if (q.model === 'saleorderitems' && q.status === 'failed' && q.data && q.data.saleOrderId === saleOrderId) {
+                        q.status = 'pending';
+                        q.retryCount = 0;
+                    }
+                });
+                SyncService.saveSyncQueue();
+            }
+            SyncService.processSyncQueue();
+            autoSaveOrder();
+        };
         
         // Calculate total for display
         $scope.calculateTotal = function() {
@@ -1711,13 +1522,6 @@ angular.module('karaApp').controller('WaiterController',
                 $scope.cart = [];
                 loadRoomCart($scope.selectedRoom.saleOrderId);
             }
-        };
-
-        // autoSaveOrder() already retries every cart item on each call (it walks
-        // the whole cart, not just the newest item), so re-running it is enough
-        // to retry whatever failed — no separate retry-queue needed here.
-        $scope.retrySyncNow = function() {
-            autoSaveOrder();
         };
 
         $scope.refreshData = function() {
