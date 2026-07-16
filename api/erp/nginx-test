@@ -29,7 +29,7 @@ server {
     }
 
     location ^~ /xad2_/ {
-        proxy_pass https://cdn.live1.vn/builder-1/xad/;
+        proxy_pass https://cdn.live1.vn/builder-1/kara/;
         proxy_set_header Host cdn.live1.vn;
         proxy_set_header  X-Real-IP $remote_addr;
         proxy_set_header  X-Forwarded-Proto https;

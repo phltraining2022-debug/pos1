@@ -1,5 +1,63 @@
 // API Base URL Configuration
-const API_BASE_URL = 'https://kara.test.live1.vn/api/';
+const DEFAULT_API_BASE_URL = 'https://kara.test.live1.vn/api/';
+
+function parseRuntimeBoolean(value) {
+  if (value === true || value === false) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    var normalized = value.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+  }
+
+  return !!value;
+}
+
+function readRuntimeAppConfig() {
+  var config = {};
+
+  if (typeof window !== 'undefined') {
+    if (window.__KARA_APP_CONFIG__ && typeof window.__KARA_APP_CONFIG__ === 'object') {
+      config = Object.assign({}, window.__KARA_APP_CONFIG__);
+    }
+
+    try {
+      var searchParams = new URLSearchParams(window.location.search || '');
+      ['apiBaseUrl', 'socketUrl', 'clinicShortName'].forEach(function(key) {
+        if (searchParams.has(key)) {
+          var value = searchParams.get(key);
+          if (value !== null && value !== '') {
+            config[key] = value;
+          }
+        }
+      });
+
+      if (searchParams.has('disableSocket')) {
+        config.disableSocket = parseRuntimeBoolean(searchParams.get('disableSocket'));
+      }
+    } catch (e) {
+      console.warn('Failed to read runtime app config from query string:', e);
+    }
+  }
+
+  return config;
+}
+
+function normalizeApiBaseUrl(url) {
+  if (!url) {
+    return DEFAULT_API_BASE_URL;
+  }
+
+  return String(url).replace(/\/?$/, '/');
+}
+
+var runtimeAppConfig = readRuntimeAppConfig();
+const API_BASE_URL = normalizeApiBaseUrl(
+  runtimeAppConfig.apiBaseUrl ||
+  (typeof localStorage !== 'undefined' ? localStorage.getItem('karaApiBaseUrl') : null) ||
+  DEFAULT_API_BASE_URL
+);
 
 // ApiService.js
 angular.module('karaApp') // Or your actual application module name

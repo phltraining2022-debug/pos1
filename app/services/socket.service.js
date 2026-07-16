@@ -7,16 +7,68 @@ angular.module('karaApp').service('SocketService', ['$rootScope', '$timeout', 'S
         var reconnectDelay = 1000; // Start with 1 second
         var maxReconnectDelay = 30000; // Cap at 30 seconds
 
+        function parseRuntimeBoolean(value) {
+            if (value === true || value === false) {
+                return value;
+            }
+
+            if (typeof value === 'string') {
+                var normalized = value.trim().toLowerCase();
+                return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+            }
+
+            return !!value;
+        }
+
+        function readRuntimeSocketConfig() {
+            var config = {};
+
+            if (typeof window !== 'undefined') {
+                if (window.__KARA_APP_CONFIG__ && typeof window.__KARA_APP_CONFIG__ === 'object') {
+                    config = Object.assign({}, window.__KARA_APP_CONFIG__);
+                }
+
+                try {
+                    var searchParams = new URLSearchParams(window.location.search || '');
+                    ['socketUrl', 'clinicShortName'].forEach(function(key) {
+                        if (searchParams.has(key)) {
+                            var value = searchParams.get(key);
+                            if (value !== null && value !== '') {
+                                config[key] = value;
+                            }
+                        }
+                    });
+
+                    if (searchParams.has('disableSocket')) {
+                        config.disableSocket = parseRuntimeBoolean(searchParams.get('disableSocket'));
+                    }
+                } catch (e) {
+                    console.warn('Failed to read runtime socket config from query string:', e);
+                }
+            }
+
+            return config;
+        }
+
+        var runtimeSocketConfig = readRuntimeSocketConfig();
+
         // Configuration - can be overridden
         var config = {
-            url: 'wss://kara.test.live1.vn/wss/',
-            clinicShortName: 'kara'
+            url: runtimeSocketConfig.socketUrl || 'wss://kara.test.live1.vn/wss/',
+            clinicShortName: runtimeSocketConfig.clinicShortName || 'kara',
+            enabled: runtimeSocketConfig.disableSocket ? false : true
         };
 
         // Initialize Socket.IO connection
         this.init = function(options) {
             if (options) {
                 config = Object.assign(config, options);
+            }
+
+            if (config.enabled === false || !config.url) {
+                console.log('🔌 WebSocket disabled for this runtime');
+                isConnected = false;
+                return;
             }
 
             console.log('🔌 Initializing Socket.IO connection to:', config.url);

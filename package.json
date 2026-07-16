@@ -8,7 +8,9 @@
     "start:node": "http-server -p 8000 -c-1",
     "start:php": "php -S localhost:8000",
     "start:wss": "node wss.js",
-    "build": "node build.js"
+    "build": "node build.js",
+    "e2e:local": "node scripts/e2e-local.mjs",
+    "e2e:local:headed": "node scripts/e2e-local.mjs --headed"
   },
   "keywords": [
     "karaoke",
@@ -22,10 +24,15 @@
   "author": "Builder-1 Team",
   "license": "MIT",
   "devDependencies": {
+    "angular": "^1.8.2",
+    "angular-animate": "^1.8.2",
+    "angular-route": "^1.8.2",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.0",
     "gulp-replace": "^1.1.4",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "moment": "^2.29.4",
+    "playwright": "^1.55.1"
   },
   "dependencies": {
     "cors": "^2.8.5",
