@@ -2593,24 +2593,28 @@ angular.module('karaApp').controller('CashierController',
         $scope.printBill = function(bill) {
             // ── Trường hợp 1: in bill phòng hiện tại (không truyền bill) ──
             if (!bill && $scope.selectedRoom) {
-                if ($scope.selectedRoom.status === 'occupied') {
-                    var freezeTime = new Date();
-                    $scope.selectedRoom.timeFrozen = true;
-                    stopSurchargeTimer();
-                    $scope.cart.forEach(function(item) {
-                        if (item.isTimeBased && !item._manualEndTime) {
-                            item._manualEndTime = freezeTime;
-                            TimeBasedService.calculateRealTimeQuantity(item);
-                        }
-                    });
-                    // Tính lại tổng tiền SAU KHI đã set _manualEndTime cho tất cả item
-                    // để $scope.subtotal / $scope.total phản ánh đúng số lượng đã freeze
-                    $scope.calculateTotal();
-                    autoSaveOrder();
-                    var allRooms = StorageService.get('rooms') || [];
-                    var roomInStorage = allRooms.find(function(r) { return r.id === $scope.selectedRoom.id; });
-                    if (roomInStorage) { roomInStorage.timeFrozen = true; StorageService.set('rooms', allRooms); }
-                }
+                // Đóng băng giờ phải chạy cùng điều kiện với khoá sửa bill bên dưới
+                // (không thêm điều kiện status === 'occupied' ở đây) — nếu không, một
+                // giá trị status tạm thời/lệch do race với poll 15s có thể khiến bill
+                // bị khoá sửa nhưng item tính giờ không được đóng băng, dẫn đến nó vẫn
+                // tiếp tục tính giờ sau khi in dù giao diện đã báo "không thể sửa".
+                var freezeTime = new Date();
+                $scope.selectedRoom.timeFrozen = true;
+                stopSurchargeTimer();
+                $scope.cart.forEach(function(item) {
+                    if (item.isTimeBased && !item._manualEndTime) {
+                        item._manualEndTime = freezeTime;
+                        TimeBasedService.calculateRealTimeQuantity(item);
+                    }
+                });
+                // Tính lại tổng tiền SAU KHI đã set _manualEndTime cho tất cả item
+                // để $scope.subtotal / $scope.total phản ánh đúng số lượng đã freeze
+                $scope.calculateTotal();
+                autoSaveOrder();
+                var allRooms = StorageService.get('rooms') || [];
+                var roomInStorage = allRooms.find(function(r) { return r.id === $scope.selectedRoom.id; });
+                if (roomInStorage) { roomInStorage.timeFrozen = true; StorageService.set('rooms', allRooms); }
+
                 bill = buildCurrentSelectedRoomBill();
                 if (bill) {
                     bill.printTime = new Date();
