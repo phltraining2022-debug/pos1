@@ -326,6 +326,20 @@
             </div>
         </div>
 
+        <!-- Banner cảnh báo món chưa gửi được lên server (mất mạng/wifi yếu) -->
+        <div ng-if="syncWarning && syncWarning.visible" class="bg-red-50 border-l-4 border-red-400 px-4 py-3 mx-4 mt-3 rounded-lg flex items-center justify-between space-x-2">
+            <div class="flex items-center space-x-2 min-w-0">
+                <i class="fas fa-triangle-exclamation text-red-500 text-lg flex-shrink-0"></i>
+                <div class="min-w-0">
+                    <p class="font-bold text-red-700 text-sm">Chưa đồng bộ được lên server</p>
+                    <p class="text-red-600 text-xs truncate">{{syncWarning.message}}</p>
+                </div>
+            </div>
+            <button ng-click="retrySyncNow()" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-2 rounded-lg font-semibold flex-shrink-0">
+                Thử lại
+            </button>
+        </div>
+
         <div class="flex-1 overflow-y-auto p-4">
             <div ng-if="cart.length === 0" class="text-center text-gray-400 py-12">
                 <i class="fas fa-shopping-cart text-6xl mb-4 opacity-50"></i>
@@ -334,8 +348,8 @@
             </div>
 
             <div ng-if="cart.length > 0" class="space-y-3">
-                <div ng-repeat="item in cart" class="bg-white rounded-xl shadow-md p-4 border border-gray-200" 
-                     ng-class="item.isNew ? 'animate-new-item' : ''">
+                <div ng-repeat="item in cart" class="bg-white rounded-xl shadow-md p-4 border border-gray-200"
+                     ng-class="item.isNew ? 'animate-new-item' : (item._syncFailed ? 'border-red-400' : '')">
                     <!-- Row 1: name + note button + status badge -->
                     <div class="flex items-start justify-between mb-2">
                         <div class="flex-1 min-w-0">
@@ -347,6 +361,9 @@
                                         title="Sửa ghi chú">
                                     <i class="fas fa-edit text-xs"></i>
                                 </button>
+                            </div>
+                            <div ng-if="item._syncFailed" class="text-xs text-red-600 mt-1 font-semibold">
+                                <i class="fas fa-triangle-exclamation mr-1"></i>Chưa gửi được lên server
                             </div>
                             <div ng-if="item.note" class="text-sm text-gray-600 mt-1 italic bg-gray-50 px-2 py-1 rounded">
                                 <i class="fas fa-sticky-note text-blue-600 mr-1"></i>{{item.note}}

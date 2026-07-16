@@ -742,6 +742,7 @@ angular.module('karaApp').controller('WaiterController',
                 $scope.selectedRoom = room;
                 $scope.view = 'cart'; // Go directly to cart view to show current order
                 $scope.cart = []; // Reset cart before loading
+                $scope.syncWarning = null;
 
                 console.log('🏨 Selected room for ORDER:', room.name, '- Loading current order');
 
@@ -1465,9 +1466,11 @@ angular.module('karaApp').controller('WaiterController',
                         replaceLocalItem(existing.id, savedItem);
                         cartItem._saleOrderItemId = existing.id;
                         cartItem.id = existing.id;
+                        cartItem._syncFailed = false;
                         return savedItem;
                     }).catch(function(err) {
                         console.error('❌ saveCartItem update failed:', err);
+                        cartItem._syncFailed = true;
                         throw err;
                     });
                 }
@@ -1520,6 +1523,7 @@ angular.module('karaApp').controller('WaiterController',
                     cartItem._saleOrderItemId = realId;
                     cartItem.id = realId;
                     cartItem._syncStatus = null;
+                    cartItem._syncFailed = false;
 
                     var latestPayload = buildSaleOrderItemPayload(cartItem, saleOrderId);
                     if (latestPayload.quantity !== payload.quantity ||
@@ -1538,9 +1542,11 @@ angular.module('karaApp').controller('WaiterController',
                             delete finalItem._localOnly;
                             replaceLocalItem(realId, finalItem);
                             cartItem._syncStatus = null;
+                            cartItem._syncFailed = false;
                             return finalItem;
                         }).catch(function(updateErr) {
                             cartItem._syncStatus = null;
+                            cartItem._syncFailed = true;
                             console.error('❌ saveCartItem post-create update failed:', updateErr);
                             throw updateErr;
                         });
@@ -1549,12 +1555,15 @@ angular.module('karaApp').controller('WaiterController',
                     return savedItem;
                 }).catch(function(err) {
                     cartItem._syncStatus = null;
+                    cartItem._syncFailed = true;
                     console.error('❌ saveCartItem create failed:', err);
                     throw err;
                 });
             }
 
+            var itemsBeingSaved = [];
             $scope.cart.forEach(function(cartItem) {
+                itemsBeingSaved.push(cartItem);
                 savePromises.push(saveCartItem(cartItem));
             });
 
@@ -1576,11 +1585,24 @@ angular.module('karaApp').controller('WaiterController',
                 StorageService.set('saleorders', saleOrders);
             }
 
-            $q.all(savePromises.map(function(promise) {
+            $q.all(savePromises.map(function(promise, idx) {
                 return promise.catch(function(err) {
-                    return null;
+                    return { _failed: true, name: itemsBeingSaved[idx] && itemsBeingSaved[idx].name };
                 });
-            })).then(function() {
+            })).then(function(results) {
+                // Hiển thị cảnh báo nếu có món chưa gửi được lên server — trước đây
+                // lỗi này bị nuốt im lặng (chỉ console.error), waiter không hề biết
+                // món đã "thêm" trên máy nhưng chưa thực sự lên server.
+                var failedNames = results.filter(function(r) { return r && r._failed; })
+                    .map(function(r) { return r.name || 'món không tên'; });
+                if (failedNames.length > 0) {
+                    $scope.syncWarning = {
+                        visible: true,
+                        message: 'Chưa gửi được lên server: ' + failedNames.join(', ') + '. Kiểm tra mạng rồi bấm "Thử lại".'
+                    };
+                } else {
+                    $scope.syncWarning = null;
+                }
                 return syncSaleOrderTotal(saleOrderId, total);
             }).catch(function(err) {
                 console.error('❌ autoSaveOrder failed:', err);
@@ -1689,6 +1711,13 @@ angular.module('karaApp').controller('WaiterController',
                 $scope.cart = [];
                 loadRoomCart($scope.selectedRoom.saleOrderId);
             }
+        };
+
+        // autoSaveOrder() already retries every cart item on each call (it walks
+        // the whole cart, not just the newest item), so re-running it is enough
+        // to retry whatever failed — no separate retry-queue needed here.
+        $scope.retrySyncNow = function() {
+            autoSaveOrder();
         };
 
         $scope.refreshData = function() {
