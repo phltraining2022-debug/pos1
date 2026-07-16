@@ -957,6 +957,13 @@ angular.module('karaApp').controller('CashierController',
                 });
                 
                 if (localOrderItems.length > 0) {
+                    // Clear cart and load fresh — same as the server/fallback branches
+                    // below. Without this, a caller that reaches this branch twice
+                    // without an intervening clear (e.g. the socket handler for a
+                    // timebased-item-created event, which does not reset the cart
+                    // first) would re-append every item on top of what's already
+                    // there instead of replacing it.
+                    $scope.cart = [];
                     loadItemsIntoCart(localOrderItems);
                     $scope.calculateTotal();
                 }
@@ -1091,6 +1098,25 @@ angular.module('karaApp').controller('CashierController',
                     var cartItem = $scope.cart.find(function(c) {
                         return c._saleOrderItemId === sid || c.id === sid;
                     });
+
+                    // Not matched by id — the cart row may still be the same logical
+                    // item under a stale id (e.g. a local- placeholder that was
+                    // swapped for the real server id elsewhere but this timer's
+                    // closure never saw it). Match by productId (+ note for
+                    // non-timebased) before treating it as brand-new, otherwise every
+                    // id drift like this pushes a duplicate row instead of healing
+                    // the stale reference — which is how a single time-based session
+                    // (or any item) ends up billed twice on the invoice.
+                    if (!cartItem) {
+                        cartItem = $scope.cart.find(function(c) {
+                            if (c.itemId !== si.productId || !!c.isTimeBased !== !!si.isTimeBased) return false;
+                            return si.isTimeBased || (c.note || '') === (si.note || '');
+                        });
+                        if (cartItem) {
+                            cartItem._saleOrderItemId = sid;
+                        }
+                    }
+
                     if (cartItem) {
                         // Patch data only if actually changed
                         if (cartItem.quantity !== si.quantity ||
@@ -2893,37 +2919,185 @@ angular.module('karaApp').controller('CashierController',
                 return;
             }
 
-            if (confirm('Gộp bill ' + fromRoom.name + ' vào ' + $scope.selectedRoom.name + '?')) {
-                // Get orders from both rooms
-                var fromOrders = OrderService.getOrdersByRoom(fromRoom.id);
-                var toOrders = OrderService.getOrdersByRoom($scope.selectedRoom.id);
-                
-                // Merge orders
-                fromOrders.forEach(function(order) {
-                    order.roomId = $scope.selectedRoom.id;
-                    order.billId = $scope.selectedRoom.billId;
-                });
-                
-                // Log audit
+            if (!fromRoom || !$scope.selectedRoom) {
+                return;
+            }
+
+            var toRoom = $scope.selectedRoom;
+            var toSaleOrderId = toRoom.saleOrderId;
+            if (!toSaleOrderId) {
+                alert('Phòng đích chưa có đơn hàng để gộp vào.');
+                return;
+            }
+
+            if (!confirm('Gộp bill ' + fromRoom.name + ' vào ' + toRoom.name + '?\nToàn bộ món của ' + fromRoom.name + ' sẽ chuyển sang ' + toRoom.name + ' và ' + fromRoom.name + ' sẽ được dọn trống.')) {
+                return;
+            }
+
+            var fromSaleOrderId = fromRoom.saleOrderId;
+
+            function finishMerge(items) {
+                transferSaleOrderItems(items || [], fromSaleOrderId, toSaleOrderId);
+                freeRoomAfterMerge(fromRoom, fromSaleOrderId);
+
                 AuditService.log('merge_bill', {
                     fromRoom: fromRoom.name,
-                    toRoom: $scope.selectedRoom.name,
-                    fromBillId: fromRoom.billId,
-                    toBillId: $scope.selectedRoom.billId,
+                    toRoom: toRoom.name,
+                    fromSaleOrderId: fromSaleOrderId,
+                    toSaleOrderId: toSaleOrderId,
+                    itemCount: (items || []).length,
                     user: currentUser.username
                 });
-                
-                // Checkout from room
-                RoomService.checkOut(fromRoom);π
-                
-                // Reload bill
-                $scope.loadBill($scope.selectedRoom);
+
+                // Rebuild the on-screen cart straight from localStorage (source we
+                // just wrote to) — going through the server here would race the
+                // sync queue we just enqueued and could prune the just-transferred
+                // items before the server has caught up.
+                $scope.cart = [];
+                var mergedLocalItems = (StorageService.get('saleorderitems') || []).filter(function(item) {
+                    return item.saleOrderId === toSaleOrderId;
+                });
+                loadItemsIntoCart(mergedLocalItems);
+                $scope.calculateTotal();
+
                 $scope.closeMergeBillModal();
-                
                 alert('Đã gộp bill thành công!');
             }
+
+            if (!fromSaleOrderId) {
+                // Phòng nguồn chưa có đơn hàng gì — chỉ cần dọn trống phòng đó
+                finishMerge([]);
+                return;
+            }
+
+            var fromSaleOrderIdStr = String(fromSaleOrderId);
+            if (fromSaleOrderIdStr.startsWith('temp-') || fromSaleOrderIdStr.startsWith('local-')) {
+                var localItems = (StorageService.get('saleorderitems') || []).filter(function(item) {
+                    return item.saleOrderId === fromSaleOrderId;
+                });
+                finishMerge(localItems);
+                return;
+            }
+
+            ApiService.getAll('saleorderitems', { where: { saleOrderId: fromSaleOrderId } }).then(function(serverItems) {
+                // Include not-yet-synced local items too — the server never knows about those
+                var localOnly = (StorageService.get('saleorderitems') || []).filter(function(item) {
+                    return item.saleOrderId === fromSaleOrderId && item.id && String(item.id).startsWith('local-');
+                });
+                finishMerge((serverItems || []).concat(localOnly));
+            }).catch(function(error) {
+                if (handleAuthError(error, 'cashier-merge-bill')) {
+                    return;
+                }
+                console.warn('⚠ Không lấy được SaleOrderItems từ server để gộp bill, dùng dữ liệu local:', error);
+                var localItems = (StorageService.get('saleorderitems') || []).filter(function(item) {
+                    return item.saleOrderId === fromSaleOrderId;
+                });
+                finishMerge(localItems);
+            });
         };
-        
+
+        // Reassign every SaleOrderItem of a room being merged away to the target
+        // SaleOrder, instead of leaving them stranded on an order that's about to
+        // be cancelled (which used to make the merged room's items vanish
+        // unbilled — see mergeBill).
+        function transferSaleOrderItems(items, fromSaleOrderId, toSaleOrderId) {
+            if (!items || !items.length) return;
+
+            var allItems = StorageService.get('saleorderitems') || [];
+            var updatedAt = new Date().toISOString();
+
+            items.forEach(function(item) {
+                var itemId = item.id || item._id;
+                if (!itemId) return;
+                var isLocalId = String(itemId).startsWith('local-');
+
+                var idx = allItems.findIndex(function(i) { return i.id === itemId; });
+                if (idx >= 0) {
+                    allItems[idx].saleOrderId = toSaleOrderId;
+                    allItems[idx].updatedAt = updatedAt;
+                } else {
+                    var copy = angular.copy(item);
+                    copy.id = itemId;
+                    copy.saleOrderId = toSaleOrderId;
+                    copy.updatedAt = updatedAt;
+                    allItems.push(copy);
+                }
+
+                if (isLocalId) {
+                    patchPendingSaleOrderItemCreate(itemId, { saleOrderId: toSaleOrderId, updatedAt: updatedAt });
+                } else {
+                    SyncService.addToQueue('update', 'saleorderitems', {
+                        id: itemId,
+                        saleOrderId: toSaleOrderId,
+                        updatedAt: updatedAt
+                    });
+                }
+            });
+
+            StorageService.set('saleorderitems', allItems);
+        }
+
+        function patchPendingSaleOrderItemCreate(localId, patch) {
+            var pending = (SyncService.getSyncQueue() || []).find(function(q) {
+                return q.action === 'create' && q.model === 'saleorderitems' &&
+                       q.status === 'pending' && q.data && q.data.id === localId;
+            });
+            if (!pending) return false;
+            angular.extend(pending.data, angular.copy(patch));
+            SyncService.saveSyncQueue();
+            return true;
+        }
+
+        // Free up a room whose bill was merged into another room. The SaleOrder
+        // is cancelled — not completed — since it was never paid on its own;
+        // marking it completed would wrongly fire the payment-completed
+        // notification and StockMove deduction reserved for real checkouts.
+        function freeRoomAfterMerge(room, saleOrderId) {
+            var updatedAt = new Date().toISOString();
+
+            room.status = 'cleaning';
+            room.saleOrderId = null;
+            room.startTime = null;
+            room.customerInfo = null;
+            room.updatedAt = updatedAt;
+            RoomService.saveRooms();
+
+            SyncService.addToQueue('update', 'rooms', {
+                id: room.id,
+                status: 'cleaning',
+                saleOrderId: null,
+                startTime: null,
+                customerInfo: null,
+                updatedAt: updatedAt
+            });
+
+            if (!saleOrderId) return;
+
+            var saleOrderIdStr = String(saleOrderId);
+            var saleOrderPatch = { status: 'canceled', roomId: room.id, updatedAt: updatedAt };
+
+            if (saleOrderIdStr.startsWith('temp-') || saleOrderIdStr.startsWith('local-')) {
+                var pendingCreate = (SyncService.getSyncQueue() || []).find(function(q) {
+                    return q.action === 'create' && q.model === 'saleorders' &&
+                           q.status === 'pending' && q.data && String(q.data.roomId) === String(room.id);
+                });
+                if (pendingCreate && pendingCreate.data) {
+                    angular.extend(pendingCreate.data, saleOrderPatch);
+                    SyncService.saveSyncQueue();
+                }
+                return;
+            }
+
+            var saleOrders = StorageService.get('saleorders') || [];
+            var orderIndex = saleOrders.findIndex(function(o) { return String(o.id) === saleOrderIdStr; });
+            if (orderIndex >= 0) {
+                angular.extend(saleOrders[orderIndex], saleOrderPatch);
+                StorageService.set('saleorders', saleOrders);
+            }
+            SyncService.addToQueue('update', 'saleorders', angular.extend({ id: saleOrderId }, saleOrderPatch));
+        }
+
         // Split Bill
         $scope.showSplitBillModal = function() {
             if (!ensureSelectedBillEditable('tách bill')) {

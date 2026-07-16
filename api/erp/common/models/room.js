@@ -46,7 +46,7 @@ module.exports = function(Room) {
 
   function buildInvoiceItems(items) {
     if (!Array.isArray(items)) return [];
-    return items.map(function(item) {
+    const mapped = items.map(function(item) {
       const quantity = toNumber(item.quantity, 0);
       const price = toNumber(item.price != null ? item.price : item.unitPrice, 0);
       return {
@@ -63,6 +63,39 @@ module.exports = function(Room) {
         endTime: item.endTime || item._manualEndTime || null,
       };
     });
+    return dedupeInvoiceItems(mapped);
+  }
+
+  // Client-side cart state can end up with more than one row for the same
+  // product (e.g. a stale local-item id causes a background cart refresh to
+  // push a duplicate row instead of updating the existing one in place).
+  // This is the single choke point where every payment flow writes the final
+  // Invoice, so collapse duplicates here as a last line of defense — a client
+  // bug should never double what the customer gets charged.
+  function dedupeInvoiceItems(items) {
+    const byKey = {};
+    const order = [];
+    items.forEach(function(item) {
+      const key = item.isTimeBased
+        ? 'tb:' + item.productId
+        : 'nt:' + item.productId + '|' + item.note;
+      if (!byKey[key]) {
+        byKey[key] = item;
+        order.push(key);
+        return;
+      }
+      const existing = byKey[key];
+      if (item.isTimeBased) {
+        // Duplicate snapshots of the same time-based session — they don't
+        // stack, so keep the more complete/advanced one instead of summing.
+        if (item.quantity > existing.quantity) byKey[key] = item;
+      } else {
+        // Duplicate purchase lines for the same product+note — combine them.
+        existing.quantity += item.quantity;
+        existing.total += item.total;
+      }
+    });
+    return order.map(function(key) { return byKey[key]; });
   }
 
   function makeHttpError(message, statusCode, code) {
