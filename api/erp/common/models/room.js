@@ -44,7 +44,7 @@ module.exports = function(Room) {
     await assertRoomCanBecomeAvailable(ctx);
   });
 
-  function buildInvoiceItems(items) {
+  function buildInvoiceItems(items, context) {
     if (!Array.isArray(items)) return [];
     const mapped = items.map(function(item) {
       const quantity = toNumber(item.quantity, 0);
@@ -63,7 +63,7 @@ module.exports = function(Room) {
         endTime: item.endTime || item._manualEndTime || null,
       };
     });
-    return dedupeInvoiceItems(mapped);
+    return dedupeInvoiceItems(mapped, context);
   }
 
   // Client-side cart state can end up with more than one row for the same
@@ -72,9 +72,14 @@ module.exports = function(Room) {
   // This is the single choke point where every payment flow writes the final
   // Invoice, so collapse duplicates here as a last line of defense — a client
   // bug should never double what the customer gets charged.
-  function dedupeInvoiceItems(items) {
+  function dedupeInvoiceItems(items, context) {
     const byKey = {};
     const order = [];
+    const collisions = [];
+    // Snapshot before any in-place mutation below — the merge branch mutates
+    // `existing` (an element of `items`), so logging `items` itself after the
+    // loop would show already-merged values instead of what the client sent.
+    const rawItemsSnapshot = items.map(function(item) { return Object.assign({}, item); });
     items.forEach(function(item) {
       const key = item.isTimeBased
         ? 'tb:' + item.productId
@@ -88,14 +93,66 @@ module.exports = function(Room) {
       if (item.isTimeBased) {
         // Duplicate snapshots of the same time-based session — they don't
         // stack, so keep the more complete/advanced one instead of summing.
+        collisions.push({ key: key, kept: existing.quantity >= item.quantity ? existing : item, dropped: existing.quantity >= item.quantity ? item : existing });
         if (item.quantity > existing.quantity) byKey[key] = item;
       } else {
         // Duplicate purchase lines for the same product+note — combine them.
+        collisions.push({ key: key, kept: existing, merged: item });
         existing.quantity += item.quantity;
         existing.total += item.total;
       }
     });
+
+    if (collisions.length) {
+      reportDuplicateInvoiceItems(context, rawItemsSnapshot, collisions);
+    }
+
     return order.map(function(key) { return byKey[key]; });
+  }
+
+  // Temporary monitoring for the client-side cart-duplication bug fixed in
+  // cashier.controller.js (silentRefreshCart id-drift). This should never
+  // fire again after that fix; if it does, it means either the fix has a
+  // gap or a new code path is producing duplicate cart rows — either way we
+  // want to know without waiting for a customer complaint. Safe to remove
+  // once this has stayed quiet for a while in production.
+  function reportDuplicateInvoiceItems(context, rawItems, collisions) {
+    const ctx = context || {};
+    const summary = {
+      roomId: ctx.roomId || null,
+      saleOrderId: ctx.saleOrderId || null,
+      cashierName: ctx.cashierName || null,
+      rawItemCount: rawItems.length,
+      dedupedItemCount: rawItems.length - collisions.length,
+      collisions: collisions.map(function(c) { return c.key; }),
+    };
+
+    console.warn('[Invoice] DUPLICATE_ITEMS_DETECTED — dedupe kicked in on checkout:', JSON.stringify(summary));
+
+    try {
+      const Log = Room.app.models.log;
+      if (Log) {
+        Log.create({
+          event: 'duplicate_invoice_items_detected',
+          model: 'invoice',
+          objectId: ctx.saleOrderId || null,
+          level: 'warn',
+          data: {
+            roomId: summary.roomId,
+            saleOrderId: summary.saleOrderId,
+            cashierName: summary.cashierName,
+            rawItemCount: summary.rawItemCount,
+            dedupedItemCount: summary.dedupedItemCount,
+            collisions: summary.collisions,
+            rawItems: rawItems,
+          },
+        }).catch(function(err) {
+          console.error('[Invoice] Failed to persist duplicate-items log entry:', err.message);
+        });
+      }
+    } catch (err) {
+      console.error('[Invoice] Error while reporting duplicate invoice items:', err.message);
+    }
   }
 
   function makeHttpError(message, statusCode, code) {
@@ -346,7 +403,11 @@ module.exports = function(Room) {
           roomCharge: toNumber(data.roomCharge, 0),
           foodTotal: toNumber(data.foodTotal, 0),
           paymentMethod: paymentMethod,
-          items: buildInvoiceItems(data.items),
+          items: buildInvoiceItems(data.items, {
+            roomId: String(id),
+            saleOrderId: saleOrderId,
+            cashierName: data.cashierName || data.paidBy || null,
+          }),
           createdAt: now,
           updatedAt: now,
         });
